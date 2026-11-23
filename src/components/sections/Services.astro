@@ -1,0 +1,22 @@
+---
+import Section from "../ui/Section.astro";
+import Card from "../ui/Card.astro";
+import { services } from "../../content/interior";
+---
+
+<Section id="services" tone="surface">
+	<h2 class="text-3xl font-bold leading-tight">{services.title}</h2>
+	<div class="mt-12 grid gap-6 md:grid-cols-3">
+		{services.items.map((s, i) => (
+			<Card variant="outline" class="flex h-full flex-col bg-base">
+				<p class="text-sm font-semibold text-brand">0{i + 1}・{s.sub}</p>
+				<h3 class="mt-3 text-xl font-bold leading-snug">{s.name}</h3>
+				<p class="mt-4 text-lg text-ink/80">{s.does}</p>
+				<div class="mt-auto border-t border-ink/10 pt-4">
+					<p class="mt-2 text-sm font-semibold text-muted">你拿到</p>
+					<p class="mt-1 text-lg">{s.gets}</p>
+				</div>
+			</Card>
+		))}
+	</div>
+</Section>

@@ -1,0 +1,25 @@
+---
+import Section from "../ui/Section.astro";
+import Placeholder from "../ui/Placeholder.astro";
+import { about } from "../../content/interior";
+---
+
+<Section id="about" tone="surface">
+	<h2 class="text-3xl font-bold leading-tight">{about.title}</h2>
+	<div class="mt-12 grid gap-12 md:grid-cols-[240px_1fr]">
+		<Placeholder label={about.photoPlaceholder} class="aspect-square w-48 md:w-full" />
+		<div>
+			<p class="text-xl font-bold">{about.name}</p>
+			<p class="mt-4 max-w-2xl text-lg text-ink/80">{about.highlight}</p>
+			<dl class="mt-10 divide-y divide-ink/10 border-y border-ink/10">
+				{about.tags.map((t) => (
+					<div class="grid gap-2 py-5 sm:grid-cols-[140px_1fr] sm:gap-6">
+						<dt class="text-sm font-semibold text-muted">#{t.label}</dt>
+						<dd class="text-lg text-ink/80">{t.text}</dd>
+					</div>
+				))}
+			</dl>
+		</div>
+	</div>
+	<Placeholder label={about.logoPlaceholder} class="mt-12 h-20" />
+</Section>

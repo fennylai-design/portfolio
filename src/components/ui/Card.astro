@@ -1,0 +1,17 @@
+---
+// 扁平卡片：無陰影、無圓角。空間感靠色塊（fill）或細線框（outline）。
+interface Props {
+	variant?: "fill" | "outline";
+	class?: string;
+}
+const { variant = "fill", class: extra = "" } = Astro.props;
+
+const variants = {
+	fill: "bg-surface", // 用 surface 色塊圈出一組
+	outline: "border border-ink/10", // 用 hairline 細線框出一組
+};
+---
+
+<div class={`rounded-card p-8 ${variants[variant]} ${extra}`}>
+	<slot />
+</div>

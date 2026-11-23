@@ -1,0 +1,38 @@
+---
+import "../styles/global.css";
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = "Fenny — 設計師大腦 × 人生實驗",
+	description = "擁有設計師大腦、正在自由工作前線進行人生優化實驗的誠實記錄者。",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-Hant">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={description} />
+
+		<!-- 字體：Google Fonts（中文動態子集化，比自架更省） -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=swap"
+			rel="stylesheet"
+		/>
+
+		<title>{title}</title>
+	</head>
+	<body class="bg-base text-ink font-sans antialiased">
+		<slot />
+	</body>
+</html>

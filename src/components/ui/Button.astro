@@ -1,0 +1,67 @@
+---
+interface Props {
+	variant?: "primary" | "secondary" | "tertiary";
+	size?: "md" | "lg";
+	href?: string;
+	disabled?: boolean;
+	class?: string;
+}
+
+const {
+	variant = "primary",
+	size = "md",
+	href = "#",
+	disabled = false,
+	class: extra = "",
+} = Astro.props;
+
+const isText = variant === "tertiary";
+
+// 無障礙焦點框（只給鍵盤聚焦，滑鼠點不出現）
+const focus =
+	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-base";
+
+// 方塊按鈕：固定高度 40px、2px 直角、無陰影，互動靠顏色（transition-colors）
+const boxedBase = `inline-flex h-10 items-center justify-center rounded-btn font-bold transition-colors duration-200 ${focus}`;
+
+const sizes = {
+	md: "px-6 text-sm",
+	lg: "px-7 text-base",
+};
+
+const boxedVariants = {
+	// Default 實心粉白字 → Hover 淺粉底+粉字 → Active 深粉底+白字
+	primary:
+		"bg-brand text-white hover:bg-hl-pink hover:text-brand active:bg-brand-deep active:text-white",
+	// Default 粉框粉字 → Hover 淺粉底+粉字 → Active 維持淺粉底，框+字轉深粉
+	secondary:
+		"border border-brand text-brand hover:bg-hl-pink active:bg-hl-pink active:border-brand-deep active:text-brand-deep",
+};
+
+const boxedDisabled = {
+	primary: "bg-muted text-white opacity-40 pointer-events-none",
+	secondary: "border border-muted text-muted opacity-40 pointer-events-none",
+};
+
+// Tertiary 文字連結：Default 無底線 → Hover 加底線 → Active 深粉字
+const tertiaryCls = `inline-flex items-center font-bold text-brand no-underline underline-offset-4 transition-colors hover:underline active:text-brand-deep ${focus}`;
+const tertiaryDisabled =
+	"inline-flex items-center font-bold text-muted no-underline opacity-40 pointer-events-none";
+
+let cls: string;
+if (isText) {
+	cls = `${disabled ? tertiaryDisabled : tertiaryCls} ${extra}`;
+} else {
+	const v = disabled ? boxedDisabled[variant] : boxedVariants[variant];
+	cls = `${boxedBase} ${sizes[size]} ${v} ${extra}`;
+}
+---
+
+<a
+	href={disabled ? undefined : href}
+	class={cls}
+	aria-disabled={disabled ? "true" : undefined}
+	tabindex={disabled ? "-1" : undefined}
+>
+	<slot />
+</a>

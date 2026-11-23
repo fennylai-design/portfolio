@@ -1,0 +1,19 @@
+---
+interface Props {
+	color?: "pink" | "blue" | "darkblue" | "ink";
+}
+const { color = "pink" } = Astro.props;
+
+const colors = {
+	pink: "bg-brand text-white",
+	blue: "bg-blue text-white",
+	darkblue: "bg-darkblue text-white",
+	ink: "bg-ink text-white",
+};
+---
+
+<span
+	class={`inline-flex items-center rounded-pill px-3.5 py-1 text-xs font-semibold ${colors[color]}`}
+>
+	<slot />
+</span>

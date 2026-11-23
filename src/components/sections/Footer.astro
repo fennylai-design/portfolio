@@ -1,0 +1,12 @@
+---
+import { footer } from "../../content/interior";
+---
+
+<footer class="border-t border-ink/10 bg-base pb-24 pt-10 md:pb-10">
+	<div class="mx-auto flex max-w-5xl flex-wrap justify-between gap-4 px-6 text-sm text-muted">
+		<span>{footer.copyright}</span>
+		<div class="flex gap-6">
+			{footer.links.map((l) => <a href={l.href} class="hover:text-brand">{l.label}</a>)}
+		</div>
+	</div>
+</footer>

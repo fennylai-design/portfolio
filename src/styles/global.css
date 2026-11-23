@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Fenny Brand Design Tokens
+   來源：200_Reference/brand/brand-design-guide.md（2026-06-12）
+   調性：溫暖手札・個人雜誌感（準中性為底、粉藍為亮點）
+   ============================================================ */
+
+@theme {
+	/* --- 色彩：淺色模式（預設） --- */
+	--color-base: #fefcfa; /* 頁面底色，暖白（近白帶一絲暖） */
+	--color-surface: #f6f2ec; /* 卡片、區塊底，比近白底略暖略深以做出層次 */
+	--color-ink: #221d21; /* 主要文字，暖黑（非純黑） */
+	--color-muted: #8b8589; /* 次要文字、註解、時間戳 */
+
+	/* --- 品牌亮點色（識別核心） --- */
+	--color-brand: #d9358d; /* Pink 主亮點：CTA、主標籤、頭像識別 */
+	--color-brand-deep: #a82568; /* 按下 Active 的深粉字 */
+	--color-blue: #1d80dc; /* Blue 次亮點：連結、icon */
+	--color-darkblue: #114599; /* Dark Blue 深亮點：深色標籤、重點 */
+
+	/* --- Highlight 螢光筆標記（搭暖黑文字） --- */
+	--color-hl-sky: #d0e6fa; /* 天藍 */
+	--color-hl-pink: #f7d0e5; /* 粉色 */
+
+	/* --- 字體 --- */
+	/* 英文在前優先用拉丁字體，中文用源樣黑體 GenYoGothic */
+	--font-sans: "Plus Jakarta Sans", "GenYoGothic", sans-serif;
+	--font-serif: "Lora", "Noto Serif TC", serif;
+
+	/* --- 圓角（扁平：卡片直角，僅按鈕微圓） --- */
+	--radius-card: 0px; /* 卡片直角，空間感靠色塊／線條／留白 */
+	--radius-btn: 2px; /* 按鈕：近乎直角，銳利有設計感 */
+	--radius-pill: 999px; /* 標籤膠囊（與銳利按鈕對比） */
+	--radius-mark: 3px; /* Highlight 螢光筆標記 */
+
+	/* --- 線條：hairline 細線做分隔與「框住一組」 --- */
+	--color-line: rgb(34 29 33 / 0.1); /* ink @ 10% */
+}
+
+/* ============================================================
+   字體：源樣黑體 GenYoGothic（TW 台灣字形）— 自架、已子集化
+   全站中文（內文＋標題）皆用它；英數用 Plus Jakarta Sans
+   只打包頁面用到的字，每字重 ~75KB（原 ~10MB）
+   檔案：public/fonts/GenYoGothic-{Regular,Medium,Bold}.subset.woff2
+   ============================================================ */
+
+@font-face {
+	font-family: "GenYoGothic";
+	font-weight: 400;
+	font-display: swap;
+	src: url("/fonts/GenYoGothic-Regular.subset.woff2") format("woff2");
+}
+@font-face {
+	font-family: "GenYoGothic";
+	font-weight: 500;
+	font-display: swap;
+	src: url("/fonts/GenYoGothic-Medium.subset.woff2") format("woff2");
+}
+@font-face {
+	font-family: "GenYoGothic";
+	font-weight: 600;
+	font-display: swap;
+	src: url("/fonts/GenYoGothic-Medium.subset.woff2") format("woff2");
+}
+@font-face {
+	font-family: "GenYoGothic";
+	font-weight: 700;
+	font-display: swap;
+	src: url("/fonts/GenYoGothic-Bold.subset.woff2") format("woff2");
+}
+
+/* ============================================================
+   基礎樣式
+   ============================================================ */
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	/* 內文行高寬鬆 1.7–1.8，呼應手札的呼吸感 */
+	line-height: 1.75;
+	-webkit-font-smoothing: antialiased;
+}
+
+/* 引言／金句：唯一的襯線例外，中文正體不斜 */
+.quote {
+	font-family: var(--font-serif);
+	font-weight: 500;
+	font-size: 1.3125rem; /* ~21px */
+	line-height: 1.6;
+	border-left: 3px solid var(--color-brand);
+	padding-left: 1.25rem;
+}
+
+/* Highlight 螢光筆標記：句中關鍵詞 */
+.mark-sky,
+.mark-pink {
+	border-radius: var(--radius-mark);
+	padding: 0 0.15em;
+	color: var(--color-ink);
+}
+.mark-sky {
+	background: var(--color-hl-sky);
+}
+.mark-pink {
+	background: var(--color-hl-pink);
+}

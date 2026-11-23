@@ -1,0 +1,17 @@
+---
+import Button from "../ui/Button.astro";
+import { nav, site, bookingUrl } from "../../content/interior";
+---
+
+<header class="sticky top-0 z-40 border-b border-ink/10 bg-base/95 backdrop-blur">
+	<div class="mx-auto flex h-16 max-w-5xl items-center justify-between gap-6 px-6">
+		<a href="#top" class="text-lg font-bold">{site.name}</a>
+		<nav aria-label="頁面導覽" class="hidden gap-8 text-sm md:flex">
+			{nav.map((n) => (
+				<a href={n.href} class="text-ink/80 transition-colors hover:text-brand">{n.label}</a>
+			))}
+		</nav>
+		<!-- 首屏已有 primary，導覽列用 secondary，避免同畫面兩顆 primary -->
+		<Button variant="secondary" href={bookingUrl}>預約訪談</Button>
+	</div>
+</header>

@@ -1,0 +1,48 @@
+---
+import Section from "../ui/Section.astro";
+import Tag from "../ui/Tag.astro";
+import Placeholder from "../ui/Placeholder.astro";
+import { cases } from "../../content/interior";
+---
+
+<Section id="cases" tone="surface">
+	<h2 class="text-3xl font-bold leading-tight">{cases.title}</h2>
+	<div class="mt-12 grid gap-6 md:grid-cols-2">
+		{cases.items.map((c) => (
+			<details class={`group border border-ink/10 bg-base ${c.featured ? "md:col-span-2" : ""}`}>
+				<summary class="cursor-pointer list-none p-8 [&::-webkit-details-marker]:hidden">
+					{c.featured && <Placeholder label="案例畫面" class="mb-6 h-48 sm:h-64" />}
+					<Tag color="ink">{c.industry}</Tag>
+					<h3 class="mt-4 text-xl font-bold leading-snug">{c.title}</h3>
+					<p class="mt-2 text-lg text-ink/80">{c.result}</p>
+					<span class="mt-4 inline-block text-sm font-bold text-brand">
+						<span class="group-open:hidden">看細節 ＋</span>
+						<span class="hidden group-open:inline">收起 －</span>
+					</span>
+				</summary>
+				<dl class="grid gap-4 border-t border-ink/10 p-8 pt-6">
+					{[
+						["遇到的困難", c.problem],
+						["我的做法", c.solution],
+						["成果", c.outcome],
+					].map(([k, v]) => (
+						<div>
+							<dt class="text-sm font-semibold text-muted">{k}</dt>
+							<dd class="mt-1 text-lg text-ink/80">{v}</dd>
+						</div>
+					))}
+				</dl>
+			</details>
+		))}
+	</div>
+	{cases.testimonials.length > 0 && (
+		<div class="mt-16 grid gap-6 md:grid-cols-2">
+			{cases.testimonials.map((t) => (
+				<figure>
+					<blockquote class="quote">{t.quote}</blockquote>
+					<figcaption class="mt-3 text-sm text-muted">— {t.who}</figcaption>
+				</figure>
+			))}
+		</div>
+	)}
+</Section>

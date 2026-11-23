@@ -1,0 +1,14 @@
+---
+// v1 佔位框：還沒定的內容（照片、Logo、案例畫面），灰色虛線框＋「待補」
+interface Props {
+	label: string;
+	class?: string;
+}
+const { label, class: extra = "" } = Astro.props;
+---
+
+<div
+	class={`flex items-center justify-center border border-dashed border-ink/20 text-sm text-muted ${extra}`}
+>
+	待補：{label}
+</div>
