@@ -94,3 +94,13 @@ v1 新增：`Placeholder`：灰色虛線框＋「待補：…」字樣，用在�
 4. 檢查每個字重都沒有缺字，再讓瀏覽器強制重新整理（Cmd+Shift+R）。
 
 目前每個字重約 147KB（578 個非英數字元）。
+
+## 9. 發布（GitHub Pages）
+
+- 網址：https://fennylai-design.github.io/portfolio/
+- 公開 repo `fennylai-design/portfolio` 只放這個網站資料夾；程式本體還是在 `fenny-agent` 改。
+- 推到 `portfolio` 的 main 就會自動打包上線（`.github/workflows/deploy.yml`，約 1 分鐘）。
+- 發布指令（在 repo 根目錄）：
+  `git subtree split --prefix=300_Web/portfolio-website -b portfolio-publish && git push https://github.com/fennylai-design/portfolio.git portfolio-publish:main`，推完刪掉 `portfolio-publish` 分支。
+- 網站住在 `/portfolio` 子路徑：`public/` 的檔案在元件裡要用 `asset("/logo.png")`（`src/lib/asset.ts`）；CSS 的 `url(/fonts/...)` 打包時會自動加上。
+- 換自己的網域時：`astro.config.mjs` 的 `site` 改網域、拿掉 `base`。
