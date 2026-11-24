@@ -1,4 +1,5 @@
 ---
+import { asset } from "../../lib/asset";
 // 懸浮導覽列（2026-11-24，Figma Cover 2062-12「Rectangle 18」）：
 // 離頂端一段距離、置中的長條橢圓；淡陰影 0 0 12px
 // 11/24 Fenny：底色加深、模糊加重 → 白色漸層 65%→80%、模糊 24px（底色寫在 global.css 的 .nav-glass）
@@ -17,7 +18,7 @@ import { nav, site } from "../../content/interior";
 		<div class="relative flex h-16 items-center justify-between gap-6 px-6">
 			<a href="#top" aria-label={site.name} class="flex items-center">
 				{site.logo ? (
-					<img src={site.logo} alt={site.name} width="42" height="40" class="h-10 w-auto" />
+					<img src={asset(site.logo)} alt={site.name} width="42" height="40" class="h-10 w-auto" />
 				) : (
 					<span class="flex h-8 w-20 items-center justify-center rounded-full border border-dashed border-ink/20 text-xs text-muted">Logo</span>
 				)}
