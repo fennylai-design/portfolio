@@ -11,14 +11,11 @@ import { about } from "../../content/interior";
 		<div>
 			<p class="text-xl font-bold">{about.name}</p>
 			<p class="mt-4 max-w-2xl text-lg text-ink/80">{about.highlight}</p>
-			<dl class="mt-10 divide-y divide-ink/10 border-y border-ink/10">
+			<ul class="mt-10 divide-y divide-ink/10 border-y border-ink/10">
 				{about.tags.map((t) => (
-					<div class="grid gap-2 py-5 sm:grid-cols-[140px_1fr] sm:gap-6">
-						<dt class="text-sm font-semibold text-muted">#{t.label}</dt>
-						<dd class="text-lg text-ink/80">{t.text}</dd>
-					</div>
+					<li class="py-5 text-lg text-ink/80">{t.text}</li>
 				))}
-			</dl>
+			</ul>
 		</div>
 	</div>
 	<Placeholder label={about.logoPlaceholder} class="mt-12 h-20" />

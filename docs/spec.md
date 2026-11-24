@@ -81,3 +81,16 @@ v1 新增：`Placeholder`：灰色虛線框＋「待補：…」字樣，用在�
 - [ ] 導覽列錨點都捲得到正確區塊，不被導覽列擋住
 - [ ] 案例卡能展開收合
 - [ ] 照 `design-principles.md` 健檢清單逐項檢查
+
+## 8. 字體子集化（改文案後要重做）
+
+源石黑體只打包頁面用到的字。**新增或改文案後，新字不在字型檔裡就會改用系統字體，看起來粗細不一**（2026-11-24 首屏「也、再、讓」就是這樣）。
+
+重做步驟：
+1. 原始字型：源石黑體 TW v2.100（[ButTaiwan/genseki-font](https://github.com/ButTaiwan/genseki-font/releases) 的 `GenSekiGothic2TW-otf.zip`），原始 OTF 不進 repo。
+2. 掃 `src/` 所有檔案的字，加上常用全形標點，存成 `chars.txt`。
+3. 用 fonttools 的 `pyftsubset` 對 R／M／B 三個字重各跑一次：
+   `pyftsubset GenSekiGothic2TW-R.otf --text-file=chars.txt --flavor=woff2 --layout-features='*' --output-file=public/fonts/GenSekiGothic-Regular.subset.woff2`（M → Medium、B → Bold）
+4. 檢查每個字重都沒有缺字，再讓瀏覽器強制重新整理（Cmd+Shift+R）。
+
+目前每個字重約 147KB（578 個非英數字元）。

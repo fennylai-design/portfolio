@@ -13,15 +13,16 @@ export const site = {
 
 export const nav = [
 	{ label: "關於我", href: "#about" },
-	{ label: "服務", href: "#services" },
-	{ label: "流程", href: "#process" },
-	{ label: "案例", href: "#cases" },
+	{ label: "服務方案", href: "#services" }, // 含服務方案與合作流程
+	{ label: "成功案例", href: "#cases" },
+	{ label: "下一步怎麼做", href: "#contact" },
 ];
 
 // ① 首屏：第 1 塊＋第 2 塊
 export const hero = {
 	eyebrow: "給室內設計公司的數位工作流程",
 	title: "讓每個案場進度都看得見，你不用再被追著問，業主也更放心。",
+	// 副標（定位宣言）11/24 Fenny 決定首屏不放，先留著文字備用
 	statement:
 		"我跟室內設計公司合作，打造一套從接洽、設計、施工到驗收的客製化數位工作流程，讓客戶確認、工班資料、工程進度與款項不再散在 LINE 與各種檔案裡，業主也看得到進度。你能同時掌握多個案場，不被追著問進度，業主也放心。",
 	primary: "預約 60 分鐘訪談",
@@ -81,7 +82,8 @@ export const benefit = {
 
 // ④ 服務方案：第 5 塊
 export const services = {
-	title: "服務方案",
+	title: "AI x Notion 工作流導入方案",
+	intro: "包含以下內容：",
 	items: [
 		{
 			name: "專案營運診斷",
@@ -118,7 +120,7 @@ export const process = {
 
 // ⑥ 案例：第 7 塊（內容最後補，先放草稿）
 export const cases = {
-	title: "精選案例",
+	title: "成功案例",
 	items: [
 		{
 			featured: true,

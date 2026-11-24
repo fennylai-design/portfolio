@@ -24,8 +24,8 @@
 	--color-hl-pink: #f7d0e5; /* 粉色 */
 
 	/* --- 字體 --- */
-	/* 英文在前優先用拉丁字體，中文用源樣黑體 GenYoGothic */
-	--font-sans: "Plus Jakarta Sans", "GenYoGothic", sans-serif;
+	/* 英文在前優先用拉丁字體，中文用源石黑體 GenSekiGothic */
+	--font-sans: "Plus Jakarta Sans", "GenSekiGothic", sans-serif;
 	--font-serif: "Lora", "Noto Serif TC", serif;
 
 	/* --- 圓角（扁平：卡片直角，僅按鈕微圓） --- */
@@ -39,35 +39,35 @@
 }
 
 /* ============================================================
-   字體：源樣黑體 GenYoGothic（TW 台灣字形）— 自架、已子集化
+   字體：源石黑體 GenSekiGothic（TW 台灣字形）— 自架、已子集化
    全站中文（內文＋標題）皆用它；英數用 Plus Jakarta Sans
    只打包頁面用到的字，每字重 ~75KB（原 ~10MB）
-   檔案：public/fonts/GenYoGothic-{Regular,Medium,Bold}.subset.woff2
+   檔案：public/fonts/GenSekiGothic-{Regular,Medium,Bold}.subset.woff2
    ============================================================ */
 
 @font-face {
-	font-family: "GenYoGothic";
+	font-family: "GenSekiGothic";
 	font-weight: 400;
 	font-display: swap;
-	src: url("/fonts/GenYoGothic-Regular.subset.woff2") format("woff2");
+	src: url("/fonts/GenSekiGothic-Regular.subset.woff2") format("woff2");
 }
 @font-face {
-	font-family: "GenYoGothic";
+	font-family: "GenSekiGothic";
 	font-weight: 500;
 	font-display: swap;
-	src: url("/fonts/GenYoGothic-Medium.subset.woff2") format("woff2");
+	src: url("/fonts/GenSekiGothic-Medium.subset.woff2") format("woff2");
 }
 @font-face {
-	font-family: "GenYoGothic";
+	font-family: "GenSekiGothic";
 	font-weight: 600;
 	font-display: swap;
-	src: url("/fonts/GenYoGothic-Medium.subset.woff2") format("woff2");
+	src: url("/fonts/GenSekiGothic-Medium.subset.woff2") format("woff2");
 }
 @font-face {
-	font-family: "GenYoGothic";
+	font-family: "GenSekiGothic";
 	font-weight: 700;
 	font-display: swap;
-	src: url("/fonts/GenYoGothic-Bold.subset.woff2") format("woff2");
+	src: url("/fonts/GenSekiGothic-Bold.subset.woff2") format("woff2");
 }
 
 /* ============================================================
@@ -76,6 +76,11 @@
 
 html {
 	scroll-behavior: smooth;
+	/* 區塊 Scroll Snap：proximity＝靠近區塊開頭才吸附，區塊比畫面高時還能自由捲完內容
+	   （mandatory 會讓比畫面高的區塊看不到下半部，手機上很常見，所以不用）
+	   scroll-padding-top 扣掉固定導覽列（h-16），錨點跳轉也一起適用 */
+	scroll-snap-type: y proximity;
+	scroll-padding-top: 4rem;
 }
 
 body {

@@ -10,7 +10,7 @@ const { id, tone = "base", class: extra = "" } = Astro.props;
 
 <section
 	id={id}
-	class={`scroll-mt-16 py-20 sm:py-28 ${tone === "surface" ? "bg-surface" : "bg-base"} ${extra}`}
+	class={`snap-start py-20 sm:py-28 ${tone === "surface" ? "bg-surface" : "bg-base"} ${extra}`}
 >
 	<div class="mx-auto max-w-5xl px-6">
 		<slot />
