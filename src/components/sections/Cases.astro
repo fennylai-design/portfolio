@@ -1,5 +1,5 @@
 ---
-// 成功案例：卡片正面直接看「困難／我的解決方案／成果」
+// 成功案例：三張卡片上下排列（11/24），卡片正面直接看「困難／我的解決方案／成果」
 // 點「看更多圖文」跳出視窗（原生 <dialog>）看案例畫面與補充說明；Esc、點背景、點關閉都能關
 import Section from "../ui/Section.astro";
 import Tag from "../ui/Tag.astro";
@@ -9,12 +9,12 @@ import { cases } from "../../content/interior";
 
 <Section id="cases" tone="surface">
 	<h2 class="text-3xl font-bold leading-tight">{cases.title}</h2>
-	<div class="mt-12 grid gap-6 md:grid-cols-2">
+	<div class="mt-12 grid gap-8">
 		{cases.items.map((c, i) => (
 			<article
-				class={`group flex flex-col border border-ink/10 bg-base p-8 transition-[transform,border-color] duration-300 ease-out hover:border-brand motion-safe:hover:scale-[1.02] ${c.featured ? "md:col-span-2" : ""}`}
+				class={`group flex flex-col border border-ink/10 bg-base p-8 transition-[transform,border-color] duration-300 ease-out hover:border-brand motion-safe:hover:scale-[1.02]`}
 			>
-				<Placeholder label="案例畫面" class={`mb-6 ${c.featured ? "h-48 sm:h-64" : "h-48"}`} />
+				<Placeholder label="案例畫面" class="mb-6 h-48 sm:h-64" />
 				<div><Tag color="ink">{c.industry}</Tag></div>
 				<h3 class="mt-4 text-xl font-bold leading-snug">{c.title}</h3>
 
@@ -87,16 +87,6 @@ import { cases } from "../../content/interior";
 		</dialog>
 	))}
 
-	{cases.testimonials.length > 0 && (
-		<div class="mt-16 grid gap-6 md:grid-cols-2">
-			{cases.testimonials.map((t) => (
-				<figure>
-					<blockquote class="quote">{t.quote}</blockquote>
-					<figcaption class="mt-3 text-sm text-muted">— {t.who}</figcaption>
-				</figure>
-			))}
-		</div>
-	)}
 </Section>
 
 <script>
