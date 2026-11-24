@@ -12,7 +12,7 @@ export const site = {
 };
 
 export const nav = [
-	{ label: "關於我", href: "#about" },
+	{ label: "我的服務", href: "#about" },
 	{ label: "服務方案", href: "#services" }, // 含服務方案與合作流程
 	{ label: "成功案例", href: "#cases" },
 	{ label: "下一步怎麼做", href: "#contact" },
