@@ -245,7 +245,7 @@ export const contact = {
 		{ name: "Step 3", text: "確認方案後簽約，開始合作" },
 	],
 	ctaLabel: "",
-	button: "預約諮詢",
+	button: "立即預約諮詢",
 	draft: true,
 };
 

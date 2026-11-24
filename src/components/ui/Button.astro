@@ -1,7 +1,7 @@
 ---
 interface Props {
 	variant?: "primary" | "secondary" | "tertiary";
-	size?: "md" | "lg";
+	size?: "md" | "lg" | "xl";
 	href?: string;
 	disabled?: boolean;
 	class?: string;
@@ -21,12 +21,13 @@ const isText = variant === "tertiary";
 const focus =
 	"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-base";
 
-// 方塊按鈕：固定高度 40px、2px 直角、無陰影，互動靠顏色（transition-colors）
-const boxedBase = `inline-flex h-10 items-center justify-center rounded-btn font-bold transition-colors duration-200 ${focus}`;
+// 方塊按鈕：高度看 size（md/lg 40px、xl 56px）、2px 直角、無陰影，互動靠顏色（transition-colors）
+const boxedBase = `inline-flex items-center justify-center rounded-btn font-bold transition-colors duration-200 ${focus}`;
 
 const sizes = {
-	md: "px-6 text-sm",
-	lg: "px-7 text-base",
+	md: "h-10 px-6 text-sm",
+	lg: "h-10 px-7 text-base",
+	xl: "h-14 px-12 text-lg",
 };
 
 const boxedVariants = {
