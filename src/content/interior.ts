@@ -240,12 +240,12 @@ export const contact = {
 	// 11/24 照 Fenny 給的參考版型：標題 → 色帶（左「下一步」、右三步驟）→ 預約；文字用自己的話寫
 	stepsLabel: "下一步",
 	steps: [
-		{ name: "Step 1", text: "預約 60 分鐘線上訪談，聊聊你們現在的案子怎麼跑、哪個環節最花時間" },
+		{ name: "Step 1", text: "跟我預約線上會議，讓我用一小時的時間了解你的需求" },
 		{ name: "Step 2", text: "根據訪談結果，整理出診斷方向，並提供報價與方案" },
 		{ name: "Step 3", text: "確認方案後簽約，開始合作" },
 	],
-	ctaLabel: "預約線上訪談",
-	button: "預約 60 分鐘訪談",
+	ctaLabel: "",
+	button: "預約諮詢",
 	draft: true,
 };
 
