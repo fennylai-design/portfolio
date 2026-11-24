@@ -2,15 +2,22 @@
 // 區段外框：統一上下留白、內容寬度、底色交替（base ↔ surface）
 interface Props {
 	id?: string;
-	tone?: "base" | "surface";
+	tone?: "base" | "surface" | "night" | "night-2";
 	class?: string;
 }
 const { id, tone = "base", class: extra = "" } = Astro.props;
+// night／night-2：深色區段，加 on-dark 讓裡面的文字、線條、卡片自動換成深色版
+const tones = {
+	base: "bg-base",
+	surface: "bg-surface",
+	night: "on-dark bg-night",
+	"night-2": "on-dark bg-night-2",
+};
 ---
 
 <section
 	id={id}
-	class={`snap-start py-20 sm:py-28 ${tone === "surface" ? "bg-surface" : "bg-base"} ${extra}`}
+	class={`snap-start pb-20 pt-28 sm:py-28 ${tones[tone]} ${extra}`}
 >
 	<div class="mx-auto max-w-5xl px-6">
 		<slot />

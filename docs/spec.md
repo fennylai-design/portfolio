@@ -64,7 +64,7 @@ v1 新增：`Placeholder`：灰色虛線框＋「待補：…」字樣，用在�
 |---|---|
 | 導覽列錨點平滑捲動 | `html { scroll-behavior: smooth }`（已有）＋ `scroll-margin-top` 避免被固定導覽列擋住 |
 | 導覽列固定 | `sticky top-0`，底部 hairline |
-| 手機版底部預約按鈕 | 手機寬度才顯示，固定在畫面底部；捲到 `#contact` 區時不用另外處理 |
+| ~~手機版底部預約按鈕~~ | 11/24 拿掉 |
 | 案例卡展開 | HTML `<details>`／`<summary>`，不寫 JS |
 
 ## 6. 內容規則

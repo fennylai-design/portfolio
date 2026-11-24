@@ -13,6 +13,10 @@
 	--color-ink: #221d21; /* 主要文字，暖黑（非純黑） */
 	--color-muted: #8b8589; /* 次要文字、註解、時間戳 */
 
+	/* --- 深色區段（2026-11-24）：兩個深淺交替，像淺色的 base ↔ surface --- */
+	--color-night: #221d21; /* 深底（＝ ink） */
+	--color-night-2: #2d272c; /* 深底稍亮 */
+
 	/* --- 品牌亮點色（識別核心） --- */
 	--color-brand: #d9358d; /* Pink 主亮點：CTA、主標籤、頭像識別 */
 	--color-brand-deep: #a82568; /* 按下 Active 的深粉字 */
@@ -24,9 +28,9 @@
 	--color-hl-pink: #f7d0e5; /* 粉色 */
 
 	/* --- 字體 --- */
-	/* 英文在前優先用拉丁字體，中文用源石黑體 GenSekiGothic */
-	--font-sans: "Plus Jakarta Sans", "GenSekiGothic", sans-serif;
-	--font-serif: "Lora", "Noto Serif TC", serif;
+	/* 全站只用兩種字（2026-11-24）：黑體＝源石黑體（中英數都用它內建的字），明體＝Noto Serif TC */
+	--font-sans: "GenSekiGothic", sans-serif;
+	--font-serif: "Noto Serif TC", serif;
 
 	/* --- 圓角（扁平：卡片直角，僅按鈕微圓） --- */
 	--radius-card: 0px; /* 卡片直角，空間感靠色塊／線條／留白 */
@@ -78,9 +82,8 @@ html {
 	scroll-behavior: smooth;
 	/* 區塊 Scroll Snap：proximity＝靠近區塊開頭才吸附，區塊比畫面高時還能自由捲完內容
 	   （mandatory 會讓比畫面高的區塊看不到下半部，手機上很常見，所以不用）
-	   scroll-padding-top 扣掉固定導覽列（h-16），錨點跳轉也一起適用 */
+	   導覽列改成懸浮（11/24），區塊底色直接貼頂、導覽列浮在區塊的上留白上，所以不用 scroll-padding */
 	scroll-snap-type: y proximity;
-	scroll-padding-top: 4rem;
 }
 
 body {
@@ -111,4 +114,27 @@ body {
 }
 .mark-pink {
 	background: var(--color-hl-pink);
+}
+
+/* ============================================================
+   深色區段：區塊加 .on-dark，裡面的顏色變數整組翻成深色版
+   元件照常寫 text-ink、bg-base、border-ink/10，不用另外寫深色 class
+   粉色在深底對比只有 3.8，小字不過 AA → 深色區換成較亮的粉（6.6:1）
+   ============================================================ */
+.on-dark {
+	--color-ink: #fefcfa;
+	--color-base: #221d21;
+	--color-surface: #2d272c;
+	--color-muted: #a39ca0;
+	--color-brand: #f27bb8;
+	color: var(--color-ink);
+}
+
+/* 懸浮導覽列的毛玻璃底色（Figma 漸層角度 98.23°，透明度依 11/24 回饋加深）
+   深色區段時換成深色玻璃，淺色字才讀得清楚 */
+.nav-glass {
+	background: linear-gradient(98.23deg, rgb(255 255 255 / 0.65) 0.05%, rgb(255 255 255 / 0.8) 99.95%);
+}
+.on-dark .nav-glass {
+	background: linear-gradient(98.23deg, rgb(34 29 33 / 0.65) 0.05%, rgb(34 29 33 / 0.8) 99.95%);
 }

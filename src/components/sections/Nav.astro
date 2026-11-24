@@ -1,17 +1,84 @@
 ---
-import Button from "../ui/Button.astro";
-import { nav, site, bookingUrl } from "../../content/interior";
+// 懸浮導覽列（2026-11-24，Figma Cover 2062-12「Rectangle 18」）：
+// 離頂端一段距離、置中的長條橢圓；淡陰影 0 0 12px
+// 11/24 Fenny：底色加深、模糊加重 → 白色漸層 65%→80%、模糊 24px（底色寫在 global.css 的 .nav-glass）
+// 寬度：電腦版自適應、最寬 1120px；手機版左右各留 16px，選單收進右側漢堡按鈕
+// 捲到深色區段時，整條自動切成深色版文字（on-dark）
+import { nav, site } from "../../content/interior";
 ---
 
-<header class="sticky top-0 z-40 border-b border-ink/10 bg-base/95 backdrop-blur">
-	<div class="mx-auto flex h-16 max-w-5xl items-center justify-between gap-6 px-6">
-		<a href="#top" class="text-lg font-bold">{site.name}</a>
-		<nav aria-label="頁面導覽" class="hidden gap-8 text-sm md:flex">
-			{nav.map((n) => (
-				<a href={n.href} class="text-ink/80 transition-colors hover:text-brand">{n.label}</a>
-			))}
+<header id="site-nav" class="pointer-events-none fixed inset-x-0 top-4 z-40 px-4">
+	<div class="pointer-events-auto relative mx-auto max-w-[1120px] rounded-[32px]">
+		<!-- 底色層：opacity 只套在底色，不讓文字也變淡 -->
+		<div
+			aria-hidden="true"
+			class="nav-glass absolute inset-0 rounded-[32px] shadow-[0_0_12px_rgba(56,48,54,0.12)] backdrop-blur-xl"
+		></div>
+		<div class="relative flex h-16 items-center justify-between gap-6 px-6">
+			<a href="#top" aria-label={site.name} class="flex items-center">
+				{site.logo ? (
+					<img src={site.logo} alt={site.name} width="42" height="40" class="h-10 w-auto" />
+				) : (
+					<span class="flex h-8 w-20 items-center justify-center rounded-full border border-dashed border-ink/20 text-xs text-muted">Logo</span>
+				)}
+			</a>
+			<nav aria-label="頁面導覽" class="hidden gap-7 text-sm md:flex">
+				{nav.map((n) => (
+					<a href={n.href} class="text-ink/80 transition-colors hover:text-brand">{n.label}</a>
+				))}
+			</nav>
+			<!-- 手機版：漢堡按鈕 -->
+			<button
+				type="button"
+				id="nav-toggle"
+				aria-label="開啟選單"
+				aria-expanded="false"
+				aria-controls="nav-mobile"
+				class="-mr-2 flex h-10 w-10 items-center justify-center text-ink md:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+			>
+				<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+					<path class="nav-icon-open" d="M4 7h16M4 12h16M4 17h16" />
+					<path class="nav-icon-close hidden" d="M6 6l12 12M18 6L6 18" />
+				</svg>
+			</button>
+		</div>
+		<!-- 手機版展開的選單：長條往下長，連結直排 -->
+		<nav id="nav-mobile" aria-label="頁面導覽（手機）" class="relative hidden px-6 pb-5 md:hidden">
+			<ul class="space-y-1 border-t border-ink/10 pt-3">
+				{nav.map((n) => (
+					<li><a href={n.href} class="block py-2 text-lg text-ink/80 hover:text-brand">{n.label}</a></li>
+				))}
+			</ul>
 		</nav>
-		<!-- 首屏已有 primary，導覽列用 secondary，避免同畫面兩顆 primary -->
-		<Button variant="secondary" href={bookingUrl}>預約訪談</Button>
 	</div>
 </header>
+
+<script>
+	// 導覽列中線碰到深色區段時，切成深色版文字
+	const header = document.getElementById("site-nav");
+	const darks = Array.from(document.querySelectorAll<HTMLElement>(".on-dark")).filter((el) => el !== header);
+	const probe = 48; // 導覽列垂直中線（top 16 + 高度 64 的一半）
+	const update = () => {
+		const onDark = darks.some((el) => {
+			const r = el.getBoundingClientRect();
+			return r.top <= probe && r.bottom >= probe;
+		});
+		header?.classList.toggle("on-dark", onDark);
+	};
+	update();
+	addEventListener("scroll", update, { passive: true });
+
+	// 手機版選單開關；點連結後自動收起
+	const toggle = document.getElementById("nav-toggle");
+	const menu = document.getElementById("nav-mobile");
+	const setOpen = (open: boolean) => {
+		menu?.classList.toggle("hidden", !open);
+		toggle?.setAttribute("aria-expanded", String(open));
+		toggle?.setAttribute("aria-label", open ? "關閉選單" : "開啟選單");
+		toggle?.querySelector(".nav-icon-open")?.classList.toggle("hidden", open);
+		toggle?.querySelector(".nav-icon-close")?.classList.toggle("hidden", !open);
+	};
+	toggle?.addEventListener("click", () => setOpen(menu?.classList.contains("hidden") ?? false));
+	menu?.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+	addEventListener("resize", update);
+</script>

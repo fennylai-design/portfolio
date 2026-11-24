@@ -22,8 +22,8 @@
 
 ### 字體
 - 中文（內文＋標題）：**源石黑體 GenSekiGothic（TW 台灣字形）**（作品集網站 2026-11-24 換掉源樣黑體；個人網站仍是源樣），自架、子集化 woff2（`public/fonts/GenSekiGothic-*.subset.woff2`），每字重 ~75KB。字重：Regular 400 / Medium 500 / Bold（600、700 共用）。
-- 英文／數字：**Plus Jakarta Sans**（Google Fonts），永遠排在 font stack 最前，中文 fallback 到 GenSekiGothic。
-- 引言金句：襯線 `Lora` + `Noto Serif TC`（`.quote`）。
+- 英文／數字：直接用源石黑體內建的英數字（作品集網站 2026-11-24 拿掉 Plus Jakarta Sans，全站只用兩種字）。
+- 明體（首屏大標、引言金句 `.quote`）：`Noto Serif TC`（Google Fonts）。作品集網站拿掉 Lora。
 - **加字、改文案後要重做子集**：用 `pyftsubset <otf> --text-file=chars.txt --flavor=woff2`（chars.txt 掃全站 .astro 的中文字）。原始 OTF 不入 repo。
 
 ### 顏色對比（WCAG）

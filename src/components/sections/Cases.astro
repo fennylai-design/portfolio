@@ -1,5 +1,6 @@
 ---
-// 成功案例：卡片點開跳出視窗（原生 <dialog>）看細節；Esc、點背景、點關閉都能關
+// 成功案例：卡片正面直接看「困難／我的解決方案／成果」
+// 點「看更多圖文」跳出視窗（原生 <dialog>）看案例畫面與補充說明；Esc、點背景、點關閉都能關
 import Section from "../ui/Section.astro";
 import Tag from "../ui/Tag.astro";
 import Placeholder from "../ui/Placeholder.astro";
@@ -10,18 +11,46 @@ import { cases } from "../../content/interior";
 	<h2 class="text-3xl font-bold leading-tight">{cases.title}</h2>
 	<div class="mt-12 grid gap-6 md:grid-cols-2">
 		{cases.items.map((c, i) => (
-			<button
-				type="button"
-				data-case-open={`case-${i}`}
-				aria-haspopup="dialog"
-				class={`group border border-ink/10 bg-base p-8 text-left transition-colors hover:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ${c.featured ? "md:col-span-2" : ""}`}
+			<article
+				class={`group flex flex-col border border-ink/10 bg-base p-8 transition-[transform,border-color] duration-300 ease-out hover:border-brand motion-safe:hover:scale-[1.02] ${c.featured ? "md:col-span-2" : ""}`}
 			>
 				<Placeholder label="案例畫面" class={`mb-6 ${c.featured ? "h-48 sm:h-64" : "h-48"}`} />
-				<Tag color="ink">{c.industry}</Tag>
+				<div><Tag color="ink">{c.industry}</Tag></div>
 				<h3 class="mt-4 text-xl font-bold leading-snug">{c.title}</h3>
-				<p class="mt-2 text-lg text-ink/80">{c.result}</p>
-				<span class="mt-4 inline-block text-sm font-bold text-brand group-hover:underline underline-offset-4">看細節 →</span>
-			</button>
+
+				<div class="mt-6 grid max-w-3xl gap-6">
+					<div>
+						<p class="text-sm font-semibold text-muted">客戶遇到的困難</p>
+						<p class="mt-2 text-lg text-ink/80">{c.problem}</p>
+					</div>
+					<div>
+						<p class="text-sm font-semibold text-muted">我的解決方案</p>
+						<p class="mt-2 text-lg text-ink/80">{c.solution.intro}</p>
+						<ul class="mt-3 space-y-1">
+							{c.solution.points.map((pt) => (
+								<li class="flex gap-2 text-lg text-ink/80"><span class="text-brand" aria-hidden="true">・</span>{pt}</li>
+							))}
+						</ul>
+					</div>
+					<div>
+						<p class="text-sm font-semibold text-muted">客戶的成果</p>
+						<ul class="mt-2 space-y-1">
+							{c.outcomes.map((o) => (
+								<li class="flex gap-2 text-lg font-semibold text-ink"><span class="text-brand" aria-hidden="true">✓</span>{o}</li>
+							))}
+						</ul>
+					</div>
+				</div>
+
+				<button
+					type="button"
+					data-case-open={`case-${i}`}
+					aria-haspopup="dialog"
+					class="mt-8 self-start text-sm font-bold text-brand underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+				>
+					看更多圖文 →
+				</button>
+			</article>
 		))}
 	</div>
 
@@ -29,7 +58,7 @@ import { cases } from "../../content/interior";
 		<dialog
 			id={`case-${i}`}
 			aria-labelledby={`case-${i}-title`}
-			class="m-auto w-[calc(100%-2rem)] max-w-2xl bg-base p-0 text-ink backdrop:bg-ink/60"
+			class="m-auto w-[calc(100%-2rem)] max-w-3xl bg-base p-0 text-ink backdrop:bg-ink/60"
 		>
 			<div class="max-h-[85svh] overflow-y-auto p-8">
 				<div class="flex items-start justify-between gap-4">
@@ -42,19 +71,18 @@ import { cases } from "../../content/interior";
 					>×</button>
 				</div>
 				<h3 id={`case-${i}-title`} class="mt-4 text-xl font-bold leading-snug">{c.title}</h3>
-				<Placeholder label="案例畫面" class="mt-6 h-56" />
-				<dl class="mt-8 grid gap-6">
-					{[
-						["遇到的困難", c.problem],
-						["我的做法", c.solution],
-						["成果", c.outcome],
-					].map(([k, v]) => (
-						<div>
-							<dt class="text-sm font-semibold text-muted">{k}</dt>
-							<dd class="mt-1 text-lg text-ink/80">{v}</dd>
-						</div>
+				<div class="mt-6 space-y-4">
+					{Array.from({ length: c.images }).map((_, n) => (
+						<Placeholder label={`案例畫面 ${n + 1}`} class="h-56 sm:h-72" />
 					))}
-				</dl>
+				</div>
+				{c.more.length > 0 ? (
+					<div class="mt-8 space-y-4">
+						{c.more.map((p) => <p class="text-lg text-ink/80">{p}</p>)}
+					</div>
+				) : (
+					<Placeholder label="補充說明" class="mt-8 h-24" />
+				)}
 			</div>
 		</dialog>
 	))}

@@ -1,18 +1,26 @@
 ---
 import Button from "../ui/Button.astro";
-import { hero, bookingUrl } from "../../content/interior";
+import Placeholder from "../ui/Placeholder.astro";
+import { hero } from "../../content/interior";
 ---
 
-<!-- 滿版首屏：高度＝視窗高度扣掉導覽列（h-16），內容垂直置中 -->
-<section id="top" class="flex min-h-[calc(100svh-4rem)] snap-start items-center bg-base py-20">
-	<div class="mx-auto w-full max-w-5xl px-6">
-		<p class="text-sm font-semibold text-brand">{hero.eyebrow}</p>
-		<h1 class="mt-4 max-w-3xl text-[2rem] font-bold leading-tight sm:text-[2.5rem]">
-			{hero.title}
-		</h1>
-		<div class="mt-10 flex flex-wrap items-center gap-6">
-			<Button size="lg" href={bookingUrl} class="js-hero-cta">{hero.primary}</Button>
-			<Button variant="tertiary" href="#services">{hero.secondary} ↓</Button>
+<!-- 滿版首屏：高度＝整個視窗（導覽列懸浮在上面），內容垂直置中
+     Featured image 版型：桌機左文右圖；手機文字在上、圖在下 -->
+<section id="top" class="flex min-h-svh snap-start items-center bg-base pb-20 pt-28">
+	<div class="mx-auto grid w-full max-w-5xl items-center gap-12 px-6 md:grid-cols-[1.1fr_1fr] md:gap-16">
+		<div>
+			<h1 class="font-serif text-[2rem] font-bold leading-tight text-ink sm:text-[2.5rem]">
+				{hero.title}
+			</h1>
+			<h2 class="mt-6 text-2xl font-bold leading-snug text-ink/80 sm:text-3xl">{hero.lead}</h2>
+			<div class="mt-10">
+				<Button variant="tertiary" href="#about">{hero.secondary} ↓</Button>
+			</div>
 		</div>
+		{hero.image ? (
+			<img src={hero.image} alt={hero.imageAlt} class="aspect-[4/5] w-full object-cover" />
+		) : (
+			<Placeholder label="首屏主視覺" class="aspect-[4/5] w-full" />
+		)}
 	</div>
 </section>
