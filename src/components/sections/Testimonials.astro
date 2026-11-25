@@ -1,20 +1,22 @@
 ---
-// 客戶對我的評價：第一則（最長）整列寬，其他兩則並排；還沒有評價時顯示待補框
+// 客戶對我的評價：Bento 排法（11/25）——第一則（最長）左邊一張高卡，其他兩則在右邊上下疊；白卡沿用首屏 hf-card
+// 卡內排法參考 Fenny 11/25 給的評價卡：內文黑體灰字、底部只放身份（頭像 11/25 拿掉）。還沒有評價時顯示待補框
 import Section from "../ui/Section.astro";
 import Placeholder from "../ui/Placeholder.astro";
 import { testimonials } from "../../content/interior";
+import "../../styles/hero-flow.css";
 ---
 
 <Section id="testimonials">
 	<h2 class="text-3xl font-bold leading-tight">{testimonials.title}</h2>
-	<div class="mt-12 grid gap-6 md:grid-cols-2">
+	<div class="mt-10 grid gap-5 md:grid-cols-[3fr_2fr] md:grid-rows-2">
 		{testimonials.items.length > 0
 			? testimonials.items.map((t, i) => (
-					<figure class={`flex h-full flex-col border border-ink/10 bg-base p-8 ${i === 0 ? "md:col-span-2" : ""}`}>
-						<blockquote class="flex-1 space-y-3 border-l-[3px] border-brand pl-5 font-serif text-lg leading-relaxed text-ink">
+					<figure class={`hf-card flex h-full flex-col p-6 sm:p-7 ${i === 0 ? "md:row-span-2" : ""}`}>
+						<blockquote class="flex-1 space-y-2 text-lg leading-relaxed text-ink/80">
 							{t.quote.map((q) => <p>{q}</p>)}
 						</blockquote>
-						<figcaption class="mt-6 text-sm text-muted">— {t.who}</figcaption>
+						<figcaption class="mt-4 text-sm font-medium text-muted">{t.who}</figcaption>
 					</figure>
 				))
 			: Array.from({ length: testimonials.placeholders }).map((_, n) => (
