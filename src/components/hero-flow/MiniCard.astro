@@ -1,0 +1,27 @@
+---
+// 手機版用的精簡卡片：只留標頭、標題和一兩個重點（11/25 Fenny：手機精簡內容）
+// tone：card 白卡、dark 深黑重點卡、glass 液態玻璃
+import { svg, type IconName } from "./icons";
+import Agents from "./Agents.astro";
+interface Props {
+	eyebrow: string;
+	title: string;
+	icon?: IconName;
+	agents?: boolean;
+	tag?: { text: string; tone: string };
+	tone?: "card" | "dark" | "glass";
+}
+const { eyebrow, title, icon, agents = false, tag, tone = "card" } = Astro.props;
+const cls = tone === "dark" ? "hf-card hf-card--dark" : tone === "glass" ? "hf-glass" : "hf-card";
+---
+<article class={`${cls} hf-mini p-4`}>
+	<header class="flex items-center justify-between gap-2">
+		<span class="hf-eyebrow" style="font-size:10px">{eyebrow}</span>
+		{tag && <span class={`hf-tag hf-tag--${tag.tone}`} style="font-size:11px">{tag.text}</span>}
+	</header>
+	<div class="mt-2.5 flex items-center gap-2.5">
+		{agents ? <Agents size="sm" /> : icon && <span class="hf-icon !h-8 !w-8" set:html={svg(icon, 16)} />}
+		<h3 class="text-[16px] font-bold leading-snug">{title}</h3>
+	</div>
+	<slot />
+</article>

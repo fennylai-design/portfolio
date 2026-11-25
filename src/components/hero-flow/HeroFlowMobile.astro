@@ -1,94 +1,176 @@
 ---
 // 首屏流程圖：手機／平板版（lg 以下）
-// 寬幅流程圖縮到手機上字會太小，所以改成直的：卡片由上往下排，中間用直線接起來，
-// 通知膠囊壓在線上。捲到哪張，那張才浮上來、線往下畫出來。
+// 11/25 改版（Fenny）：卡片左右交錯排、用斜的曲線接起來，內容精簡成標題＋一兩個重點（MiniCard）
+// 順序跟桌機一樣：諮詢 → 報價單 → AI 整理 → 儀表板 → 業主專案頁，通知膠囊壓在線上
+// 動態：捲到哪張，那張才浮上來、線往下畫出來
 // HTML 預設全部顯示；JS 才加上 .is-anim 把還沒捲到的先藏起來（沒 JS／減少動態時直接看到全部）
-import ConsultCard from "./ConsultCard.astro";
-import AiCard from "./AiCard.astro";
-import QuoteCard from "./QuoteCard.astro";
+import MiniCard from "./MiniCard.astro";
 import NotifyPill from "./NotifyPill.astro";
-import DashboardCard from "./DashboardCard.astro";
-import ClientCard from "./ClientCard.astro";
+import Agents from "./Agents.astro";
+import { svg } from "./icons";
 import "../../styles/hero-flow.css";
+
+// 每一步：side＝卡片靠左（l）或靠右（r）；接到下一張的線上要不要壓通知膠囊
+type Side = "l" | "r";
+const wire = (from: Side, to: Side) => {
+	// 線從上一張卡的中間往下，彎到下一張卡的中間（卡片寬 72%，所以中心在 36% 或 64%）
+	const x1 = from === "l" ? 36 : 64;
+	const x2 = to === "l" ? 36 : 64;
+	return { x1, x2 };
+};
 ---
 
 <div class="hf-m mx-auto w-full max-w-sm" data-hf-mobile>
-	<div class="hf-m-step"><ConsultCard /></div>
-	<div class="hf-m-wire"><span class="hf-m-line"></span></div>
-	<div class="hf-m-step"><QuoteCard /></div>
-	<div class="hf-m-wire"><span class="hf-m-line"></span></div>
-	<div class="hf-m-step"><AiCard /></div>
-	<div class="hf-m-wire hf-m-wire--pill">
-		<span class="hf-m-line"></span>
-		<div class="hf-m-pill"><NotifyPill icon="bell" who="團隊" text="已分派 5 項任務" /></div>
+	<!-- STEP 01 諮詢 -->
+	<div class="hf-m-step hf-m-l">
+		<MiniCard eyebrow="Step 01 ／ 諮詢" title="業主 A・新諮詢" icon="doc">
+			<div class="mt-3 flex items-center gap-2 rounded-xl border border-dashed border-brand/40 bg-pink-50 px-2.5 py-1.5 text-xs">
+				<Agents size="sm" /><span><span class="font-medium text-brand">AI 摘要</span><span class="text-ink/70">・已領取任務</span></span>
+			</div>
+		</MiniCard>
 	</div>
-	<div class="hf-m-step"><DashboardCard /></div>
-	<div class="hf-m-wire hf-m-wire--pill">
-		<span class="hf-m-line"></span>
-		<div class="hf-m-pill"><NotifyPill icon="user" who="業主 A" text="專案頁已開通" /></div>
+
+	{(() => { const w = wire("l", "r"); return (
+		<div class="hf-m-wire" style={`--x1:${w.x1}%;--x2:${w.x2}%`}>
+			<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="hf-line" vector-effect="non-scaling-stroke" d={`M${w.x1} 0 C${w.x1} 55, ${w.x2} 45, ${w.x2} 100`} /></svg>
+			<i class="hf-m-dot"></i><i class="hf-m-arrow"></i>
+		</div>
+	); })()}
+
+	<!-- STEP 02 報價單 -->
+	<div class="hf-m-step hf-m-r">
+		<MiniCard eyebrow="Step 02 ／ 報價" title="業主 A・報價單" icon="receipt" tag={{ text: "已簽約", tone: "done" }} />
 	</div>
-	<div class="hf-m-step relative">
-		<div class="hf-glow hf-glow--pink" style="width:260px;height:260px;left:-40px;top:-40px"></div>
-		<div class="hf-glow hf-glow--sky" style="width:220px;height:220px;right:-40px;bottom:-40px"></div>
-		<ClientCard />
+
+	{(() => { const w = wire("r", "l"); return (
+		<div class="hf-m-wire" style={`--x1:${w.x1}%;--x2:${w.x2}%`}>
+			<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="hf-line" vector-effect="non-scaling-stroke" d={`M${w.x1} 0 C${w.x1} 55, ${w.x2} 45, ${w.x2} 100`} /></svg>
+			<i class="hf-m-dot"></i><i class="hf-m-arrow"></i>
+		</div>
+	); })()}
+
+	<!-- STEP 02 AI 整理（深黑） -->
+	<div class="hf-m-step hf-m-l">
+		<MiniCard eyebrow="Step 02 ／ AI 完成" title="AI 整理需求" agents tone="dark">
+			<p class="mt-2.5 flex items-center gap-2 text-xs text-white/85">
+				<span class="hf-tickbox !h-4 !w-4 !border-[#f27bb8] !bg-[#f27bb8] !text-[#221d21]" set:html={svg("check", 10)} />建立 Notion 專案
+			</p>
+		</MiniCard>
+	</div>
+
+	{(() => { const w = wire("l", "r"); return (
+		<div class="hf-m-wire hf-m-wire--pill" style={`--x1:${w.x1}%;--x2:${w.x2}%`}>
+			<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="hf-line" vector-effect="non-scaling-stroke" d={`M${w.x1} 0 C${w.x1} 55, ${w.x2} 45, ${w.x2} 100`} /></svg>
+			<i class="hf-m-dot"></i><i class="hf-m-arrow"></i>
+			<div class="hf-m-pill"><NotifyPill icon="bell" who="團隊" text="已分派 5 項任務" /></div>
+		</div>
+	); })()}
+
+	<!-- STEP 03 專案儀表板 -->
+	<div class="hf-m-step hf-m-r">
+		<MiniCard eyebrow="Step 03 ／ 內部" title="專案儀表板" icon="grid" tag={{ text: "Notion", tone: "notion" }}>
+			<div class="mt-3 space-y-1.5 text-xs">
+				<div class="flex items-center gap-2"><span class="w-11 shrink-0">業主 A</span><div class="hf-bar flex-1"><span style="width:12%"></span></div></div>
+				<div class="flex items-center gap-2"><span class="w-11 shrink-0">業主 B</span><div class="hf-bar flex-1"><span style="width:68%"></span></div></div>
+			</div>
+		</MiniCard>
+	</div>
+
+	{(() => { const w = wire("r", "l"); return (
+		<div class="hf-m-wire hf-m-wire--pill" style={`--x1:${w.x1}%;--x2:${w.x2}%`}>
+			<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="hf-line" vector-effect="non-scaling-stroke" d={`M${w.x1} 0 C${w.x1} 55, ${w.x2} 45, ${w.x2} 100`} /></svg>
+			<i class="hf-m-dot"></i><i class="hf-m-arrow"></i>
+			<div class="hf-m-pill"><NotifyPill icon="user" who="業主 A" text="專案頁已開通" /></div>
+		</div>
+	); })()}
+
+	<!-- 業主專案頁（玻璃） -->
+	<div class="hf-m-step hf-m-l">
+		<div class="hf-glow hf-glow--pink" style="width:220px;height:220px;left:-30px;top:-40px"></div>
+		<div class="hf-glow hf-glow--sky" style="width:200px;height:200px;right:-50px;bottom:-40px"></div>
+		<MiniCard eyebrow="Step 03 ／ 業主端" title="業主 A 的專案頁" icon="user" tone="glass" tag={{ text: "待確認 1", tone: "ai" }}>
+			<ol class="hf-timeline mt-3">
+				<li class="is-done">簽約</li>
+				<li class="is-now">施工中</li>
+				<li>驗收</li>
+			</ol>
+		</MiniCard>
 	</div>
 </div>
 
 <style>
+	.hf-m {
+		display: flex;
+		flex-direction: column;
+	}
 	.hf-m-step {
 		position: relative;
+		width: 72%;
 		transition:
 			opacity 0.6s ease,
 			transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 	}
-	/* 線：粉色虛線＋箭頭，在兩張卡中間 */
+	.hf-m-l {
+		align-self: flex-start;
+	}
+	.hf-m-r {
+		align-self: flex-end;
+	}
+
+	/* 線：從上一張卡的中間彎到下一張卡的中間 */
 	.hf-m-wire {
 		position: relative;
-		display: flex;
-		justify-content: center;
-		height: 44px;
+		height: 40px;
+		transition: clip-path 0.6s ease;
+		clip-path: inset(0 0 0 0);
 	}
 	.hf-m-wire--pill {
-		height: 92px;
-		align-items: center;
+		height: 84px;
 	}
-	.hf-m-line {
+	.hf-m-wire svg {
 		position: absolute;
-		top: 6px;
-		bottom: 6px;
-		left: 50%;
-		width: 0;
-		border-left: 1.5px dashed var(--color-brand);
-		transform-origin: top;
-		transition: transform 0.5s ease;
+		inset: 5px 0 7px;
+		width: 100%;
+		height: calc(100% - 12px);
+		overflow: visible;
 	}
-	.hf-m-line::before {
+	.hf-m-dot,
+	.hf-m-arrow {
+		position: absolute;
+	}
+	.hf-m-dot {
 		/* 起點圓點 */
-		content: "";
-		position: absolute;
-		top: -3px;
-		left: -4.5px;
+		top: 1px;
+		left: var(--x1);
 		width: 7px;
 		height: 7px;
+		margin-left: -3.5px;
 		border-radius: 999px;
 		background: var(--color-brand);
 	}
-	.hf-m-line::after {
+	.hf-m-arrow {
 		/* 箭頭 */
-		content: "";
-		position: absolute;
-		bottom: -2px;
-		left: -5.5px;
+		bottom: 0;
+		left: var(--x2);
+		margin-left: -5px;
 		border: 5px solid transparent;
 		border-top: 8px solid var(--color-brand);
 		border-bottom: 0;
 	}
 	.hf-m-pill {
-		position: relative;
+		position: absolute;
 		z-index: 1;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
 		transition:
-			opacity 0.35s ease 0.25s,
-			transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s;
+			opacity 0.35s ease 0.3s,
+			transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s;
+	}
+
+	/* 線從膠囊後面穿過，膠囊底色加深一點，字才不會被線劃過 */
+	.hf-m-pill :global(.hf-glass) {
+		background: linear-gradient(135deg, rgb(255 255 255 / 0.92), rgb(255 255 255 / 0.8));
 	}
 
 	/* 動態：還沒捲到的先藏 */
@@ -96,12 +178,12 @@ import "../../styles/hero-flow.css";
 		opacity: 0;
 		transform: translateY(18px);
 	}
-	.hf-m.is-anim .hf-m-wire:not(.is-in) .hf-m-line {
-		transform: scaleY(0);
+	.hf-m.is-anim .hf-m-wire:not(.is-in) {
+		clip-path: inset(0 0 100% 0);
 	}
 	.hf-m.is-anim .hf-m-wire:not(.is-in) .hf-m-pill {
 		opacity: 0;
-		transform: scale(0.85);
+		transform: translate(-50%, -50%) scale(0.85);
 	}
 </style>
 
