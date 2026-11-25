@@ -44,14 +44,7 @@ const edges = [
 	{ id: "sync", from: "dashboard:r:0.30", to: "client:r:0.20", sync: true }, // 內外同步
 ];
 
-// 光暈：墊在玻璃元素後面
-const glows = [
-	{ tone: "pink", x: 540, y: -60, size: 300 },
-	{ tone: "sky", x: 760, y: 40, size: 260 },
-	{ tone: "pink", x: 620, y: 360, size: 320 },
-	{ tone: "pink", x: 900, y: 380, size: 340 },
-	{ tone: "sky", x: 1080, y: 520, size: 320 },
-];
+// 光暈：11/25 從卡片背後移到整個首屏的四角（在 Hero.astro）
 
 const pos = (k: keyof typeof layout) => {
 	const p = layout[k] as { x: number; y: number; w?: number };
@@ -61,9 +54,6 @@ const pos = (k: keyof typeof layout) => {
 
 <div class="hf-frame" data-hf-frame data-editable={editable ? "true" : undefined} style={`aspect-ratio:${W}/${H}`}>
 	<div class="hf-canvas" data-hf-canvas style={`width:${W}px;height:${H}px`}>
-		{glows.map((g) => (
-			<div class={`hf-glow hf-glow--${g.tone}`} style={`left:${g.x}px;top:${g.y}px;width:${g.size}px;height:${g.size}px`}></div>
-		))}
 
 		<svg class="hf-wires" width={W} height={H} viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
 			<defs>

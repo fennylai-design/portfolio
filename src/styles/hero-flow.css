@@ -5,13 +5,23 @@
    class 一律 hf- 開頭，避免跟網站其他樣式打架。
    ============================================================ */
 
-/* --- 舞台：米色底＋點點網格＋淡粉藍光暈 --- */
+/* --- 舞台：米色底＋淡出網格（11/25 點點改網格，跟服務方案同一套）＋四角光暈 --- */
 .hf-stage {
 	position: relative;
 	background-color: var(--color-base);
-	background-image: radial-gradient(rgb(34 29 33 / 0.13) 1px, transparent 1.2px);
-	background-size: 18px 18px;
 	overflow: hidden;
+}
+.hf-grid {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background-image:
+		linear-gradient(rgb(34 29 33 / 0.04) 1px, transparent 1px),
+		linear-gradient(90deg, rgb(34 29 33 / 0.04) 1px, transparent 1px);
+	background-size: 48px 48px;
+	background-position: center top;
+	-webkit-mask-image: radial-gradient(ellipse 80% 75% at 50% 45%, #000 40%, transparent 100%);
+	mask-image: radial-gradient(ellipse 80% 75% at 50% 45%, #000 40%, transparent 100%);
 }
 .hf-glow {
 	position: absolute;

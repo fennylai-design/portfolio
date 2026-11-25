@@ -3,14 +3,32 @@ import Button from "../ui/Button.astro";
 import HeroFlow from "../hero-flow/HeroFlow.astro";
 import HeroFlowMobile from "../hero-flow/HeroFlowMobile.astro";
 import { hero } from "../../content/interior";
+import { heroGlows, type HeroGlow } from "../../content/hero-glows";
+
+// glows：預設讀設定檔；調整頁會傳 editable 讓光暈可以拖
+interface Props {
+	glows?: HeroGlow[];
+	editable?: boolean;
+}
+const { glows = heroGlows, editable = false } = Astro.props;
 ---
 
 <!-- 首屏（11/25 改版）：文字置中，流程圖放在大標與副標中間
      桌機（lg 以上）：大標 → 寬幅流程圖（含動態）→ 副標 → 按鈕
      手機／平板：大標 → 副標 → 按鈕 → 直式流程圖（流程圖很長，副標放前面才不會被擠到很下面）
      流程圖的卡片、位置、動態都在 components/hero-flow/ -->
-<section id="top" class="hf-stage snap-start pb-20 pt-28">
-	<div class="mx-auto flex w-full max-w-6xl flex-col px-6">
+<section id="top" class="hf-stage snap-start pb-20 pt-28" data-hero-stage data-editable={editable ? "true" : undefined}>
+	<!-- 背景：網格＋四角光暈（位置、大小、透明度在 content/hero-glows.ts，用 /lab/hero-glows/ 調） -->
+	<div class="hf-grid" aria-hidden="true"></div>
+	{glows.map((g, i) => (
+		<div
+			class={`hf-glow hf-glow--${g.tone}`}
+			data-hero-glow={i}
+			style={`width:${g.size}px;height:${g.size}px;left:${g.x}%;top:${g.y}%;opacity:${g.opacity};transform:translate(-50%,-50%)`}
+			aria-hidden="true"
+		></div>
+	))}
+	<div class="relative mx-auto flex w-full max-w-6xl flex-col px-6">
 		<h1 class="mx-auto max-w-3xl text-center font-serif lg:max-w-5xl text-[2rem] font-bold leading-tight text-ink sm:text-[2.5rem]">
 			{hero.title}
 		</h1>

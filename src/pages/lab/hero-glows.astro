@@ -1,0 +1,168 @@
+---
+// 首屏光暈調整頁（只在 localhost 看，正式網站不出現）
+// 網址：http://localhost:4330/portfolio/lab/hero-glows/
+// 拖曳光暈中心的圓點改位置；右下面板調大小、透明度、顏色，可新增／刪除；按「複製設定」貼回 src/content/hero-glows.ts
+import Layout from "../../layouts/Layout.astro";
+import Hero from "../../components/sections/Hero.astro";
+import { heroGlows } from "../../content/hero-glows";
+
+if (import.meta.env.PROD) return Astro.redirect(import.meta.env.BASE_URL);
+---
+
+<Layout title="首屏光暈調整">
+	<Hero editable />
+	<aside id="glow-panel" class="fixed bottom-4 right-4 z-50 max-h-[80vh] w-80 overflow-auto rounded-2xl border border-ink/10 bg-white/95 p-4 text-sm shadow-xl backdrop-blur">
+		<div class="flex items-center justify-between">
+			<strong>首屏光暈</strong>
+			<button id="glow-add" class="rounded-full border border-ink/15 px-3 py-1">＋ 新增</button>
+		</div>
+		<p class="mt-1 text-xs text-muted">拖曳畫面上的圓點改位置</p>
+		<div id="glow-rows" class="mt-3 space-y-3"></div>
+		<button id="glow-copy" class="mt-4 w-full rounded-full bg-ink px-4 py-2 font-bold text-base text-white">複製設定</button>
+		<textarea id="glow-out" class="mt-3 h-32 w-full rounded-lg border border-ink/10 p-2 font-mono text-[11px]" readonly></textarea>
+	</aside>
+</Layout>
+
+<style is:global>
+	[data-hero-stage][data-editable] .hf-glow {
+		outline: 1px dashed rgb(34 29 33 / 0.35);
+		filter: blur(48px);
+	}
+	.glow-handle {
+		position: absolute;
+		z-index: 40;
+		width: 22px;
+		height: 22px;
+		margin: -11px 0 0 -11px;
+		border-radius: 999px;
+		border: 2px solid #fff;
+		box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+		cursor: grab;
+		color: #fff;
+		font-size: 10px;
+		font-weight: 700;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		touch-action: none;
+	}
+</style>
+
+<script define:vars={{ initial: heroGlows }}>
+	const stage = document.querySelector("[data-hero-stage]");
+	const rows = document.getElementById("glow-rows");
+	const out = document.getElementById("glow-out");
+	const glows = initial.map((g) => ({ ...g }));
+	const colors = { pink: "#d9358d", sky: "#1d80dc" };
+	const round = (n) => Math.round(n * 10) / 10;
+	let els = [];
+
+	function code() {
+		return (
+			"export const heroGlows: HeroGlow[] = [\n" +
+			glows.map((g) => `\t{ tone: "${g.tone}", x: ${round(g.x)}, y: ${round(g.y)}, size: ${Math.round(g.size)}, opacity: ${round(g.opacity * 100) / 100} },`).join("\n") +
+			"\n];"
+		);
+	}
+
+	function render() {
+		stage.querySelectorAll(".hf-glow, .glow-handle").forEach((el) => el.remove());
+		const first = stage.querySelector(".hf-grid");
+		els = [];
+		glows.forEach((g, i) => {
+			const el = document.createElement("div");
+			el.className = `hf-glow hf-glow--${g.tone}`;
+			Object.assign(el.style, { width: `${g.size}px`, height: `${g.size}px`, left: `${g.x}%`, top: `${g.y}%`, opacity: g.opacity, transform: "translate(-50%,-50%)" });
+			first.after(el);
+			els[i] = el;
+			const h = document.createElement("div");
+			h.className = "glow-handle";
+			h.textContent = i + 1;
+			Object.assign(h.style, { left: `${g.x}%`, top: `${g.y}%`, background: colors[g.tone] });
+			h.addEventListener("pointerdown", (e) => {
+				h.setPointerCapture(e.pointerId);
+				const move = (ev) => {
+					const r = stage.getBoundingClientRect();
+					g.x = ((ev.clientX - r.left) / r.width) * 100;
+					g.y = ((ev.clientY - r.top) / r.height) * 100;
+					el.style.left = h.style.left = `${g.x}%`;
+					el.style.top = h.style.top = `${g.y}%`;
+					sync();
+				};
+				const up = () => {
+					h.removeEventListener("pointermove", move);
+					h.removeEventListener("pointerup", up);
+					renderRows();
+				};
+				h.addEventListener("pointermove", move);
+				h.addEventListener("pointerup", up);
+			});
+			stage.appendChild(h);
+		});
+		renderRows();
+	}
+
+	function renderRows() {
+		rows.innerHTML = "";
+		glows.forEach((g, i) => {
+			const row = document.createElement("div");
+			row.className = "rounded-xl border border-ink/10 p-3";
+			row.innerHTML = `
+				<div class="flex items-center justify-between">
+					<span class="font-bold">#${i + 1}　<span class="text-xs text-muted">x ${round(g.x)}%・y ${round(g.y)}%</span></span>
+					<span class="flex gap-2">
+						<select data-k="tone" class="rounded border border-ink/15 px-1"><option value="pink">粉</option><option value="sky">藍</option></select>
+						<button data-del class="text-muted">刪除</button>
+					</span>
+				</div>
+				<label class="mt-2 flex items-center gap-2">大小<input data-k="size" type="range" min="100" max="1000" step="10" class="flex-1"><span data-v="size" class="w-12 text-right"></span></label>
+				<label class="mt-1 flex items-center gap-2">透明度<input data-k="opacity" type="range" min="0" max="1" step="0.05" class="flex-1"><span data-v="opacity" class="w-12 text-right"></span></label>`;
+			row.querySelector('[data-k="tone"]').value = g.tone;
+			row.querySelector('[data-k="size"]').value = g.size;
+			row.querySelector('[data-k="opacity"]').value = g.opacity;
+			const label = () => {
+				row.querySelector('[data-v="size"]').textContent = `${g.size}px`;
+				row.querySelector('[data-v="opacity"]').textContent = `${Math.round(g.opacity * 100)}%`;
+			};
+			label();
+			row.querySelectorAll("[data-k]").forEach((inp) =>
+				inp.addEventListener("input", () => {
+					const k = inp.dataset.k;
+					g[k] = k === "tone" ? inp.value : Number(inp.value);
+					if (k === "tone") return render();
+					// 拉滑桿時只改這顆光暈，不重畫面板，滑桿才拖得動
+					Object.assign(els[i].style, { width: `${g.size}px`, height: `${g.size}px`, opacity: g.opacity });
+					label();
+					sync();
+				}),
+			);
+			row.querySelector("[data-del]").addEventListener("click", () => {
+				glows.splice(i, 1);
+				render();
+			});
+			rows.appendChild(row);
+		});
+		sync();
+	}
+
+	function sync() {
+		out.value = code();
+	}
+
+	document.getElementById("glow-add").addEventListener("click", () => {
+		glows.push({ tone: "pink", x: 50, y: 50, size: 400, opacity: 0.9 });
+		render();
+	});
+	document.getElementById("glow-copy").addEventListener("click", async (e) => {
+		try {
+			await navigator.clipboard.writeText(code());
+			e.target.textContent = "已複製 ✓";
+		} catch {
+			out.select();
+			e.target.textContent = "請手動複製下方文字";
+		}
+		setTimeout(() => (e.target.textContent = "複製設定"), 1500);
+	});
+
+	render();
+</script>
