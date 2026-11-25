@@ -1,17 +1,163 @@
 ---
+// 合作流程（11/25 改版）：5 欄卡片，上方縮圖、下方標題與兩行文字
+// 動態：卡片依序浮現（Staggered Card Reveal）——捲到時從下方 30px、95% 大小、模糊透明浮上來，
+// 由左到右錯開共約 0.9 秒，卡內縮圖／標題／文字再逐一補上；離開畫面時從最後一張開始反向往上淡出。
+// 緩出 power3.out＝cubic-bezier(0.215, 0.61, 0.355, 1)。不裝 GSAP，用 CSS transition＋IntersectionObserver 做同樣效果。
+// 縮圖區（矮版）左上放 01／02／03（Anton）；卡與卡之間有箭頭，浮現過程中畫出來；有圖在 content 填 image（放 public/process/）
 import Section from "../ui/Section.astro";
 import { process } from "../../content/interior";
+import { asset } from "../../lib/asset";
 ---
 
 <Section id="process" tone="night">
 	<h2 class="text-3xl font-bold leading-tight">{process.title}</h2>
-	<ol class="mt-12 grid gap-8 md:grid-cols-5 md:gap-6">
+	<!-- 手機、平板一欄直排（箭頭往下），電腦版五欄一排（箭頭往右） -->
+	<ol class="pc-list mt-12 grid gap-8 lg:grid-cols-5" data-process-list>
 		{process.steps.map((s, i) => (
-			<li class="border-t-2 border-ink pt-4">
-				<span class="text-sm font-semibold text-brand">STEP {i + 1}</span>
-				<h3 class="mt-2 text-xl font-bold leading-snug">{s.name}</h3>
-				<p class="mt-2 text-lg text-ink/80">{s.text}</p>
+			<li class="pc-card relative flex flex-col rounded-[20px]" style={`--i: ${i}; --n: ${process.steps.length}`}>
+				<div class="pc-part pc-thumb relative h-20 overflow-hidden rounded-t-[20px] border-b border-white/10" style="--j: 0">
+					{s.image
+						? <img src={asset(s.image)} alt="" class="h-full w-full object-cover" loading="lazy" />
+						: <span class="pc-num absolute left-5 top-3 leading-none text-ink/40" aria-label={`Step ${i + 1}`}>{String(i + 1).padStart(2, "0")}</span>}
+				</div>
+				<div class="flex flex-1 flex-col p-5">
+					<h3 class="pc-part text-xl font-bold leading-snug" style="--j: 1">{s.name}</h3>
+					<p class="pc-part mt-2 text-base text-ink/80" style="--j: 2">{s.text}</p>
+				</div>
+				{i < process.steps.length - 1 && (
+					<>
+						<!-- 連接箭頭：卡片浮上來後畫出來 -->
+						<svg class="pc-arrow pc-arrow--down absolute left-1/2 top-full h-8 w-3 -translate-x-1/2 text-ink/70 lg:hidden" viewBox="0 0 12 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<path d="M6 3 V27" stroke-dasharray="3 3" />
+							<path d="M2 23 L6 28 L10 23" />
+						</svg>
+						<svg class="pc-arrow pc-arrow--right absolute left-full top-10 hidden h-3 w-8 -translate-y-1/2 text-ink/70 lg:block" viewBox="0 0 32 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<path d="M3 6 H27" stroke-dasharray="3 3" />
+							<path d="M23 2 L28 6 L23 10" />
+						</svg>
+					</>
+				)}
 			</li>
 		))}
 	</ol>
 </Section>
+
+<style>
+	.pc-card {
+		background: linear-gradient(160deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.03));
+		border: 1px solid rgb(255 255 255 / 0.1);
+		box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.1);
+	}
+	/* 步驟數字：Anton 窄體，置左置頂；字級隨螢幕調整，不超出縮圖框（框高 80px） */
+	.pc-num {
+		font-family: "Anton", var(--font-sans);
+		font-size: 48px;
+	}
+	@media (min-width: 1024px) {
+		.pc-num {
+			font-size: 52px;
+		}
+	}
+	.pc-thumb {
+		background:
+			radial-gradient(circle at 80% 15%, rgb(255 255 255 / 0.16), transparent 60%),
+			radial-gradient(circle at 15% 95%, rgb(255 255 255 / 0.08), transparent 55%);
+	}
+
+	/* ---- 動態：只有 JS 啟動（加上 .pc-anim）且沒設定減少動態時才生效，否則內容直接顯示 ---- */
+	@media (prefers-reduced-motion: no-preference) {
+		.pc-anim .pc-card,
+		.pc-anim .pc-part {
+			--ease: cubic-bezier(0.215, 0.61, 0.355, 1);
+		}
+		/* 初始：在下方、縮小、模糊、透明 */
+		.pc-anim .pc-card {
+			opacity: 0;
+			transform: translateY(30px) scale(0.95);
+			filter: blur(8px);
+			transition:
+				opacity 0.9s var(--ease),
+				transform 0.9s var(--ease),
+				filter 0.9s var(--ease);
+		}
+		.pc-anim .pc-part {
+			opacity: 0;
+			transform: translateY(10px);
+			transition:
+				opacity 0.6s var(--ease),
+				transform 0.6s var(--ease);
+		}
+		/* 進場：左到右錯開，5 張共約 0.9 秒（11/25 Fenny：再慢一點）；卡內零件再晚一點逐一補上 */
+		.pc-anim.is-in .pc-card {
+			opacity: 1;
+			transform: none;
+			filter: blur(0);
+			transition-delay: calc(var(--i) * 0.22s);
+		}
+		.pc-anim.is-in .pc-part {
+			opacity: 1;
+			transform: none;
+			transition-delay: calc(var(--i) * 0.22s + 0.35s + var(--j) * 0.1s);
+		}
+		/* 退場：從最後一張開始，往上淡出 */
+		.pc-anim.is-out .pc-card {
+			opacity: 0;
+			transform: translateY(-20px) scale(0.98);
+			filter: blur(4px);
+			transition-duration: 0.45s;
+			transition-delay: calc((var(--n) - 1 - var(--i)) * 0.08s);
+		}
+		.pc-anim.is-out .pc-part {
+			opacity: 1;
+			transform: none;
+		}
+		/* 箭頭（白色虛線）：卡片 i 浮上來後，用遮罩從起點往終點長出來，接到下一張 */
+		.pc-anim .pc-arrow {
+			transition: clip-path 0.5s var(--ease, ease-out);
+		}
+		.pc-anim .pc-arrow--right {
+			clip-path: inset(0 100% 0 0);
+		}
+		.pc-anim .pc-arrow--down {
+			clip-path: inset(0 0 100% 0);
+		}
+		.pc-anim.is-in .pc-arrow {
+			clip-path: inset(0 0 0 0);
+			transition-delay: calc(var(--i) * 0.22s + 0.5s);
+		}
+		.pc-anim.no-tr .pc-arrow {
+			transition: none !important;
+		}
+		/* 重新進場前瞬間歸位用 */
+		.pc-anim.no-tr .pc-card,
+		.pc-anim.no-tr .pc-part {
+			transition: none !important;
+		}
+	}
+</style>
+
+<script>
+	const list = document.querySelector<HTMLElement>("[data-process-list]");
+	if (list && !matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+		list.classList.add("pc-anim");
+		let shown = false;
+		new IntersectionObserver(
+			([entry]) => {
+				if (entry.isIntersecting && !shown) {
+					shown = true;
+					// 從退場狀態回來：先瞬間回到初始位置，再播進場
+					list.classList.add("no-tr");
+					list.classList.remove("is-out");
+					void list.offsetWidth;
+					list.classList.remove("no-tr");
+					requestAnimationFrame(() => list.classList.add("is-in"));
+				} else if (!entry.isIntersecting && shown) {
+					shown = false;
+					list.classList.remove("is-in");
+					list.classList.add("is-out");
+				}
+			},
+			{ threshold: 0, rootMargin: "0px 0px -15% 0px" }, // 卡片頂端進到畫面下方 85% 就播；手機五張直排很高，不能用比例門檻
+		).observe(list);
+	}
+</script>

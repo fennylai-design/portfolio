@@ -16,8 +16,8 @@
 	--color-muted: #8b8589; /* 次要文字、註解、時間戳 */
 
 	/* --- 深色區段（2026-11-24）：兩個深淺交替，像淺色的 base ↔ surface --- */
-	--color-night: #221d21; /* 深底（＝ ink） */
-	--color-night-2: #2d272c; /* 深底稍亮 */
+	--color-night: #0c3069; /* 深底：深藍（11/25 Fenny 改，原暖黑 #221d21） */
+	--color-night-2: #114599; /* 深底稍亮：亮一階的深藍（原 #2d272c） */
 
 	/* --- 品牌亮點色（識別核心） --- */
 	--color-brand: #d9358d; /* Pink 主亮點：CTA、主標籤、頭像識別 */
@@ -126,9 +126,9 @@ body {
    ============================================================ */
 .on-dark {
 	--color-ink: #fefcfa;
-	--color-base: #221d21;
-	--color-surface: #2d272c;
-	--color-muted: #a39ca0;
+	--color-base: #0c3069;
+	--color-surface: #114599;
+	--color-muted: #b4c3dc; /* 藍灰，在兩個深藍上都過 AA（原暖灰 #a39ca0 在 #114599 上只有 3.35） */
 	--color-brand: #f27bb8;
 	color: var(--color-ink);
 }
@@ -139,5 +139,5 @@ body {
 	background: linear-gradient(98.23deg, rgb(255 255 255 / 0.65) 0.05%, rgb(255 255 255 / 0.8) 99.95%);
 }
 .on-dark .nav-glass {
-	background: linear-gradient(98.23deg, rgb(34 29 33 / 0.65) 0.05%, rgb(34 29 33 / 0.8) 99.95%);
+	background: linear-gradient(98.23deg, rgb(12 48 105 / 0.65) 0.05%, rgb(12 48 105 / 0.8) 99.95%);
 }

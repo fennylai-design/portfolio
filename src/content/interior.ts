@@ -74,6 +74,7 @@ export const benefit = {
 
 // ④ 服務方案：第 5 塊
 export const services = {
+	// image：卡片底部插圖，放 public/services/ 後填路徑（例如 "/services/diagnosis.png"），沒填就顯示待補框
 	title: "AI x Notion 工作流導入方案",
 	intro: "包含以下內容：",
 	items: [
@@ -89,7 +90,7 @@ export const services = {
 		},
 		{
 			name: "AI x Notion 流程與系統建置",
-			sub: "AI x Notion 系統建置",
+			sub: "AI x Notion 系統規劃與建置",
 			does: [
 				"2 版使用版面規劃",
 				"2 次資料庫／流程修改",
@@ -110,7 +111,7 @@ export const services = {
 			],
 			gets: "團隊會用、願意用的系統",
 		},
-	],
+	] as { name: string; sub: string; does: string[]; gets: string; image?: string }[],
 };
 
 // ⑤ 接案流程：第 6 塊
@@ -122,7 +123,7 @@ export const process = {
 		{ name: "設計與建置", text: "案場管理，加上業主看到的畫面" },
 		{ name: "試用與調整", text: "團隊實際用一段時間，期間討論調整 1–2 輪" },
 		{ name: "教學與交付", text: "教育訓練、操作手冊、後續支援" },
-	],
+	] as { name: string; text: string; image?: string }[],
 };
 
 // ⑥ 案例：第 7 塊（內容最後補，先放草稿）
