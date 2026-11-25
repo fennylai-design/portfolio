@@ -1,7 +1,8 @@
 ---
 import Section from "../ui/Section.astro";
 import Placeholder from "../ui/Placeholder.astro";
-import { about } from "../../content/interior";
+import { about, benefit } from "../../content/interior";
+import "../../styles/hero-flow.css";
 ---
 
 <Section id="about" tone="surface">
@@ -21,5 +22,20 @@ import { about } from "../../content/interior";
 			</div>
 		</div>
 	</div>
+
+	<!-- 11/25：原本獨立的「合作的好處」區塊，併進來做成一張玻璃卡；後面墊光暈玻璃才看得出來 -->
+	<div id="benefit" class="relative mt-16">
+		<div class="hf-glow hf-glow--pink -left-10 -top-10 h-64 w-64" aria-hidden="true"></div>
+		<div class="hf-glow hf-glow--sky -bottom-10 -right-6 h-64 w-80" aria-hidden="true"></div>
+		<div class="hf-glass p-8 sm:p-12">
+			<h2 class="max-w-3xl text-2xl font-bold leading-tight sm:text-3xl">{benefit.title}</h2>
+			<div class="mt-6 max-w-3xl space-y-4">
+				{benefit.rows.map((r, i) => (
+					<p class={`text-lg ${i === benefit.rows.length - 1 ? "font-bold text-ink" : "text-ink/80"}`}>{r.text}</p>
+				))}
+			</div>
+		</div>
+	</div>
+
 	<Placeholder label={about.logoPlaceholder} class="mt-12 h-20" />
 </Section>
