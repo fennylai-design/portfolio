@@ -1,27 +1,35 @@
 ---
-import { asset } from "../../lib/asset";
 import Button from "../ui/Button.astro";
-import Placeholder from "../ui/Placeholder.astro";
+import HeroFlow from "../hero-flow/HeroFlow.astro";
+import HeroFlowMobile from "../hero-flow/HeroFlowMobile.astro";
 import { hero } from "../../content/interior";
 ---
 
-<!-- 滿版首屏：高度＝整個視窗（導覽列懸浮在上面），內容垂直置中
-     Featured image 版型：桌機左文右圖；手機文字在上、圖在下 -->
-<section id="top" class="flex min-h-svh snap-start items-center bg-base pb-20 pt-28">
-	<div class="mx-auto grid w-full max-w-5xl items-center gap-12 px-6 md:grid-cols-[1.1fr_1fr] md:gap-16">
-		<div>
-			<h1 class="font-serif text-[2rem] font-bold leading-tight text-ink sm:text-[2.5rem]">
-				{hero.title}
-			</h1>
-			<h2 class="mt-6 text-2xl font-bold leading-snug text-ink/80 sm:text-3xl">{hero.lead}</h2>
-			<div class="mt-10">
+<!-- 首屏（11/25 改版）：文字置中，流程圖放在大標與副標中間
+     桌機（lg 以上）：大標 → 寬幅流程圖（含動態）→ 副標 → 按鈕
+     手機／平板：大標 → 副標 → 按鈕 → 直式流程圖（流程圖很長，副標放前面才不會被擠到很下面）
+     流程圖的卡片、位置、動態都在 components/hero-flow/ -->
+<section id="top" class="hf-stage snap-start pb-20 pt-28">
+	<div class="mx-auto flex w-full max-w-6xl flex-col px-6">
+		<h1 class="mx-auto max-w-3xl text-center font-serif lg:max-w-5xl text-[2rem] font-bold leading-tight text-ink sm:text-[2.5rem]">
+			{hero.title}
+		</h1>
+
+		<div class="order-3 mt-12 hidden lg:order-none lg:block">
+			<HeroFlow />
+		</div>
+
+		<div class="order-1 lg:order-none">
+			<h2 class="mx-auto mt-6 max-w-3xl text-center text-xl font-bold leading-snug text-ink/80 sm:text-2xl lg:mt-12">
+				{hero.lead}
+			</h2>
+			<div class="mt-8 text-center">
 				<Button variant="tertiary" href="#about">{hero.secondary} ↓</Button>
 			</div>
 		</div>
-		{hero.image ? (
-			<img src={asset(hero.image)} alt={hero.imageAlt} class="aspect-[4/5] w-full object-cover" />
-		) : (
-			<Placeholder label="首屏主視覺" class="aspect-[4/5] w-full" />
-		)}
+
+		<div class="order-2 mt-14 lg:hidden">
+			<HeroFlowMobile />
+		</div>
 	</div>
 </section>

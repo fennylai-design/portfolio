@@ -1,0 +1,124 @@
+---
+// 首屏流程圖：手機／平板版（lg 以下）
+// 寬幅流程圖縮到手機上字會太小，所以改成直的：卡片由上往下排，中間用直線接起來，
+// 通知膠囊壓在線上。捲到哪張，那張才浮上來、線往下畫出來。
+// HTML 預設全部顯示；JS 才加上 .is-anim 把還沒捲到的先藏起來（沒 JS／減少動態時直接看到全部）
+import ConsultCard from "./ConsultCard.astro";
+import AiCard from "./AiCard.astro";
+import QuoteCard from "./QuoteCard.astro";
+import NotifyPill from "./NotifyPill.astro";
+import DashboardCard from "./DashboardCard.astro";
+import ClientCard from "./ClientCard.astro";
+import "../../styles/hero-flow.css";
+---
+
+<div class="hf-m mx-auto w-full max-w-sm" data-hf-mobile>
+	<div class="hf-m-step"><ConsultCard /></div>
+	<div class="hf-m-wire"><span class="hf-m-line"></span></div>
+	<div class="hf-m-step"><QuoteCard /></div>
+	<div class="hf-m-wire"><span class="hf-m-line"></span></div>
+	<div class="hf-m-step"><AiCard /></div>
+	<div class="hf-m-wire hf-m-wire--pill">
+		<span class="hf-m-line"></span>
+		<div class="hf-m-pill"><NotifyPill icon="bell" who="團隊" text="已分派 5 項任務" /></div>
+	</div>
+	<div class="hf-m-step"><DashboardCard /></div>
+	<div class="hf-m-wire hf-m-wire--pill">
+		<span class="hf-m-line"></span>
+		<div class="hf-m-pill"><NotifyPill icon="user" who="業主 A" text="專案頁已開通" /></div>
+	</div>
+	<div class="hf-m-step relative">
+		<div class="hf-glow hf-glow--pink" style="width:260px;height:260px;left:-40px;top:-40px"></div>
+		<div class="hf-glow hf-glow--sky" style="width:220px;height:220px;right:-40px;bottom:-40px"></div>
+		<ClientCard />
+	</div>
+</div>
+
+<style>
+	.hf-m-step {
+		position: relative;
+		transition:
+			opacity 0.6s ease,
+			transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+	}
+	/* 線：粉色虛線＋箭頭，在兩張卡中間 */
+	.hf-m-wire {
+		position: relative;
+		display: flex;
+		justify-content: center;
+		height: 44px;
+	}
+	.hf-m-wire--pill {
+		height: 92px;
+		align-items: center;
+	}
+	.hf-m-line {
+		position: absolute;
+		top: 6px;
+		bottom: 6px;
+		left: 50%;
+		width: 0;
+		border-left: 1.5px dashed var(--color-brand);
+		transform-origin: top;
+		transition: transform 0.5s ease;
+	}
+	.hf-m-line::before {
+		/* 起點圓點 */
+		content: "";
+		position: absolute;
+		top: -3px;
+		left: -4.5px;
+		width: 7px;
+		height: 7px;
+		border-radius: 999px;
+		background: var(--color-brand);
+	}
+	.hf-m-line::after {
+		/* 箭頭 */
+		content: "";
+		position: absolute;
+		bottom: -2px;
+		left: -5.5px;
+		border: 5px solid transparent;
+		border-top: 8px solid var(--color-brand);
+		border-bottom: 0;
+	}
+	.hf-m-pill {
+		position: relative;
+		z-index: 1;
+		transition:
+			opacity 0.35s ease 0.25s,
+			transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s;
+	}
+
+	/* 動態：還沒捲到的先藏 */
+	.hf-m.is-anim .hf-m-step:not(.is-in) {
+		opacity: 0;
+		transform: translateY(18px);
+	}
+	.hf-m.is-anim .hf-m-wire:not(.is-in) .hf-m-line {
+		transform: scaleY(0);
+	}
+	.hf-m.is-anim .hf-m-wire:not(.is-in) .hf-m-pill {
+		opacity: 0;
+		transform: scale(0.85);
+	}
+</style>
+
+<script>
+	document.querySelectorAll<HTMLElement>("[data-hf-mobile]").forEach((root) => {
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+		if (!("IntersectionObserver" in window)) return;
+		root.classList.add("is-anim");
+		const io = new IntersectionObserver(
+			(entries) =>
+				entries.forEach((e) => {
+					if (!e.isIntersecting) return;
+					e.target.classList.add("is-in");
+					io.unobserve(e.target);
+				}),
+			{ rootMargin: "0px 0px -12% 0px" },
+		);
+		root.querySelectorAll(".hf-m-step, .hf-m-wire").forEach((el) => io.observe(el));
+	});
+</script>

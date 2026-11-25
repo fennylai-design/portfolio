@@ -1,0 +1,33 @@
+---
+// 業主 A 的專案頁（液態玻璃）
+// 動態：兩條案場紀錄依序彈出，最後跳出「待確認 1」
+import { svg } from "./icons";
+---
+<article class="hf-glass p-5">
+	<header class="flex items-center justify-between">
+		<span class="hf-eyebrow">業主 A 的專案頁</span>
+		<span class="hf-tag hf-tag--ai" data-hf-pop="3">待確認 1</span>
+	</header>
+	<ol class="hf-timeline mt-4">
+		<li class="is-done">簽約</li>
+		<li class="is-now">施工中</li>
+		<li>驗收</li>
+	</ol>
+	<ul class="mt-5 space-y-2">
+		<li data-hf-pop="1" class="flex items-center gap-3 rounded-2xl bg-white/55 px-3 py-2.5">
+			<span class="hf-icon !h-8 !w-8 !bg-white/80" set:html={svg("camera", 15)} />
+			<div class="min-w-0 flex-1 leading-tight">
+				<p class="text-sm font-medium">木作完成，已上傳照片</p>
+				<p class="text-xs text-muted">11/28</p>
+			</div>
+		</li>
+		<li data-hf-pop="2" class="flex items-center gap-3 rounded-2xl bg-white/55 px-3 py-2.5">
+			<span class="hf-icon !h-8 !w-8 !bg-white/80" set:html={svg("check", 15)} />
+			<div class="min-w-0 flex-1 leading-tight">
+				<p class="text-sm font-medium">水電完工，請確認</p>
+				<p class="text-xs text-muted">12/02</p>
+			</div>
+			<span class="hf-btn hf-btn--primary !px-3 !py-1 !text-xs">確認</span>
+		</li>
+	</ul>
+</article>

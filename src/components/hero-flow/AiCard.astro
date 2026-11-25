@@ -1,0 +1,28 @@
+---
+// STEP 02 AI 整理需求（跟報價單同步進行）（深黑重點卡）
+// 動態掛鉤：data-hf-tick 打勾、data-hf-text 文字切換（HTML 寫的是完成狀態）；11/25 拿掉進度條
+import { svg } from "./icons";
+import Agents from "./Agents.astro";
+const steps = ["讀取會議紀錄", "整理需求重點", "建立 Notion 專案"];
+---
+<article class="hf-card hf-card--dark p-6">
+	<header class="flex items-center justify-between gap-3">
+		<span class="hf-eyebrow">Step 02 ／ <span data-hf-text data-hf-from="AI 處理中" data-hf-to="AI 完成">AI 完成</span></span>
+		<span class="flex gap-1" aria-hidden="true">
+			<i class="h-1.5 w-1.5 rounded-full bg-white/25"></i>
+			<i class="h-1.5 w-1.5 rounded-full bg-white/45"></i>
+			<i class="h-1.5 w-1.5 rounded-full bg-[#f27bb8]"></i>
+		</span>
+	</header>
+	<div class="mt-4 flex items-center gap-3">
+		<Agents />
+		<h3 class="text-xl font-bold leading-snug">AI 整理需求</h3>
+	</div>
+	<ul class="mt-4 space-y-2.5 text-[15px]">
+		{steps.map((s) => (
+			<li class="hf-tick is-ticked flex items-center gap-2.5" data-hf-tick>
+				<span class="hf-tickbox" set:html={svg("check", 12)} />{s}
+			</li>
+		))}
+	</ul>
+</article>

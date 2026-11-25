@@ -1,0 +1,43 @@
+---
+// STEP 04 內部專案儀表板（含 AI 週報、兩顆按鈕）
+// 動態：新進來的業主 A 進度條長出來、標籤和 AI 週報彈出
+import { svg } from "./icons";
+import Agents from "./Agents.astro";
+const rows = [
+	{ name: "業主 A", pct: 12, tag: "開案中", tone: "wait", fresh: true },
+	{ name: "業主 B", pct: 68, tag: "68%", tone: "neutral" },
+	{ name: "業主 C", pct: 100, tag: "已結案 ★ 5.0", tone: "done" },
+];
+---
+<article class="hf-card p-6">
+	<header class="flex items-center justify-between gap-3">
+		<div class="flex items-center gap-3">
+			<span class="hf-icon" set:html={svg("grid")} />
+			<div>
+				<span class="hf-eyebrow">Step 03 ／ 內部</span>
+				<h3 class="text-lg font-bold leading-snug">專案儀表板</h3>
+			</div>
+		</div>
+		<span class="hf-tag hf-tag--notion">Notion</span>
+	</header>
+	<div class="hf-rows mt-5">
+		{rows.map((r) => (
+			<div>
+				<span class="w-16 shrink-0 font-medium">{r.name}</span>
+				<div class="hf-bar flex-1"><span style={`width:${r.pct}%`} data-hf-grow={r.fresh ? `${r.pct}%` : undefined}></span></div>
+				<span class={`hf-tag hf-tag--${r.tone}`} data-hf-pop={r.fresh ? "" : undefined}>{r.tag}</span>
+			</div>
+		))}
+	</div>
+	<div data-hf-pop class="mt-4 flex items-center gap-3 rounded-2xl bg-pink-50 p-4">
+		<Agents size="sm" />
+		<div class="text-sm leading-relaxed">
+			<p class="font-medium text-brand">AI 週報</p>
+			<p class="mt-0.5 text-ink/80">業主 B 本週完成 2 項，1 項待確認</p>
+		</div>
+	</div>
+	<div class="mt-5 flex flex-wrap gap-2">
+		<span class="hf-btn hf-btn--primary" set:html={svg("chat", 15) + "更新專案進度"} />
+		<span class="hf-btn hf-btn--ghost" set:html={svg("plus", 15) + "新增案場進度"} />
+	</div>
+</article>

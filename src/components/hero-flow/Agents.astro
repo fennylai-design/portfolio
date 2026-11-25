@@ -1,0 +1,10 @@
+---
+// Claude ＋ Codex 兩個頭像疊在一起
+import { logos } from "./icons";
+interface Props { size?: "md" | "sm" }
+const { size = "md" } = Astro.props;
+---
+<span class={`hf-agents ${size === "sm" ? "hf-agents--sm" : ""}`} aria-label="Claude 與 Codex">
+	<span class="hf-agent"><img src={logos.claude} alt="" /></span>
+	<span class="hf-agent"><img src={logos.codex} alt="" /></span>
+</span>

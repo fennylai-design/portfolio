@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* 明確指定掃描 src/，新開的資料夾（例如 pages/lab/）dev 時才會被掃到 */
+@source "../";
 
 /* ============================================================
    Fenny Brand Design Tokens

@@ -1,0 +1,517 @@
+---
+// 首屏流程圖：把各張卡片排在一張 1320×780 的畫布上，用連接線串起來
+// 畫布會依外框寬度等比縮放（字和卡片一起縮），所以位置都用「設計稿上的 px」寫
+// editable：開發時可以直接拖曳卡片，下方會顯示新的座標
+//
+// 動態（11/25 定）：光點沿線跑、卡片從「待命（淡）→ 進行中（粉框）→ 完成」，
+// 跑一次停在完成畫面，只留儀表板 ↔ 業主頁的同步光點慢慢來回。
+// HTML 本身就是「完成畫面」，所以沒開 JS 或系統設定「減少動態」時，直接看到最後的樣子。
+import ConsultCard from "./ConsultCard.astro";
+import AiCard from "./AiCard.astro";
+import QuoteCard from "./QuoteCard.astro";
+import NotifyPill from "./NotifyPill.astro";
+import DashboardCard from "./DashboardCard.astro";
+import ClientCard from "./ClientCard.astro";
+import "../../styles/hero-flow.css";
+
+interface Props {
+	editable?: boolean;
+}
+const { editable = false } = Astro.props;
+
+const W = 1380; // 同步線從右側繞出去，右邊多留空間
+const H = 780;
+
+// 卡片位置（x, y＝左上角；w＝寬度，高度隨內容）
+const layout = {
+	// 11/25 Fenny 第四次調整（整體往下移 20，避免儀表板超出畫布上緣）
+	consult: { x: 20, y: 40, w: 300 },
+	quote: { x: 100, y: 360, w: 260 }, // 11/25 新增：諮詢後產出報價單（位置先放，待 Fenny 拖曳調整）
+	ai: { x: 380, y: 150, w: 310 },
+	notifyTeam: { x: 550, y: 60 },
+	notifyClient: { x: 590, y: 470 },
+	dashboard: { x: 780, y: 0, w: 480 },
+	client: { x: 870, y: 440, w: 360 },
+};
+
+// 連接線：from／to 寫「卡片:邊」，邊＝l 左、r 右、t 上、b 下，可加位置比例（0–1，預設 0.5）
+// sync：兩端都用圓點（雙向同步）
+const edges = [
+	{ id: "consult-quote", from: "consult:b:0.55", to: "quote:t:0.50" },
+	{ id: "consult-ai", from: "consult:r:0.80", to: "ai:l:0.5" }, // 11/25：報價單和 AI 整理同步進行
+	{ id: "ai-dashboard", from: "ai:t:0.55", to: "dashboard:l:0.20" }, // 通知團隊
+	{ id: "ai-client", from: "ai:b:0.70", to: "client:l:0.22" }, // 通知業主
+	{ id: "sync", from: "dashboard:r:0.30", to: "client:r:0.20", sync: true }, // 內外同步
+];
+
+// 光暈：墊在玻璃元素後面
+const glows = [
+	{ tone: "pink", x: 540, y: -60, size: 300 },
+	{ tone: "sky", x: 760, y: 40, size: 260 },
+	{ tone: "pink", x: 620, y: 360, size: 320 },
+	{ tone: "pink", x: 900, y: 380, size: 340 },
+	{ tone: "sky", x: 1080, y: 520, size: 320 },
+];
+
+const pos = (k: keyof typeof layout) => {
+	const p = layout[k] as { x: number; y: number; w?: number };
+	return `left:${p.x}px;top:${p.y}px;${p.w ? `width:${p.w}px;` : ""}`;
+};
+---
+
+<div class="hf-frame" data-hf-frame data-editable={editable ? "true" : undefined} style={`aspect-ratio:${W}/${H}`}>
+	<div class="hf-canvas" data-hf-canvas style={`width:${W}px;height:${H}px`}>
+		{glows.map((g) => (
+			<div class={`hf-glow hf-glow--${g.tone}`} style={`left:${g.x}px;top:${g.y}px;width:${g.size}px;height:${g.size}px`}></div>
+		))}
+
+		<svg class="hf-wires" width={W} height={H} viewBox={`0 0 ${W} ${H}`} aria-hidden="true">
+			<defs>
+				<marker id="hf-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+					<path d="M0 0L10 5L0 10z" class="hf-node" />
+				</marker>
+				<marker id="hf-dot" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7">
+					<circle cx="5" cy="5" r="4" class="hf-node" />
+				</marker>
+				{edges.map((e) => (
+					<mask id={`hf-mask-${e.id}`} maskUnits="userSpaceOnUse" x="-100" y="-100" width={W + 200} height={H + 200}>
+						<!-- 遮罩：白色的這條線畫到哪，粉色虛線就露到哪 -->
+						<path data-edge={e.id} data-role="reveal" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" />
+					</mask>
+				))}
+			</defs>
+			{edges.map((e) => (
+				<g data-edge-group={e.id}>
+					<!-- 底線：還沒跑到時看到的淡灰線 -->
+					<path class="hf-line hf-line--base" data-edge={e.id} data-role="base" data-from={e.from} data-to={e.to} />
+					<!-- 亮線：光點跑過後露出的粉色虛線＋端點 -->
+					<g mask={`url(#hf-mask-${e.id})`}>
+						<path
+							class="hf-line"
+							data-edge={e.id}
+							data-role="lit"
+							marker-start="url(#hf-dot)"
+							marker-end={e.sync ? "url(#hf-dot)" : "url(#hf-arrow)"}
+						/>
+					</g>
+					<circle class="hf-dot" data-edge={e.id} data-role="dot" r="5" />
+				</g>
+			))}
+		</svg>
+
+		<div class="hf-item" data-hf-id="consult" style={pos("consult")}><ConsultCard /></div>
+		<div class="hf-item" data-hf-id="quote" style={pos("quote")}><QuoteCard /></div>
+		<div class="hf-item" data-hf-id="ai" style={pos("ai")}><AiCard /></div>
+		<div class="hf-item hf-item--pill" data-hf-id="notifyTeam" style={pos("notifyTeam") + "z-index:10;"}><NotifyPill icon="bell" who="團隊" text="已分派 5 項任務" /></div>
+		<div class="hf-item hf-item--pill" data-hf-id="notifyClient" style={pos("notifyClient") + "z-index:10;"}><NotifyPill icon="user" who="業主 A" text="專案頁已開通" /></div>
+		<div class="hf-item" data-hf-id="dashboard" style={pos("dashboard")}><DashboardCard /></div>
+		<div class="hf-item" data-hf-id="client" style={pos("client")}><ClientCard /></div>
+	</div>
+</div>
+
+{editable && (
+	<div class="mt-6 rounded-2xl border border-ink/10 bg-white p-4 text-sm">
+		<p class="font-medium">拖曳卡片調整位置；拖曳線兩端的圓點調整線接在哪（白點＝起點、粉點＝箭頭端，拖到哪張卡片的哪一邊就吸附上去）。調好後按「複製座標」貼給 Claude。</p>
+		<pre data-hf-output class="mt-3 max-h-48 overflow-auto rounded-xl bg-surface p-3 text-xs"></pre>
+		<div class="mt-3 flex gap-2">
+			<button type="button" data-hf-copy class="rounded-full bg-ink px-4 py-1.5 text-white">複製座標</button>
+			<button type="button" data-hf-replay class="rounded-full border border-ink/20 px-4 py-1.5">▶ 重播動態</button>
+		</div>
+	</div>
+)}
+
+<style>
+	.hf-frame {
+		position: relative;
+		width: 100%;
+		/* 11/25：整張圖縮小一點（卡片、字、間距一起等比縮），想再大／小就改這個數字 */
+		max-width: 860px;
+		margin-inline: auto;
+	}
+	.hf-canvas {
+		position: absolute;
+		left: 0;
+		top: 0;
+		transform-origin: 0 0;
+		transform: scale(var(--hf-scale, 1));
+	}
+	.hf-wires {
+		position: absolute;
+		inset: 0;
+		overflow: visible;
+		pointer-events: none;
+	}
+	.hf-item {
+		position: absolute;
+		transition:
+			opacity 0.6s ease,
+			filter 0.6s ease,
+			transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+	}
+	[data-editable] .hf-item {
+		cursor: grab;
+		user-select: none;
+	}
+	[data-editable] .hf-item:active {
+		cursor: grabbing;
+	}
+	/* 線端點把手（只在開發模式出現，JS 產生所以用 :global） */
+	:global(.hf-handle) {
+		position: absolute;
+		z-index: 30;
+		width: 16px;
+		height: 16px;
+		margin: -8px 0 0 -8px;
+		border-radius: 999px;
+		background: #fff;
+		border: 2px solid var(--color-brand);
+		box-shadow: 0 1px 4px rgb(34 29 33 / 0.25);
+		cursor: crosshair;
+		touch-action: none;
+	}
+	:global(.hf-handle--to) {
+		background: var(--color-brand);
+	}
+	:global(.hf-handle:hover) {
+		transform: scale(1.3);
+	}
+</style>
+
+<script>
+	type Side = "l" | "r" | "t" | "b";
+	const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+	const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+	const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+	// 0→1 跑 duration 毫秒，每一格呼叫 fn(進度)
+	const tween = (duration: number, fn: (t: number) => void) =>
+		new Promise<void>((resolve) => {
+			const start = performance.now();
+			const tick = (now: number) => {
+				const t = Math.min(1, (now - start) / duration);
+				fn(ease(t));
+				if (t < 1) requestAnimationFrame(tick);
+				else resolve();
+			};
+			requestAnimationFrame(tick);
+		});
+
+	function setup(frame: HTMLElement) {
+		const canvas = frame.querySelector<HTMLElement>("[data-hf-canvas]")!;
+		const W = canvas.offsetWidth;
+		const items = new Map<string, HTMLElement>();
+		frame.querySelectorAll<HTMLElement>("[data-hf-id]").forEach((el) => items.set(el.dataset.hfId!, el));
+		const edgeEl = (id: string, role: string) => frame.querySelector<SVGGeometryElement>(`[data-edge="${id}"][data-role="${role}"]`)!;
+
+		// 每條線「亮到哪」：0＝還沒亮、1＝整條亮（預設全亮＝完成畫面）
+		const lit: Record<string, number> = {};
+		frame.querySelectorAll<SVGPathElement>('[data-role="base"]').forEach((p) => (lit[p.dataset.edge!] = 1));
+
+		// ---- 縮放 ----
+		const rescale = () => frame.style.setProperty("--hf-scale", String(frame.clientWidth / W));
+		new ResizeObserver(rescale).observe(frame);
+		rescale();
+
+		// ---- 畫線 ----
+		const anchor = (spec: string) => {
+			const [id, side, t = "0.5"] = spec.split(":") as [string, Side, string?];
+			const el = items.get(id)!;
+			const x = el.offsetLeft, y = el.offsetTop, w = el.offsetWidth, h = el.offsetHeight;
+			const f = Number(t);
+			if (side === "l") return { x, y: y + h * f, side };
+			if (side === "r") return { x: x + w, y: y + h * f, side };
+			if (side === "t") return { x: x + w * f, y, side };
+			return { x: x + w * f, y: y + h, side };
+		};
+		const dir = { l: [-1, 0], r: [1, 0], t: [0, -1], b: [0, 1] } as const;
+
+		const setReveal = (id: string, p: number) => {
+			lit[id] = p;
+			const r = edgeEl(id, "reveal");
+			const len = r.getTotalLength();
+			r.style.strokeDasharray = `${len} ${len}`;
+			r.style.strokeDashoffset = String(len * (1 - p));
+		};
+
+		let afterDraw: (() => void) | null = null; // 開發模式：畫完線順便更新端點把手
+		const draw = () => {
+			frame.querySelectorAll<SVGPathElement>('[data-role="base"]').forEach((p) => {
+				const a = anchor(p.dataset.from!);
+				const b = anchor(p.dataset.to!);
+				const gap = 6; // 箭頭和卡片之間留一點空隙
+				const ax = a.x + dir[a.side][0] * gap, ay = a.y + dir[a.side][1] * gap;
+				const bx = b.x + dir[b.side][0] * gap, by = b.y + dir[b.side][1] * gap;
+				const k = Math.max(40, Math.hypot(bx - ax, by - ay) * 0.45);
+				const d = `M${ax} ${ay} C${ax + dir[a.side][0] * k} ${ay + dir[a.side][1] * k}, ${bx + dir[b.side][0] * k} ${by + dir[b.side][1] * k}, ${bx} ${by}`;
+				const id = p.dataset.edge!;
+				for (const role of ["base", "lit", "reveal"]) edgeEl(id, role).setAttribute("d", d);
+				setReveal(id, lit[id]);
+			});
+			afterDraw?.();
+		};
+		draw();
+		document.fonts?.ready.then(draw);
+		new ResizeObserver(draw).observe(canvas);
+
+		// ---- 狀態 ----
+		const setState = (id: string, state: "idle" | "active" | "done") => (items.get(id)!.dataset.state = state);
+		const dot = (id: string) => edgeEl(id, "dot") as SVGCircleElement;
+
+		// 光點沿線跑一趟，同時把線點亮；onPass：跑到某個比例時觸發（通知膠囊彈出）
+		const runEdge = async (id: string, duration: number, onPass?: { at: number; fn: () => void }) => {
+			const path = edgeEl(id, "lit");
+			const c = dot(id);
+			const len = path.getTotalLength();
+			c.classList.add("is-on");
+			let passed = false;
+			await tween(duration, (t) => {
+				const pt = path.getPointAtLength(len * t);
+				c.setAttribute("cx", String(pt.x));
+				c.setAttribute("cy", String(pt.y));
+				setReveal(id, t);
+				if (onPass && !passed && t >= onPass.at) {
+					passed = true;
+					onPass.fn();
+				}
+			});
+			c.classList.remove("is-on");
+		};
+
+		// 卡片裡的小動態：data-hf-tick（打勾）、data-hf-grow（進度條長出來）、data-hf-pop（彈出）
+		const q = (id: string, sel: string) => [...items.get(id)!.querySelectorAll<HTMLElement>(sel)];
+		const resetInner = () => {
+			frame.querySelectorAll<HTMLElement>("[data-hf-tick]").forEach((el) => el.classList.remove("is-ticked"));
+			frame.querySelectorAll<HTMLElement>("[data-hf-pop]").forEach((el) => el.classList.add("is-hidden"));
+			frame.querySelectorAll<HTMLElement>("[data-hf-grow]").forEach((el) => (el.style.width = "0%"));
+			frame.querySelectorAll<HTMLElement>("[data-hf-text]").forEach((el) => (el.textContent = el.dataset.hfFrom ?? ""));
+		};
+		const grow = (el: HTMLElement) => (el.style.width = el.dataset.hfGrow!);
+		const pop = (el: HTMLElement) => el.classList.remove("is-hidden");
+		// 照 data-hf-pop 的數字排順序
+		const popSeq = (id: string) => q(id, "[data-hf-pop]").sort((a, b) => Number(a.dataset.hfPop) - Number(b.dataset.hfPop));
+
+		let syncLoop = 0;
+		let runId = 0;
+
+		const play = async () => {
+			const my = ++runId;
+			const alive = () => my === runId;
+			cancelAnimationFrame(syncLoop);
+
+			// 起始：全部待命、線全暗、卡片內容回到開頭
+			items.forEach((_, id) => setState(id, "idle"));
+			Object.keys(lit).forEach((id) => setReveal(id, 0));
+			resetInner();
+			await wait(400);
+			if (!alive()) return;
+
+			// STEP 01 諮詢：亮起 → AI 領取任務
+			setState("consult", "active");
+			await wait(500);
+			q("consult", "[data-hf-pop]").forEach(pop);
+			await wait(600);
+			if (!alive()) return;
+			setState("consult", "done");
+
+			// → STEP 02 兩路同步進行：報價單（項目出現 → 已寄出 → 已簽約）＋ AI 整理需求（逐項打勾）
+			const quoteBranch = (async () => {
+				await runEdge("consult-quote", 800);
+				setState("quote", "active");
+				for (const el of popSeq("quote")) {
+					await wait(320);
+					pop(el);
+				}
+				await wait(450);
+				q("quote", "[data-hf-text]").forEach((el) => (el.textContent = el.dataset.hfTo ?? ""));
+				await wait(500);
+				setState("quote", "done");
+			})();
+			const aiBranch = (async () => {
+				await runEdge("consult-ai", 900);
+				setState("ai", "active");
+				for (const el of q("ai", "[data-hf-tick]")) {
+					await wait(420);
+					el.classList.add("is-ticked");
+				}
+				await wait(300);
+				q("ai", "[data-hf-text]").forEach((el) => (el.textContent = el.dataset.hfTo ?? ""));
+				setState("ai", "done");
+			})();
+			await Promise.all([quoteBranch, aiBranch]);
+			if (!alive()) return;
+
+			// → 分兩路：通知團隊 → 儀表板；通知業主 → 業主頁
+			const toDashboard = (async () => {
+				await runEdge("ai-dashboard", 1100, { at: 0.45, fn: () => setState("notifyTeam", "done") });
+				setState("dashboard", "active");
+				await wait(250);
+				q("dashboard", "[data-hf-grow]").forEach(grow);
+				await wait(500);
+				q("dashboard", "[data-hf-pop]").forEach(pop);
+				await wait(700);
+				setState("dashboard", "done");
+			})();
+			const toClient = (async () => {
+				await wait(250);
+				await runEdge("ai-client", 1200, { at: 0.5, fn: () => setState("notifyClient", "done") });
+				setState("client", "active");
+				for (const el of popSeq("client")) {
+					await wait(380);
+					pop(el);
+				}
+				await wait(600);
+				setState("client", "done");
+			})();
+			await Promise.all([toDashboard, toClient]);
+			if (!alive()) return;
+
+			// 同步線點亮，之後光點慢慢來回（只剩這個一直動）
+			await runEdge("sync", 600);
+			startSync(my);
+		};
+
+		const startSync = (my: number) => {
+			const path = edgeEl("sync", "lit");
+			const c = dot("sync");
+			c.classList.add("is-on", "is-soft");
+			const period = 2600;
+			const t0 = performance.now();
+			const tick = (now: number) => {
+				if (my !== runId) return;
+				const phase = ((now - t0) % (period * 2)) / period; // 0→2
+				const t = ease(phase < 1 ? phase : 2 - phase);
+				const len = path.getTotalLength();
+				const pt = path.getPointAtLength(len * t);
+				c.setAttribute("cx", String(pt.x));
+				c.setAttribute("cy", String(pt.y));
+				syncLoop = requestAnimationFrame(tick);
+			};
+			syncLoop = requestAnimationFrame(tick);
+		};
+
+		// 開發模式不自動播放（停在完成畫面方便調整），按「重播動態」才播
+		// 手機版時這張圖是隱藏的（寬度 0），就不播，省電
+		if (!reduceMotion && !frame.dataset.editable && frame.clientWidth > 0) {
+			// 等字型載好、線畫好再開始，避免一開始位置跳動
+			(document.fonts?.ready ?? Promise.resolve()).then(() => {
+				draw();
+				play();
+			});
+		}
+		document.querySelector("[data-hf-replay]")?.addEventListener("click", () => play());
+
+		if (!frame.dataset.editable) return;
+
+		// ---- 開發用：拖曳卡片 ----
+		const out = document.querySelector<HTMLElement>("[data-hf-output]");
+		const report = () => {
+			const lines = [...items].map(([id, el]) => {
+				const w = el.style.width ? `, w: ${parseInt(el.style.width)}` : "";
+				return `\t${id}: { x: ${el.offsetLeft}, y: ${el.offsetTop}${w} },`;
+			});
+			const edges = [...frame.querySelectorAll<SVGPathElement>('[data-role="base"]')].map((p) => {
+				const sync = p.dataset.edge === "sync" ? ", sync: true" : "";
+				return `\t{ id: "${p.dataset.edge}", from: "${p.dataset.from}", to: "${p.dataset.to}"${sync} },`;
+			});
+			if (out)
+				out.textContent = `const layout = {\n${lines.join("\n")}\n};\n\nconst edges = [\n${edges.join("\n")}\n];`;
+		};
+		report();
+		document.querySelector("[data-hf-copy]")?.addEventListener("click", () => {
+			navigator.clipboard?.writeText(out?.textContent ?? "");
+		});
+
+		// ---- 開發用：拖曳線的端點 ----
+		// 每條線兩端各一個把手，拖到哪張卡片的哪一邊，就吸附到那一邊（最靠近的那條邊）
+		const handles: HTMLElement[] = [];
+		frame.querySelectorAll<SVGPathElement>('[data-role="base"]').forEach((p) => {
+			for (const end of ["from", "to"] as const) {
+				const h = document.createElement("div");
+				h.className = `hf-handle hf-handle--${end}`;
+				h.title = `${p.dataset.edge}（${end === "from" ? "起點" : "箭頭端"}）`;
+				h.dataset.edge = p.dataset.edge;
+				h.dataset.end = end;
+				canvas.appendChild(h);
+				handles.push(h);
+			}
+		});
+		const basePath = (id: string) => edgeEl(id, "base") as unknown as SVGPathElement;
+		afterDraw = () =>
+			handles.forEach((h) => {
+				const a = anchor(basePath(h.dataset.edge!).dataset[h.dataset.end as "from" | "to"]!);
+				h.style.left = `${a.x}px`;
+				h.style.top = `${a.y}px`;
+			});
+		afterDraw();
+
+		// 找離指標最近的卡片邊，回傳「卡片:邊:比例」
+		const nearestSpec = (px: number, py: number) => {
+			let best = { d: Infinity, spec: "" };
+			items.forEach((el, id) => {
+				const x = el.offsetLeft, y = el.offsetTop, w = el.offsetWidth, h = el.offsetHeight;
+				const clamp = (v: number) => Math.min(1, Math.max(0, v));
+				const sides: [Side, number, number, number][] = [
+					["l", x, y + h * clamp((py - y) / h), clamp((py - y) / h)],
+					["r", x + w, y + h * clamp((py - y) / h), clamp((py - y) / h)],
+					["t", x + w * clamp((px - x) / w), y, clamp((px - x) / w)],
+					["b", x + w * clamp((px - x) / w), y + h, clamp((px - x) / w)],
+				];
+				for (const [side, sx, sy, f] of sides) {
+					const d = Math.hypot(px - sx, py - sy);
+					// 比例取到 0.05，比較好對齊
+					if (d < best.d) best = { d, spec: `${id}:${side}:${(Math.round(f * 20) / 20).toFixed(2)}` };
+				}
+			});
+			return best.spec;
+		};
+
+		handles.forEach((h) => {
+			h.addEventListener("pointerdown", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				h.setPointerCapture(e.pointerId);
+				const move = (ev: PointerEvent) => {
+					const r = canvas.getBoundingClientRect();
+					const scale = frame.clientWidth / W;
+					const spec = nearestSpec((ev.clientX - r.left) / scale, (ev.clientY - r.top) / scale);
+					basePath(h.dataset.edge!).dataset[h.dataset.end as "from" | "to"] = spec;
+					draw();
+					report();
+				};
+				const up = () => {
+					h.removeEventListener("pointermove", move);
+					h.removeEventListener("pointerup", up);
+				};
+				h.addEventListener("pointermove", move);
+				h.addEventListener("pointerup", up);
+			});
+		});
+
+		items.forEach((el) => {
+			el.addEventListener("pointerdown", (e) => {
+				e.preventDefault();
+				const scale = frame.clientWidth / W;
+				const sx = e.clientX, sy = e.clientY;
+				const ox = el.offsetLeft, oy = el.offsetTop;
+				el.setPointerCapture(e.pointerId);
+				const move = (ev: PointerEvent) => {
+					// 對齊 10px 格線，比較好對齊
+					const nx = Math.round((ox + (ev.clientX - sx) / scale) / 10) * 10;
+					const ny = Math.round((oy + (ev.clientY - sy) / scale) / 10) * 10;
+					el.style.left = `${nx}px`;
+					el.style.top = `${ny}px`;
+					draw();
+					report();
+				};
+				const up = () => {
+					el.removeEventListener("pointermove", move);
+					el.removeEventListener("pointerup", up);
+				};
+				el.addEventListener("pointermove", move);
+				el.addEventListener("pointerup", up);
+			});
+		});
+	}
+
+	document.querySelectorAll<HTMLElement>("[data-hf-frame]").forEach(setup);
+</script>

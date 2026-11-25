@@ -1,0 +1,25 @@
+---
+// STEP 01 諮詢紀錄：合約／報價待寄出，AI 領取整理摘要的任務
+import { svg } from "./icons";
+import Agents from "./Agents.astro";
+---
+<article class="hf-card p-6">
+	<header class="flex items-center justify-between gap-3">
+		<span class="hf-eyebrow">Step 01 ／ 諮詢</span>
+	</header>
+	<div class="mt-4 flex items-center gap-3">
+		<span class="hf-icon" set:html={svg("doc")} />
+		<div>
+			<h3 class="text-lg font-bold leading-snug">業主 A・新諮詢</h3>
+			<p class="text-xs text-muted">官網表單＋線上會議</p>
+		</div>
+	</div>
+	<div class="hf-rows mt-4">
+		<div><span>合約／報價</span><span class="hf-tag hf-tag--wait">待寄出</span></div>
+	</div>
+	<!-- AI 領取任務：粉色虛線框（參考「已被 agent 領走」） -->
+	<div data-hf-pop class="mt-3 flex items-center gap-3 rounded-2xl border border-dashed border-brand/40 bg-pink-50 px-3 py-2.5">
+		<Agents size="sm" />
+		<p class="text-sm"><span class="font-medium text-brand">AI 摘要</span><span class="text-ink/70">・已領取任務</span></p>
+	</div>
+</article>

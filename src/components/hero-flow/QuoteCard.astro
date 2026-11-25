@@ -1,0 +1,31 @@
+---
+// STEP 02 諮詢後產出報價單（跟 AI 整理需求同步進行）（AI 依諮詢紀錄草擬 → 寄出 → 業主簽約）
+// 動態：項目依序出現，狀態從「已寄出」變「已簽約」（HTML 寫的是完成狀態）
+import { svg, logos } from "./icons";
+const items = ["項目 A", "項目 B"]; // 11/25 Fenny：示意就好，不寫實際服務名
+---
+<article class="hf-card p-5">
+	<header class="flex items-center justify-between gap-3">
+		<span class="hf-eyebrow">Step 02 ／ 報價</span>
+		<span class="hf-tag hf-tag--ai"><img src={logos.claude} alt="" width="13" height="13" />AI 草擬</span>
+	</header>
+	<div class="mt-4 flex items-center gap-3">
+		<span class="hf-icon" set:html={svg("receipt")} />
+		<div>
+			<h3 class="text-lg font-bold leading-snug">業主 A・報價單</h3>
+			<p class="text-xs text-muted">依諮詢紀錄產出</p>
+		</div>
+	</div>
+	<div class="hf-rows mt-4">
+		{items.map((it, i) => (
+			<div data-hf-pop={String(i + 1)}>
+				<span>{it}</span>
+				<span class="text-brand" set:html={svg("check", 15)} />
+			</div>
+		))}
+	</div>
+	<div class="mt-4 flex items-center justify-between">
+		<span class="text-xs text-muted">報價狀態</span>
+		<span class="hf-tag hf-tag--done" data-hf-text data-hf-from="已寄出" data-hf-to="已簽約">已簽約</span>
+	</div>
+</article>
