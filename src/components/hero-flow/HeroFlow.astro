@@ -198,7 +198,8 @@ const pos = (k: keyof typeof layout) => {
 
 	function setup(frame: HTMLElement) {
 		const canvas = frame.querySelector<HTMLElement>("[data-hf-canvas]")!;
-		const W = canvas.offsetWidth;
+		// 畫布設計寬度：從 style 讀，不量 offsetWidth（手機版時這張圖是隱藏的，量到會是 0，縮放就壞掉）
+		const W = parseFloat(canvas.style.width);
 		const items = new Map<string, HTMLElement>();
 		frame.querySelectorAll<HTMLElement>("[data-hf-id]").forEach((el) => items.set(el.dataset.hfId!, el));
 		const edgeEl = (id: string, role: string) => frame.querySelector<SVGGeometryElement>(`[data-edge="${id}"][data-role="${role}"]`)!;
@@ -390,14 +391,19 @@ const pos = (k: keyof typeof layout) => {
 		};
 
 		// 開發模式不自動播放（停在完成畫面方便調整），按「重播動態」才播
-		// 手機版時這張圖是隱藏的（寬度 0），就不播，省電
-		if (!reduceMotion && !frame.dataset.editable && frame.clientWidth > 0) {
+		// 手機版時這張圖是隱藏的（寬度 0），先不播；等視窗放大、圖出現時再播第一次
+		let played = false;
+		const tryPlay = () => {
+			if (played || reduceMotion || frame.dataset.editable || frame.clientWidth === 0) return;
+			played = true;
 			// 等字型載好、線畫好再開始，避免一開始位置跳動
 			(document.fonts?.ready ?? Promise.resolve()).then(() => {
 				draw();
 				play();
 			});
-		}
+		};
+		new ResizeObserver(tryPlay).observe(frame);
+		tryPlay();
 		document.querySelector("[data-hf-replay]")?.addEventListener("click", () => play());
 
 		if (!frame.dataset.editable) return;
