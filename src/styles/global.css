@@ -11,7 +11,7 @@
 @theme {
 	/* --- 色彩：淺色模式（預設） --- */
 	--color-base: #fefcfa; /* 頁面底色，暖白（近白帶一絲暖） */
-	--color-surface: #f6f2ec; /* 卡片、區塊底，比近白底略暖略深以做出層次 */
+	--color-surface: #faf7f3; /* 卡片、區塊底，比近白底略暖略深以做出層次（11/26 Fenny：調淡，原 #f6f2ec） */
 	--color-ink: #221d21; /* 主要文字，暖黑（非純黑） */
 	--color-muted: #8b8589; /* 次要文字、註解、時間戳 */
 
@@ -50,31 +50,32 @@
    全站中文（內文＋標題）皆用它；英數用 Plus Jakarta Sans
    只打包頁面用到的字，每字重 ~75KB（原 ~10MB）
    檔案：public/fonts/GenSekiGothic-{Regular,Medium,Bold}.subset.woff2
+   路徑要帶 /portfolio（astro.config 的 base）；CSS 用不了 asset()，換網域拿掉 base 時這裡也要一起改
    ============================================================ */
 
 @font-face {
 	font-family: "GenSekiGothic";
 	font-weight: 400;
 	font-display: swap;
-	src: url("/fonts/GenSekiGothic-Regular.subset.woff2") format("woff2");
+	src: url("/portfolio/fonts/GenSekiGothic-Regular.subset.woff2") format("woff2");
 }
 @font-face {
 	font-family: "GenSekiGothic";
 	font-weight: 500;
 	font-display: swap;
-	src: url("/fonts/GenSekiGothic-Medium.subset.woff2") format("woff2");
+	src: url("/portfolio/fonts/GenSekiGothic-Medium.subset.woff2") format("woff2");
 }
 @font-face {
 	font-family: "GenSekiGothic";
 	font-weight: 600;
 	font-display: swap;
-	src: url("/fonts/GenSekiGothic-Medium.subset.woff2") format("woff2");
+	src: url("/portfolio/fonts/GenSekiGothic-Medium.subset.woff2") format("woff2");
 }
 @font-face {
 	font-family: "GenSekiGothic";
 	font-weight: 700;
 	font-display: swap;
-	src: url("/fonts/GenSekiGothic-Bold.subset.woff2") format("woff2");
+	src: url("/portfolio/fonts/GenSekiGothic-Bold.subset.woff2") format("woff2");
 }
 
 /* ============================================================
@@ -140,4 +141,42 @@ body {
 }
 .on-dark .nav-glass {
 	background: linear-gradient(98.23deg, rgb(12 48 105 / 0.65) 0.05%, rgb(12 48 105 / 0.8) 99.95%);
+}
+
+/* 螢光筆劃記：副標進到畫面時，品牌粉色帶從左往右快速劃過（帶斜邊、略低於字中線），字同時轉白；捲走時色帶收回、字變回原色。
+   11/26 Fenny：改品牌粉＋白字、進場劃上／離場收回。觸發靠 Hero.astro 的 IntersectionObserver 加 .is-hl-on；
+   --hl-i 是第幾個，依序錯開 0.12 秒 */
+.hl-marker {
+	--hl-d: calc(var(--hl-i, 0) * 0.12s);
+	background-color: transparent;
+	color: inherit;
+	padding: 0 0.2em 0.1em; /* 底部多留一點，色帶整體偏低、像手劃的 */
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+	background-image: linear-gradient(
+		100deg,
+		transparent 0.2em,
+		var(--color-brand) 0.36em,
+		var(--color-brand) calc(100% - 0.36em),
+		transparent calc(100% - 0.2em)
+	);
+	background-repeat: no-repeat;
+	background-size: 0% 100%;
+	background-position: 0 100%;
+	transition:
+		background-size 0.55s cubic-bezier(0.25, 1, 0.5, 1) var(--hl-d),
+		color 0.3s ease var(--hl-d);
+}
+.is-hl-on .hl-marker {
+	background-size: 100% 100%;
+	color: #fff;
+	transition:
+		background-size 0.55s cubic-bezier(0.25, 1, 0.5, 1) var(--hl-d),
+		color 0.25s ease calc(var(--hl-d) + 0.12s);
+}
+@media (prefers-reduced-motion: reduce) {
+	.hl-marker,
+	.is-hl-on .hl-marker {
+		transition: none;
+	}
 }

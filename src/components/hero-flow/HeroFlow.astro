@@ -4,7 +4,7 @@
 // editable：開發時可以直接拖曳卡片，下方會顯示新的座標
 //
 // 動態（11/25 定）：光點沿線跑、卡片從「待命（淡）→ 進行中（粉框）→ 完成」，
-// 跑一次停在完成畫面，只留儀表板 ↔ 業主頁的同步光點慢慢來回。
+// 跑一次停在完成畫面，只留儀表板 ↔ 客戶頁的同步光點慢慢來回。
 // HTML 本身就是「完成畫面」，所以沒開 JS 或系統設定「減少動態」時，直接看到最後的樣子。
 import ConsultCard from "./ConsultCard.astro";
 import AiCard from "./AiCard.astro";
@@ -40,7 +40,7 @@ const edges = [
 	{ id: "consult-quote", from: "consult:b:0.55", to: "quote:t:0.50" },
 	{ id: "consult-ai", from: "consult:r:0.80", to: "ai:l:0.5" }, // 11/25：報價單和 AI 整理同步進行
 	{ id: "ai-dashboard", from: "ai:t:0.55", to: "dashboard:l:0.20" }, // 通知團隊
-	{ id: "ai-client", from: "ai:b:0.70", to: "client:l:0.22" }, // 通知業主
+	{ id: "ai-client", from: "ai:b:0.70", to: "client:l:0.22" }, // 通知客戶
 	{ id: "sync", from: "dashboard:r:0.30", to: "client:r:0.20", sync: true }, // 內外同步
 ];
 
@@ -93,7 +93,7 @@ const pos = (k: keyof typeof layout) => {
 		<div class="hf-item" data-hf-id="quote" style={pos("quote")}><QuoteCard /></div>
 		<div class="hf-item" data-hf-id="ai" style={pos("ai")}><AiCard /></div>
 		<div class="hf-item hf-item--pill" data-hf-id="notifyTeam" style={pos("notifyTeam") + "z-index:10;"}><NotifyPill icon="bell" who="團隊" text="已分派 5 項任務" /></div>
-		<div class="hf-item hf-item--pill" data-hf-id="notifyClient" style={pos("notifyClient") + "z-index:10;"}><NotifyPill icon="user" who="業主 A" text="專案頁已開通" /></div>
+		<div class="hf-item hf-item--pill" data-hf-id="notifyClient" style={pos("notifyClient") + "z-index:10;"}><NotifyPill icon="user" who="客戶 A" text="專案頁已開通" /></div>
 		<div class="hf-item" data-hf-id="dashboard" style={pos("dashboard")}><DashboardCard /></div>
 		<div class="hf-item" data-hf-id="client" style={pos("client")}><ClientCard /></div>
 	</div>
@@ -331,7 +331,7 @@ const pos = (k: keyof typeof layout) => {
 			await Promise.all([quoteBranch, aiBranch]);
 			if (!alive()) return;
 
-			// → 分兩路：通知團隊 → 儀表板；通知業主 → 業主頁
+			// → 分兩路：通知團隊 → 儀表板；通知客戶 → 客戶頁
 			const toDashboard = (async () => {
 				await runEdge("ai-dashboard", 1100, { at: 0.45, fn: () => setState("notifyTeam", "done") });
 				setState("dashboard", "active");

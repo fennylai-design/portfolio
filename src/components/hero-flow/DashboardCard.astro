@@ -1,12 +1,12 @@
 ---
 // STEP 04 內部專案儀表板（含 AI 週報、兩顆按鈕）
-// 動態：新進來的業主 A 進度條長出來、標籤和 AI 週報彈出
+// 動態：新進來的客戶 A 進度條長出來、標籤和 AI 週報彈出
 import { svg } from "./icons";
 import Agents from "./Agents.astro";
 const rows = [
-	{ name: "業主 A", pct: 12, tag: "開案中", tone: "wait", fresh: true },
-	{ name: "業主 B", pct: 68, tag: "68%", tone: "neutral" },
-	{ name: "業主 C", pct: 100, tag: "已結案 ★ 5.0", tone: "done" },
+	{ name: "客戶 A", pct: 12, tag: "開案中", tone: "wait", fresh: true },
+	{ name: "客戶 B", pct: 68, tag: "68%", tone: "neutral" },
+	{ name: "客戶 C", pct: 100, tag: "已結案 ★ 5.0", tone: "done" },
 ];
 ---
 <article class="hf-card p-6">
@@ -33,11 +33,11 @@ const rows = [
 		<Agents size="sm" />
 		<div class="text-sm leading-relaxed">
 			<p class="font-medium text-brand">AI 週報</p>
-			<p class="mt-0.5 text-ink/80">業主 B 本週完成 2 項，1 項待確認</p>
+			<p class="mt-0.5 text-ink/80">客戶 B 本週完成 2 項，1 項待確認</p>
 		</div>
 	</div>
 	<div class="mt-5 flex flex-wrap gap-2">
 		<span class="hf-btn hf-btn--primary" set:html={svg("chat", 15) + "更新專案進度"} />
-		<span class="hf-btn hf-btn--ghost" set:html={svg("plus", 15) + "新增案場進度"} />
+		<span class="hf-btn hf-btn--ghost" set:html={svg("plus", 15) + "新增專案進度"} />
 	</div>
 </article>

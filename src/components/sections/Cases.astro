@@ -1,6 +1,13 @@
 ---
-// 成功案例：三張卡片上下排列（11/24），卡片正面直接看「困難／我的解決方案／成果」
-// 點「看更多圖文」跳出視窗（原生 <dialog>）看案例畫面與補充說明；Esc、點背景、點關閉都能關
+// 成功案例：三張卡片上下排列。11/26 改版：大圓角、每張不同淺色底；正面只放產業＋名稱大標＋成果條列，完整文字在跳窗
+// 點整張卡片（11/26 改；做法是「了解更多」按鈕的透明延伸層蓋滿整張卡，鍵盤 Tab 一樣停在按鈕上）跳出視窗（原生 <dialog>）看案例畫面與補充說明；Esc、點背景、點關閉都能關
+// 動態（11/26）：柔和上浮（Gentle Fade Up）——每張卡捲進畫面時，卡內元素由上到下依序從下方 18px、透明浮上淡入，
+// 間隔 0.14 秒、各 0.9 秒、power2.out 減速，不彈跳不縮放，只播一次。跟合作流程一樣不裝 GSAP，用 CSS transition＋IntersectionObserver。
+// 卡片之間（11/26）：黏著堆疊（Sticky Stacking Cards）——每張卡捲到導覽列下方黏住，停留位置每張往下錯開 24px；
+// 下一張從畫面底部捲到它的黏住位置這段距離，被蓋住的那張同步縮到 90%、變暗，往回捲就恢復（等於 GSAP scrub）。
+// 卡片樣式（11/26）：白卡＋卡片浮起（Hover Lift Card）——滑鼠移上去卡片往上浮 8px、陰影變深變大，
+// 縮圖在原本的框裡慢慢放大到 1.14 倍（框不變、圖被裁切）；離開平滑回原位。0.5 秒緩出（power3.out）。光暈邊框試過後拿掉。
+// 卡片比畫面高時，黏住位置改成「卡片底部貼畫面底部」，讓整張內容都讀得到才被蓋。
 import Section from "../ui/Section.astro";
 import Tag from "../ui/Tag.astro";
 import Placeholder from "../ui/Placeholder.astro";
@@ -9,16 +16,61 @@ import { cases } from "../../content/interior";
 
 <Section id="cases" tone="surface">
 	<h2 class="text-3xl font-bold leading-tight">{cases.title}</h2>
-	<div class="mt-12 grid gap-8">
+	<div class="mt-12 grid gap-8" data-case-stack>
 		{cases.items.map((c, i) => (
+			<div data-stack-item class="stack-item">
 			<article
-				class={`group flex flex-col border border-ink/10 bg-base p-8 transition-[transform,border-color] duration-300 ease-out hover:border-brand motion-safe:hover:scale-[1.02]`}
+				data-case-card
+				class="lift-card group relative flex cursor-pointer flex-col rounded-[2rem] bg-white p-8 sm:p-10"
 			>
-				<Placeholder label="案例畫面" class="mb-6 h-48 sm:h-64" />
-				<div><Tag color="ink">{c.industry}</Tag></div>
-				<h3 class="mt-4 text-xl font-bold leading-snug">{c.title}</h3>
+				<div class="cs-part mb-8" style="--j:0"><div class="lift-thumb overflow-hidden rounded-2xl"><Placeholder label="案例畫面" class="lift-img h-48 sm:h-64" /></div></div>
+				<h3 class="cs-part text-3xl font-bold leading-tight sm:text-4xl" style="--j:1">{c.name}</h3>
 
-				<div class="mt-6 grid max-w-3xl gap-6">
+				<ul class="cs-part mt-8 max-w-3xl space-y-3" style="--j:2">
+					{c.outcomes.map((o) => (
+						<li class="flex gap-3 text-lg font-semibold leading-relaxed text-ink sm:text-xl"><span class="text-brand" aria-hidden="true">✓</span>{o}</li>
+					))}
+				</ul>
+
+				<button
+					type="button"
+					data-case-open={`case-${i}`}
+					aria-haspopup="dialog"
+					style="--j:3"
+					class="cs-part mt-10 self-start text-sm font-bold text-brand underline-offset-4 group-hover:underline after:absolute after:inset-0 after:rounded-[2rem] after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-brand focus-visible:after:ring-offset-2"
+				>
+					了解更多 →
+				</button>
+			</article>
+			</div>
+		))}
+	</div>
+
+	{cases.items.map((c, i) => (
+		<dialog
+			id={`case-${i}`}
+			aria-labelledby={`case-${i}-title`}
+			class="m-auto w-[calc(100%-2rem)] max-w-3xl rounded-[2rem] bg-base p-0 text-ink backdrop:bg-ink/60"
+		>
+			<div class="max-h-[85svh] overflow-y-auto p-8">
+				<div class="flex items-start justify-between gap-4">
+					<Tag color="ink">{c.industry}</Tag>
+					<button
+						type="button"
+						data-case-close
+						aria-label="關閉"
+						class="-mr-2 -mt-2 h-10 w-10 text-2xl leading-none text-muted transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+					>×</button>
+				</div>
+				<h3 id={`case-${i}-title`} class="mt-4 text-xl font-bold leading-snug">{c.title}</h3>
+				<div class="mt-6 space-y-4">
+					{Array.from({ length: c.images }).map((_, n) => (
+						<Placeholder label={`案例畫面 ${n + 1}`} class="h-56 rounded-2xl sm:h-72" />
+					))}
+				</div>
+
+				{/* 原本卡片正面的完整文字，先搬來這裡（11/26），晚點再細調 */}
+				<div class="mt-8 grid gap-6">
 					<div>
 						<p class="text-sm font-semibold text-muted">客戶遇到的困難</p>
 						<p class="mt-2 text-lg text-ink/80">{c.problem}</p>
@@ -42,46 +94,12 @@ import { cases } from "../../content/interior";
 					</div>
 				</div>
 
-				<button
-					type="button"
-					data-case-open={`case-${i}`}
-					aria-haspopup="dialog"
-					class="mt-8 self-start text-sm font-bold text-brand underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-				>
-					了解更多 →
-				</button>
-			</article>
-		))}
-	</div>
-
-	{cases.items.map((c, i) => (
-		<dialog
-			id={`case-${i}`}
-			aria-labelledby={`case-${i}-title`}
-			class="m-auto w-[calc(100%-2rem)] max-w-3xl bg-base p-0 text-ink backdrop:bg-ink/60"
-		>
-			<div class="max-h-[85svh] overflow-y-auto p-8">
-				<div class="flex items-start justify-between gap-4">
-					<Tag color="ink">{c.industry}</Tag>
-					<button
-						type="button"
-						data-case-close
-						aria-label="關閉"
-						class="-mr-2 -mt-2 h-10 w-10 text-2xl leading-none text-muted transition-colors hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-					>×</button>
-				</div>
-				<h3 id={`case-${i}-title`} class="mt-4 text-xl font-bold leading-snug">{c.title}</h3>
-				<div class="mt-6 space-y-4">
-					{Array.from({ length: c.images }).map((_, n) => (
-						<Placeholder label={`案例畫面 ${n + 1}`} class="h-56 sm:h-72" />
-					))}
-				</div>
 				{c.more.length > 0 ? (
 					<div class="mt-8 space-y-4">
 						{c.more.map((p) => <p class="text-lg text-ink/80">{p}</p>)}
 					</div>
 				) : (
-					<Placeholder label="補充說明" class="mt-8 h-24" />
+					<Placeholder label="補充說明" class="mt-8 h-24 rounded-2xl" />
 				)}
 			</div>
 		</dialog>
@@ -89,7 +107,127 @@ import { cases } from "../../content/interior";
 
 </Section>
 
+<style>
+	/* 卡片浮起：陰影平常就有，hover 時變深變大；沒開減少動態才浮起、放大縮圖 */
+	.lift-card {
+		--ease: cubic-bezier(0.215, 0.61, 0.355, 1);
+		box-shadow:
+			0 24px 48px -24px rgba(56, 48, 54, 0.28),
+			0 4px 12px rgba(56, 48, 54, 0.06);
+		transition:
+			transform 0.5s var(--ease),
+			box-shadow 0.5s var(--ease);
+	}
+	.lift-card:hover {
+		box-shadow:
+			0 40px 72px -28px rgba(56, 48, 54, 0.38),
+			0 10px 24px rgba(56, 48, 54, 0.1);
+	}
+	.lift-img {
+		transition: transform 0.6s var(--ease, ease-out);
+	}
+	@media (prefers-reduced-motion: no-preference) {
+		.lift-card:hover {
+			transform: translateY(-8px);
+		}
+		.lift-card:hover .lift-img {
+			transform: scale(1.14);
+		}
+	}
+	/* 只有 JS 啟動（卡片加上 .cs-anim）且沒設定減少動態時才生效，否則內容直接顯示 */
+	@media (prefers-reduced-motion: no-preference) {
+		.cs-anim .cs-part {
+			opacity: 0;
+			transform: translateY(18px);
+			/* power2.out */
+			transition:
+				opacity 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+				transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+		}
+		/* 黏著堆疊：JS 加上 .stack-on 才黏，top 由 JS 依序號與卡片高度算好 */
+		.stack-on .stack-item {
+			position: sticky;
+			transform-origin: 50% 0;
+			transform: scale(calc(1 - 0.1 * var(--p, 0)));
+			filter: brightness(calc(1 - 0.3 * var(--p, 0)));
+			will-change: transform, filter;
+		}
+		.cs-anim.is-in .cs-part {
+			opacity: 1;
+			transform: none;
+			transition-delay: calc(var(--j) * 0.14s);
+		}
+	}
+</style>
+
 <script>
+	// 柔和上浮：每張卡各自偵測，進畫面播一次就不再觀察
+	const cards = document.querySelectorAll<HTMLElement>("[data-case-card]");
+	if (cards.length && !matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+		const io = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (!entry.isIntersecting) return;
+					entry.target.classList.add("is-in");
+					io.unobserve(entry.target);
+				});
+			},
+			{ threshold: 0, rootMargin: "0px 0px -15% 0px" }, // 卡片頂端進到畫面下方 85% 就播
+		);
+		cards.forEach((card) => {
+			card.classList.add("cs-anim");
+			io.observe(card);
+		});
+	}
+
+	// 黏著堆疊：沒開減少動態才啟動
+	const stack = document.querySelector<HTMLElement>("[data-case-stack]");
+	if (stack && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+		const items = Array.from(stack.querySelectorAll<HTMLElement>("[data-stack-item]"));
+		const NAV = 96; // 懸浮導覽列（top-4＋h-16）下方
+		const STEP = 24; // 每張往下錯開，露出前一張的上緣
+		let tops: number[] = [];
+
+		const layout = () => {
+			const vh = window.innerHeight;
+			tops = items.map((el, i) => {
+				const ideal = NAV + i * STEP;
+				const fit = vh - el.offsetHeight - 24; // 太高的卡：底部貼畫面底部
+				const top = Math.min(ideal, fit);
+				el.style.top = `${top}px`;
+				return top;
+			});
+			update();
+		};
+
+		const update = () => {
+			const vh = window.innerHeight;
+			items.forEach((el, i) => {
+				const next = items[i + 1];
+				if (!next) return;
+				// 下一張從畫面底部（0）捲到黏住位置（1）
+				const nextTop = next.getBoundingClientRect().top;
+				const p = Math.min(1, Math.max(0, (vh - nextTop) / (vh - tops[i + 1])));
+				el.style.setProperty("--p", p.toFixed(3));
+			});
+		};
+
+		let ticking = false;
+		const onScroll = () => {
+			if (ticking) return;
+			ticking = true;
+			requestAnimationFrame(() => {
+				update();
+				ticking = false;
+			});
+		};
+
+		stack.classList.add("stack-on");
+		layout();
+		window.addEventListener("scroll", onScroll, { passive: true });
+		window.addEventListener("resize", layout);
+	}
+
 	document.querySelectorAll<HTMLButtonElement>("[data-case-open]").forEach((btn) => {
 		const dlg = document.getElementById(btn.dataset.caseOpen!) as HTMLDialogElement | null;
 		if (!dlg) return;

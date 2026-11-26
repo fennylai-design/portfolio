@@ -1,7 +1,7 @@
 ---
 // 首屏流程圖：手機／平板版（lg 以下）
 // 11/25 改版（Fenny）：卡片左右交錯排、用斜的曲線接起來，內容精簡成標題＋一兩個重點（MiniCard）
-// 順序跟桌機一樣：諮詢 → 報價單 → AI 整理 → 儀表板 → 業主專案頁，通知膠囊壓在線上
+// 順序跟桌機一樣：諮詢 → 報價單 → AI 整理 → 儀表板 → 客戶專案頁，通知膠囊壓在線上
 // 動態：捲到哪張，那張才浮上來、線往下畫出來
 // HTML 預設全部顯示；JS 才加上 .is-anim 把還沒捲到的先藏起來（沒 JS／減少動態時直接看到全部）
 import MiniCard from "./MiniCard.astro";
@@ -23,7 +23,7 @@ const wire = (from: Side, to: Side) => {
 <div class="hf-m mx-auto w-full max-w-sm" data-hf-mobile>
 	<!-- STEP 01 諮詢 -->
 	<div class="hf-m-step hf-m-l">
-		<MiniCard eyebrow="Step 01 ／ 諮詢" title="業主 A・新諮詢" icon="doc">
+		<MiniCard eyebrow="Step 01 ／ 諮詢" title="客戶 A・新諮詢" icon="doc">
 			<div class="mt-3 flex items-center gap-2 rounded-xl border border-dashed border-brand/40 bg-pink-50 px-2.5 py-1.5 text-xs">
 				<Agents size="sm" /><span><span class="font-medium text-brand">AI 摘要</span><span class="text-ink/70">・已領取任務</span></span>
 			</div>
@@ -39,7 +39,7 @@ const wire = (from: Side, to: Side) => {
 
 	<!-- STEP 02 報價單 -->
 	<div class="hf-m-step hf-m-r">
-		<MiniCard eyebrow="Step 02 ／ 報價" title="業主 A・報價單" icon="receipt" tag={{ text: "已簽約", tone: "done" }} />
+		<MiniCard eyebrow="Step 02 ／ 報價" title="客戶 A・報價單" icon="receipt" tag={{ text: "已簽約", tone: "done" }} />
 	</div>
 
 	{(() => { const w = wire("r", "l"); return (
@@ -70,8 +70,8 @@ const wire = (from: Side, to: Side) => {
 	<div class="hf-m-step hf-m-r">
 		<MiniCard eyebrow="Step 03 ／ 內部" title="專案儀表板" icon="grid" tag={{ text: "Notion", tone: "notion" }}>
 			<div class="mt-3 space-y-1.5 text-xs">
-				<div class="flex items-center gap-2"><span class="w-11 shrink-0">業主 A</span><div class="hf-bar flex-1"><span style="width:12%"></span></div></div>
-				<div class="flex items-center gap-2"><span class="w-11 shrink-0">業主 B</span><div class="hf-bar flex-1"><span style="width:68%"></span></div></div>
+				<div class="flex items-center gap-2"><span class="w-11 shrink-0">客戶 A</span><div class="hf-bar flex-1"><span style="width:12%"></span></div></div>
+				<div class="flex items-center gap-2"><span class="w-11 shrink-0">客戶 B</span><div class="hf-bar flex-1"><span style="width:68%"></span></div></div>
 			</div>
 		</MiniCard>
 	</div>
@@ -80,13 +80,13 @@ const wire = (from: Side, to: Side) => {
 		<div class="hf-m-wire hf-m-wire--pill" style={`--x1:${w.x1}%;--x2:${w.x2}%`}>
 			<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="hf-line" vector-effect="non-scaling-stroke" d={`M${w.x1} 0 C${w.x1} 55, ${w.x2} 45, ${w.x2} 100`} /></svg>
 			<i class="hf-m-dot"></i><i class="hf-m-arrow"></i>
-			<div class="hf-m-pill"><NotifyPill icon="user" who="業主 A" text="專案頁已開通" /></div>
+			<div class="hf-m-pill"><NotifyPill icon="user" who="客戶 A" text="專案頁已開通" /></div>
 		</div>
 	); })()}
 
-	<!-- 業主專案頁（玻璃） -->
+	<!-- 客戶專案頁（玻璃） -->
 	<div class="hf-m-step hf-m-l">
-		<MiniCard eyebrow="Step 03 ／ 業主端" title="業主 A 的專案頁" icon="user" tone="glass" tag={{ text: "待確認 1", tone: "ai" }}>
+		<MiniCard eyebrow="Step 03 ／ 客戶端" title="客戶 A 的專案頁" icon="user" tone="glass" tag={{ text: "待確認 1", tone: "ai" }}>
 			<ol class="hf-timeline mt-3">
 				<li class="is-done">簽約</li>
 				<li class="is-now">施工中</li>

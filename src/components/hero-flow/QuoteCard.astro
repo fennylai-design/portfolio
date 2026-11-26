@@ -1,5 +1,5 @@
 ---
-// STEP 02 諮詢後產出報價單（跟 AI 整理需求同步進行）（AI 依諮詢紀錄草擬 → 寄出 → 業主簽約）
+// STEP 02 諮詢後產出報價單（跟 AI 整理需求同步進行）（AI 依諮詢紀錄草擬 → 寄出 → 客戶簽約）
 // 動態：項目依序出現，狀態從「已寄出」變「已簽約」（HTML 寫的是完成狀態）
 import { svg, logos } from "./icons";
 const items = ["項目 A", "項目 B"]; // 11/25 Fenny：示意就好，不寫實際服務名
@@ -12,7 +12,7 @@ const items = ["項目 A", "項目 B"]; // 11/25 Fenny：示意就好，不寫�
 	<div class="mt-4 flex items-center gap-3">
 		<span class="hf-icon" set:html={svg("receipt")} />
 		<div>
-			<h3 class="text-lg font-bold leading-snug">業主 A・報價單</h3>
+			<h3 class="text-lg font-bold leading-snug">客戶 A・報價單</h3>
 			<p class="text-xs text-muted">依諮詢紀錄產出</p>
 		</div>
 	</div>

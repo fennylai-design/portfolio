@@ -13,12 +13,12 @@ if (import.meta.env.PROD) return Astro.redirect(import.meta.env.BASE_URL);
 	<section class="hf-stage px-6 pb-20 pt-16">
 		<div class="mx-auto max-w-6xl">
 			<h1 class="mx-auto max-w-3xl text-center font-serif text-[2rem] font-bold leading-tight text-ink sm:text-[2.5rem]">
-				{hero.title}
+				{hero.titleLines.join("")}
 			</h1>
 			<div class="mt-10">
 				<HeroFlow editable />
 			</div>
-			<h2 class="mx-auto mt-10 max-w-3xl text-center text-2xl font-bold leading-snug text-ink/80 sm:text-3xl">{hero.lead}</h2>
+			<h2 class="mx-auto mt-10 max-w-3xl text-center text-2xl font-bold leading-snug text-ink/80 sm:text-3xl">{hero.leadLines.flat().map((p) => p.text).join("")}</h2>
 		</div>
 	</section>
 </Layout>

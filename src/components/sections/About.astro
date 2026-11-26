@@ -6,20 +6,41 @@ import "../../styles/hero-flow.css";
 ---
 
 <Section id="about" tone="surface">
-	<div class="grid gap-12 md:grid-cols-[240px_1fr]">
-		<Placeholder label={about.photoPlaceholder} class="aspect-square w-48 md:w-full" />
-		<div>
-			<h2 class="text-3xl font-bold leading-tight">{about.greeting}</h2>
-			<div class="mt-8 max-w-2xl space-y-10">
-				{about.sections.map((sec) => (
-					<div>
-						<h3 class="text-xl font-bold leading-snug">{sec.heading}</h3>
-						<div class="mt-3 space-y-2">
-							{sec.paragraphs.map((p) => <p class="text-lg text-ink/80">{p}</p>)}
-						</div>
-					</div>
+	<!-- 11/26 區塊最上方的大字＋一行小字 -->
+	<div class="mb-14 md:mb-20">
+		<p class="text-4xl font-bold leading-tight tracking-tight sm:text-6xl sm:leading-tight">
+			{about.bigLines.map((line) => (
+				<span class="block">{line.map((c) => (c.hl ? <span class="text-brand">{c.text}</span> : c.text))}</span>
+			))}
+		</p>
+		<p class="mt-5 max-w-3xl text-lg text-ink/70">{about.bigSub}</p>
+	</div>
+
+	<!-- 11/26 版型：左大照片，右邊大標 → 短介紹 → 底部數字列（數字列貼齊照片底部） -->
+	<div class="grid gap-10 md:grid-cols-[5fr_7fr] md:gap-14">
+		{about.photo ? (
+			<img src={about.photo} alt={about.photoAlt} class="aspect-[4/5] w-full rounded-2xl object-cover md:aspect-auto md:h-full" />
+		) : (
+			<Placeholder label={about.photoPlaceholder} class="aspect-[4/5] w-full rounded-2xl" />
+		)}
+		<div class="flex flex-col">
+			<h2 class="text-4xl font-bold leading-tight sm:text-5xl sm:leading-tight">
+				{about.headlineLines.map((line) => <span class="block">{line}</span>)}
+			</h2>
+			<div class="mt-8 space-y-1 text-lg leading-relaxed text-ink/80">
+				{about.intro.map((line) => (
+					<p>{line.map((c) => (c.accent ? <span class="text-brand">{c.text}</span> : c.text))}</p>
 				))}
 			</div>
+			<dl class="mt-12 grid grid-cols-3 gap-x-6 gap-y-8 md:mt-auto md:pt-12">
+				{about.stats.map((st) => (
+					<div>
+						<dt class="sr-only">{st.label}</dt>
+						<dd class="text-4xl font-medium leading-none text-ink sm:text-5xl">{st.num}</dd>
+						<dd class="mt-3 text-base leading-snug text-ink/70">{st.label}</dd>
+					</div>
+				))}
+			</dl>
 		</div>
 	</div>
 

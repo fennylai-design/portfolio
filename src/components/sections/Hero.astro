@@ -30,16 +30,24 @@ const { glows = heroGlows, editable = false } = Astro.props;
 	))}
 	<div class="relative mx-auto flex w-full max-w-6xl flex-col px-6">
 		<h1 class="mx-auto max-w-3xl text-center font-serif lg:max-w-5xl text-[2rem] font-bold leading-tight text-ink sm:text-[2.5rem]">
-			{hero.title}
+			{hero.titleLines.map((line) => <span class="block">{line}</span>)}
 		</h1>
 
 		<div class="order-3 mt-12 hidden lg:order-none lg:block">
+			<p class="mb-6 text-center text-lg font-bold text-ink/70">{hero.flowCaption}</p>
 			<HeroFlow />
 		</div>
 
 		<div class="order-1 lg:order-none">
-			<h2 class="mx-auto mt-6 max-w-3xl text-center text-xl font-bold leading-snug text-ink/80 sm:text-2xl lg:mt-12">
-				{hero.lead}
+			<h2 class="mx-auto mt-6 max-w-3xl text-center text-2xl font-bold leading-snug text-ink sm:text-[1.75rem] lg:mt-12" data-hl-group>
+				{(() => {
+					let n = 0; // 第幾個螢光筆，用來錯開進場時間
+					return hero.leadLines.map((line) => (
+						<span class="block">
+							{line.map((p) => (p.hl ? <mark class="hl-marker" style={`--hl-i:${n++}`}>{p.text}</mark> : p.text))}
+						</span>
+					));
+				})()}
 			</h2>
 			<div class="mt-8 text-center">
 				<Button variant="tertiary" href="#about">{hero.secondary} ↓</Button>
@@ -47,7 +55,22 @@ const { glows = heroGlows, editable = false } = Astro.props;
 		</div>
 
 		<div class="order-2 mt-14 lg:hidden">
+			<p class="mb-6 text-center text-base font-bold text-ink/70">{hero.flowCaption}</p>
 			<HeroFlowMobile />
 		</div>
 	</div>
 </section>
+
+<script>
+	// 螢光筆：副標進到畫面就劃上，捲走就收回（11/26）
+	const groups = document.querySelectorAll<HTMLElement>("[data-hl-group]");
+	if ("IntersectionObserver" in window) {
+		const io = new IntersectionObserver(
+			(entries) => entries.forEach((e) => e.target.classList.toggle("is-hl-on", e.isIntersecting)),
+			{ threshold: 0.6 },
+		);
+		groups.forEach((g) => io.observe(g));
+	} else {
+		groups.forEach((g) => g.classList.add("is-hl-on"));
+	}
+</script>
