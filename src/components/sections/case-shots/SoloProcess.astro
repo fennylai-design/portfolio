@@ -57,9 +57,15 @@ const T = {
 	before: [200, 800, 1400], // 以前每站
 	after: [2100, 2800, 3500], // 現在每站
 };
+
+// compact：首頁卡片縮圖用（11/27 Fenny）——只留「現在」的 AI 卡＋審核與決策，拿掉以前、標題、AI 記憶、底部一句和「錯了退回」文字
+interface Props {
+	compact?: boolean;
+}
+const { compact = false } = Astro.props;
 ---
 
-<div class="sf" data-sf>
+<div class:list={["sf", { "sf--compact": compact }]} data-sf>
 	{/* 以前 */}
 	<section class="sf-row sf-row--before" data-at="0">
 		<header class="sf-head">
@@ -163,6 +169,17 @@ const T = {
 </div>
 
 <style>
+	/* 卡片縮圖版 */
+	.sf--compact .sf-row--before,
+	.sf--compact .sf-head,
+	.sf--compact .sf-memory,
+	.sf--compact .sf-note,
+	.sf--compact .sf-arrow-label {
+		display: none;
+	}
+	.sf--compact .sf-row--after .sf-cols {
+		margin-top: 0;
+	}
 	.num {
 		font-variant-numeric: tabular-nums;
 	}

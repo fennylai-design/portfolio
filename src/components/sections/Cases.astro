@@ -13,12 +13,14 @@ import Tag from "../ui/Tag.astro";
 import Placeholder from "../ui/Placeholder.astro";
 import CaseFlow from "./CaseFlow.astro";
 import WeddingCover from "./thumbs/WeddingCover.astro";
-import SoloCover from "./thumbs/SoloCover.astro";
+import SoloProcess from "./case-shots/SoloProcess.astro";
 import CaseDetail from "./CaseDetail.astro";
 import { asset } from "../../lib/asset";
 import { logos } from "../hero-flow/icons";
 // 卡片縮圖（用程式畫）：內容檔的 thumb 欄位對到這裡；沒有就顯示佔位框
-const thumbs: Record<string, any> = { wedding: WeddingCover, solo: SoloCover };
+// 11/27 一人公司卡片改放「預約到報價」整張（以 AI Agent 為主，跟婚顧封面做出區隔）；SoloCover 仍用在內頁「過去 v.s. 現在」
+const thumbs: Record<string, any> = { wedding: WeddingCover, solo: SoloProcess };
+const thumbProps: Record<string, Record<string, unknown>> = { solo: { compact: true } };
 import { cases } from "../../content/interior";
 ---
 
@@ -32,7 +34,7 @@ import { cases } from "../../content/interior";
 				class="lift-card group relative flex cursor-pointer flex-col rounded-[2rem] bg-white p-8 sm:p-10"
 			>
 				<div class="cs-part relative mb-8" style="--j:0">
-					<div class="lift-thumb overflow-hidden rounded-2xl">{c.thumb && thumbs[c.thumb] ? (() => { const Thumb = thumbs[c.thumb!]; return <div class="lift-img"><Thumb /></div>; })() : <Placeholder label="案例畫面" class="lift-img h-48 sm:h-64" />}</div></div>
+					<div class="lift-thumb overflow-hidden rounded-2xl">{c.thumb && thumbs[c.thumb] ? (() => { const Thumb = thumbs[c.thumb!]; return <div class="lift-img"><Thumb {...(thumbProps[c.thumb!] ?? {})} /></div>; })() : <Placeholder label="案例畫面" class="lift-img h-48 sm:h-64" />}</div></div>
 				{/* 11/27 Fenny：卡片正面精簡成「大標＋一句話＋導入膠囊＋看完整案例」；產業標籤、原本、AI 可延伸、標籤都拿掉（資料留在內容檔） */}
 				{/* 11/27 順序：Notion 膠囊 → 模組膠囊 → 大標 → 副標 → 成果（向下排） */}
 				{c.cardTag && (
