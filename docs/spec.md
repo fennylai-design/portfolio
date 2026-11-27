@@ -95,6 +95,16 @@ v1 新增：`Placeholder`：灰色虛線框＋「待補：…」字樣，用在�
 
 目前每個字重約 210KB（853 個非英數字元，2026-11-26 Cheng 回饋改文案後補字；2026-11-27 案例卡改版再補 10 字；2026-11-27 一人公司案例再補 35 字，約 230KB；同日合作流程文案補「辨」）。補字時把舊字型檔裡已有的字一起併進 chars.txt，避免掃描漏掉的字被刪掉；表情符號（👋）不在字型裡，交給系統字體。
 
+### 首屏小字型（2026-11-27 效能優化）
+
+首屏＋導覽列用到的字（約 250 字，含全部英數）另外切成 `public/fonts/GenSekiGothic-{Regular,Medium,Bold}.hero.woff2`（各約 58KB），`global.css` 用 `unicode-range` 讓這些字優先用小檔、`Layout.astro` 先 preload。這樣手機首屏不用等 230KB 的完整檔就是正確字型（模擬慢 4G：首屏字型從 5.1 秒提早到 1.8 秒）。
+
+**首屏文案改了要重做**：
+1. 把首屏、導覽列的新字加進 `scripts/fonts/hero-chars.txt`。
+2. 三個字重各跑：`python3 -m fontTools.subset GenSekiGothic2TW-B.otf --text-file=scripts/fonts/hero-chars.txt --flavor=woff2 --layout-features='*' --output-file=public/fonts/GenSekiGothic-Bold.hero.woff2`（R→Regular、M→Medium）。
+3. 重算 `unicode-range`（字表轉成 U+ 區段，存 `scripts/fonts/hero-unicode-range.txt`），貼回 `global.css` 的四個「首屏小字型」`@font-face`。
+沒重做也不會壞：新字會落到完整字型檔，只是首屏那幾個字晚一點換字。
+
 ## 9. 發布（GitHub Pages）
 
 - 網址：https://fennylai-design.github.io/portfolio/

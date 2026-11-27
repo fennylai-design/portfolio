@@ -29,6 +29,10 @@
 	filter: blur(48px);
 	pointer-events: none;
 }
+/* 11/27 效能：首屏三團大光暈（約 560px）拿掉模糊濾鏡，手機 GPU 很吃力；漸層本身已經往外淡出，看起來幾乎一樣。案例封面的小光暈照舊 */
+[data-hero-stage] .hf-glow {
+	filter: none;
+}
 .hf-glow--pink {
 	background: radial-gradient(circle, rgb(242 123 184 / 0.55), rgb(247 208 229 / 0) 70%);
 }

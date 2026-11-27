@@ -23,15 +23,16 @@ const {
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
 
-		<!-- 字體：Google Fonts（中文動態子集化，比自架更省） -->
+		<!-- 首屏小字型先下載（11/27 效能優化，見 global.css「首屏小字型」） -->
+		<link rel="preload" href={asset("/fonts/GenSekiGothic-Bold.hero.woff2")} as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href={asset("/fonts/GenSekiGothic-Regular.hero.woff2")} as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href={asset("/fonts/GenSekiGothic-Medium.hero.woff2")} as="font" type="font/woff2" crossorigin />
+
+		<!-- Google Fonts：只剩 Anton（合作流程數字）。Noto Serif TC 明體 11/27 拿掉（首屏大標改黑體後沒地方用，它的 CSS 會擋住首屏顯示） -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<!-- Anton：合作流程卡片的步驟數字（11/25），只載入用到的字母數字 -->
 		<link href="https://fonts.googleapis.com/css2?family=Anton&text=012345&display=swap" rel="stylesheet" />
-		<link
-			href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700&display=swap"
-			rel="stylesheet"
-		/>
 
 		<title>{title}</title>
 	</head>
