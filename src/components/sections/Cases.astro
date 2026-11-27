@@ -14,6 +14,7 @@ import Placeholder from "../ui/Placeholder.astro";
 import CaseFlow from "./CaseFlow.astro";
 import WeddingCover from "./thumbs/WeddingCover.astro";
 import CaseDetail from "./CaseDetail.astro";
+import { asset } from "../../lib/asset";
 // 卡片縮圖（用程式畫）：內容檔的 thumb 欄位對到這裡；沒有就顯示佔位框
 const thumbs: Record<string, any> = { wedding: WeddingCover };
 import { cases } from "../../content/interior";
@@ -28,28 +29,29 @@ import { cases } from "../../content/interior";
 				data-case-card
 				class="lift-card group relative flex cursor-pointer flex-col rounded-[2rem] bg-white p-8 sm:p-10"
 			>
-				<div class="cs-part mb-8" style="--j:0"><div class="lift-thumb overflow-hidden rounded-2xl">{c.thumb && thumbs[c.thumb] ? (() => { const Thumb = thumbs[c.thumb!]; return <div class="lift-img"><Thumb /></div>; })() : <Placeholder label="案例畫面" class="lift-img h-48 sm:h-64" />}</div></div>
-				{/* 11/27 Fenny：卡片正面不放產業標籤（跳窗裡保留） */}
-				<h3 class="cs-part text-3xl font-bold leading-tight sm:text-4xl" style="--j:1">{c.name}</h3>
-
-				<div class="cs-part mt-6 max-w-3xl" style="--j:2">
-					<p class="text-lg leading-relaxed text-ink/70"><span class="mr-3 text-sm text-muted">原本</span>{c.before}</p>
-					<p class="mt-4 text-xl font-bold leading-relaxed text-ink sm:text-2xl">{c.headline}</p>
-				</div>
-
-				<div class="cs-part mt-6 max-w-3xl" style="--j:3">
-					<p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-lg font-bold text-brand-deep">
-						<span class="rounded-md bg-brand px-2 py-0.5 text-xs font-bold tracking-wider text-white">AI 可延伸</span>
-						{c.ai.title}
+				<div class="cs-part relative mb-8" style="--j:0">
+					<div class="lift-thumb overflow-hidden rounded-2xl">{c.thumb && thumbs[c.thumb] ? (() => { const Thumb = thumbs[c.thumb!]; return <div class="lift-img"><Thumb /></div>; })() : <Placeholder label="案例畫面" class="lift-img h-48 sm:h-64" />}</div></div>
+				{/* 11/27 Fenny：卡片正面精簡成「大標＋一句話＋導入膠囊＋看完整案例」；產業標籤、原本、AI 可延伸、標籤都拿掉（資料留在內容檔） */}
+				{/* 11/27 順序：Notion 膠囊 → 模組膠囊 → 大標 → 副標 → 成果（向下排） */}
+				{c.cardTag && (
+					<p class="cs-part mb-4" style="--j:1">
+						<span class="card-pill">{c.cardTag.icon && <img src={asset(c.cardTag.icon)} alt="" width="18" height="18" />}{c.cardTag.text}</span>
 					</p>
-					<p class="mt-2 text-base leading-relaxed text-ink/70">{c.ai.text}</p>
-				</div>
-
-				<ul class="cs-part mt-6 flex flex-wrap gap-2" style="--j:4">
-					{c.tags.map((t) => (
-						<li class="rounded-pill bg-surface px-4 py-1.5 text-sm font-semibold text-ink/80">{t}</li>
-					))}
-				</ul>
+				)}
+				{c.modules && (
+					<ul class="cs-part card-modules mb-6 flex-wrap gap-2" style="--j:1">
+						{c.modules.map((m) => <li class="card-pill card-pill--sm">{m}</li>)}
+					</ul>
+				)}
+				<h3 class="cs-part text-3xl font-bold leading-tight sm:text-4xl" style="--j:2">{c.name}</h3>
+				<p class="cs-part mt-4 max-w-3xl text-lg leading-relaxed text-ink/70 sm:text-xl" style="--j:3">{c.subtitle ?? c.headline}</p>
+				{c.cardOutcomes && (
+					<ul class="cs-part mt-6 space-y-2.5" style="--j:4">
+						{c.cardOutcomes.map((o) => (
+							<li class="flex gap-2.5 text-lg font-semibold leading-snug text-ink"><span class="text-brand" aria-hidden="true">✓</span>{o}</li>
+						))}
+					</ul>
+				)}
 
 				<button
 					type="button"
@@ -58,7 +60,7 @@ import { cases } from "../../content/interior";
 					style="--j:5"
 					class="cs-part mt-8 self-start text-sm font-bold text-brand underline-offset-4 group-hover:underline after:absolute after:inset-0 after:rounded-[2rem] after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-brand focus-visible:after:ring-offset-2"
 				>
-					了解更多 →
+					看完整案例 →
 				</button>
 			</article>
 			</div>
@@ -173,6 +175,35 @@ import { cases } from "../../content/interior";
 </Section>
 
 <style>
+	/* 卡片上的導入膠囊：跟內頁膠囊同一種白膠囊 */
+	.card-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.45rem 1rem;
+		border-radius: 999px;
+		background: #fff;
+		box-shadow:
+			0 0 0 1px rgb(34 29 33 / 0.08),
+			0 6px 18px -6px rgb(34 29 33 / 0.15);
+		font-size: 0.9375rem;
+		font-weight: 700;
+	}
+	/* 模組膠囊：手機版藏起來，卡片簡化（11/27 Fenny） */
+	.card-modules {
+		display: none;
+	}
+	@media (min-width: 640px) {
+		.card-modules {
+			display: flex;
+		}
+	}
+	.card-pill--sm {
+		padding: 0.3rem 0.85rem;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: rgb(34 29 33 / 0.8);
+	}
 	/* 內頁：滿版，白底＋左上淡紫、右下淡粉光暈（光暈在 dialog 本身，捲動時不跟著跑） */
 	.case-page {
 		background:

@@ -192,6 +192,10 @@ export const cases = {
 			subtitle: "從資料分散各處，到整合一個客戶專案管理系統",
 			// 內頁最上面的膠囊（取代產業名）；icon 等 Fenny 給 Notion 圖示，放 public/ 後填路徑
 			detailTag: { text: "Notion 導入", icon: "/cases/notion.svg" },
+			// 卡片正面的導入膠囊（11/27 取代「AI 可延伸」）
+			cardTag: { text: "Notion 客戶專案管理系統導入", icon: "/cases/notion.svg" },
+			// 卡片上的成果簡短版（完整版在 outcomes，內頁用）
+			cardOutcomes: ["每週省下 1–3 小時同步資料", "一個按鈕建好專案文件", "客戶協作和內部管理在同一處"],
 			// 11/27 內頁「過去 v.s. 現在」（Fenny 社群圖文的寫法）；**關鍵詞** 會變粗體底線
 			pastNow: {
 				past: { title: "資料散在 Sheet、Doc 和 LINE", text: "同一份資料「**需要重複貼上到很多地方**」，還有營運款項、廠商資料要管；每組新人要一起協作的環節越來越多，現有工具撐不住。" },
@@ -305,6 +309,8 @@ export type CaseItem = {
 	shots?: { key: string; title: string; text: string; conclusion?: string }[]; // 內頁的前後對照圖＋說明＋圖下結論句
 	subtitle?: string; // 內頁大標下的副標
 	detailTag?: { text: string; icon?: string }; // 內頁最上面的膠囊
+	cardTag?: { text: string; icon?: string }; // 卡片正面的導入膠囊
+	cardOutcomes?: string[]; // 卡片上的成果簡短版
 	pastNow?: { past: { title: string; text: string }; now: { title: string; text: string } }; // 內頁「過去 v.s. 現在」
 	flow?: { stage: string; front: string; back: string; joint?: number }[];
 	joints?: { title: string; text: string }[];

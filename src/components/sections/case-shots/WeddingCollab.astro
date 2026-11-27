@@ -24,6 +24,11 @@ const rows = [
 	{ task: "廠商場勘", owner: "Mia", share: false },
 	{ task: "主持稿", owner: "Joy", share: false },
 ];
+// 新人頁下方可展開的區塊：第一個展開、第二個收合
+const toggles = [
+	{ title: "婚禮資料", open: true, items: ["賓客名單", "桌次確認表", "場刊照片紀錄"] },
+	{ title: "當天流程與款項", open: false, items: [] as string[] },
+];
 const homework = [
 	{ task: "賓客名單", done: true, note: "已交" },
 	{ task: "桌次確認", done: false, note: "剩 3 天" },
@@ -91,7 +96,19 @@ const homework = [
 							</li>
 						))}
 					</ul>
-					<p class="mt-2 text-[11px] text-muted">新人只要看這一頁</p>
+					{/* 11/27：下面兩個可展開的區塊，凸顯「只要一頁」就有全部資料 */}
+					<div class="mt-3 space-y-1.5">
+						{toggles.map((t) => (
+							<div class={`wcl-toggle ${t.open ? "is-open" : ""}`}>
+								<p class="wcl-toggle-head"><span class="wcl-caret" aria-hidden="true">▸</span>{t.title}</p>
+								{t.open && (
+									<ul class="wcl-toggle-body">
+										{t.items.map((it) => <li><span class="inline-flex text-muted" set:html={svg("doc", 12)} />{it}</li>)}
+									</ul>
+								)}
+							</div>
+						))}
+					</div>
 				</article>
 			</div>
 		</section>
@@ -141,6 +158,39 @@ const homework = [
 		font-size: 12px;
 		font-weight: 600;
 		color: #8a5d00;
+	}
+
+	/* 新人頁的展開區塊（像 Notion 的切換區塊） */
+	.wcl-toggle {
+		border-radius: 10px;
+		background: #faf7f3;
+		font-size: 12px;
+	}
+	.wcl-toggle-head {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		padding: 6px 10px;
+		font-weight: 600;
+	}
+	.wcl-caret {
+		display: inline-block;
+		font-size: 10px;
+		color: var(--color-muted);
+		transition: transform 0.2s ease;
+	}
+	.wcl-toggle.is-open .wcl-caret {
+		transform: rotate(90deg);
+	}
+	.wcl-toggle-body {
+		padding: 0 10px 8px 26px;
+	}
+	.wcl-toggle-body > li {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		padding: 3px 0;
+		color: rgb(34 29 33 / 0.8);
 	}
 
 	/* 以前：雲端檔案列表 */
