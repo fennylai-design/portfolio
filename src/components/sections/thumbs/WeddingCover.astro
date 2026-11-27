@@ -5,6 +5,12 @@
 import "../../../styles/hero-flow.css";
 import { svg, type IconName } from "../../hero-flow/icons";
 
+// glow：卡片縮圖要光暈；內頁「過去 v.s. 現在」放的那張不要（11/27 Fenny）
+interface Props {
+	glow?: boolean;
+}
+const { glow = true } = Astro.props;
+
 // 工具小圖示：只用各工具的代表色＋簡化圖形，不放官方 logo
 const toolIcon: Record<string, string> = {
 	Sheet: '<svg width="18" height="18" viewBox="0 0 24 24" aria-label="試算表"><rect x="4" y="2" width="16" height="20" rx="2.5" fill="#1e8e3e"/><path d="M8 9h8v8H8zM8 13h8M12 9v8" fill="none" stroke="#fff" stroke-width="1.5"/></svg>',
@@ -30,8 +36,8 @@ const stages: { icon: IconName; label: string; state: "done" | "now" | "todo" }[
 ---
 
 <div class="wc">
-	<span class="hf-glow hf-glow--sky wc-glow wc-glow--tl" aria-hidden="true"></span>
-	<span class="hf-glow hf-glow--pink wc-glow wc-glow--br" aria-hidden="true"></span>
+	{glow && <span class="hf-glow hf-glow--sky wc-glow wc-glow--tl" aria-hidden="true"></span>}
+	{glow && <span class="hf-glow hf-glow--pink wc-glow wc-glow--br" aria-hidden="true"></span>}
 	<div class="wc-layout">
 		<div class="wc-before">
 			<p class="wc-label"><span class="wc-tag wc-tag--before">以前</span>資料散在五個地方</p>

@@ -172,8 +172,9 @@ export const cases = {
 			},
 			// 2–3 小時是 Fenny 估的（原本每週開會對每天貼的進度），所以寫「約」
 			outcomes: [
-				"進度直接在系統裡同步，每週約少開 2–3 小時的進度會議",
-				"開案不用從頭建，一鍵建好專案文件",
+				// 11/27 Fenny 改：時間改「減少每週同步資料管理 1–3 小時」
+				"進度直接在系統裡同步，減少每週同步資料管理 1–3 小時的時間",
+				"一個按鈕就建好專案文件，省下每次開案來回複製的時間",
 				"客戶協作和團隊內部管理，在同一個平台同步進行",
 			],
 			more: [] as string[], // 跳窗裡的補充說明，待補
@@ -182,11 +183,20 @@ export const cases = {
 			// 11/27 跳窗改放四張前後對照圖（取代流程圖、串接點文字、畫面佔位；flow／joints 先留著不刪）
 			// 說明把原本四個串接點的內容併進來；key 對到 Cases.astro 的 shotParts
 			shots: [
-				{ key: "wedding-process", title: "從諮詢到請款，一條固定流程", text: "諮詢表自動帶進洽談紀錄，報價用模板產出，簽約後一鍵開案；訂金、中期款、尾款跟著階段走，廠商在籌備時直接從資料庫挑。" },
-				{ key: "wedding-collab", title: "新人只要看一頁", text: "團隊在內部的籌備進度表更新，新人要做的事同步到新人頁；不用再分享一份份檔案、一筆筆開權限。" },
-				{ key: "wedding-board", title: "每組新人的進度，一眼看清", text: "多組新人同時籌備，婚期倒數、籌備進度、快到期的新人任務，都在同一個看板上。" },
-				{ key: "wedding-ops", title: "營運數字和款項，打開就看得到", text: "簽約數、收入、成本、廠商回佣自動統計；應收應付的款項狀態，不用再對好幾份表。" },
+				{ key: "wedding-process", title: "從諮詢到請款，一條固定流程", text: "諮詢表**自動帶進洽談紀錄**，報價用模板產出，簽約後**一鍵開案**；訂金、中期款、尾款跟著階段走，廠商在籌備時直接從資料庫挑。", conclusion: "每個階段要做的事，都在**同一個地方**接下去" },
+				{ key: "wedding-collab", title: "新人只要看一頁", text: "團隊在內部的籌備進度表更新，新人要做的事**同步到新人頁**；不用再分享一份份檔案、一筆筆開權限。", conclusion: "團隊在內部改，新人頁同步更新，**不用再一個個追問**" },
+				{ key: "wedding-board", title: "每組新人的進度，一眼看清", text: "以前每組新人的進度，要在好幾份 Excel 來回核對；現在追蹤籌備進度，婚期倒數、籌備進度、快到期的新人任務，都在**同一個看板**上，每組新人一眼看清。", conclusion: "好幾組新人同時籌備，也**不會漏掉誰**" },
+				{ key: "wedding-ops", title: "營運數字和款項，打開就看得到", text: "以前收入、成本、款項各記一份；現在簽約數、收入、成本、廠商回佣**自動統計**，應收應付的款項狀態，打開就看得到。", conclusion: "不用對好幾份表，就知道**這個月的狀況**" },
 			],
+			// 11/27 內頁大標下的副標
+			subtitle: "從資料分散各處，到整合一個客戶專案管理系統",
+			// 內頁最上面的膠囊（取代產業名）；icon 等 Fenny 給 Notion 圖示，放 public/ 後填路徑
+			detailTag: { text: "Notion 導入", icon: "/cases/notion.svg" },
+			// 11/27 內頁「過去 v.s. 現在」（Fenny 社群圖文的寫法）；**關鍵詞** 會變粗體底線
+			pastNow: {
+				past: { title: "資料散在 Sheet、Doc 和 LINE", text: "同一份資料「**需要重複貼上到很多地方**」，還有營運款項、廠商資料要管；每組新人要一起協作的環節越來越多，現有工具撐不住。" },
+				now: { title: "一組新人，一個地方", text: "從諮詢到婚禮當天，資料只填一次，一路接到現場；**每個專案內容一目瞭然**。" },
+			},
 			// 11/27 卡片正面改照參考版型：原本／粗體結論／AI 可延伸／標籤（流程梳理見 100_Todo/doing/2026-11-16_產品_作品集規劃.md 三、D）
 			before: "諮詢、報價、籌備資料散在 Sheet 和 Doc，同一份資料「需要重複貼上到很多地方」。",
 			headline: "從諮詢到婚禮當天，新人資料只填一次，一路接到現場要印出來的那張紙。",
@@ -196,11 +206,11 @@ export const cases = {
 			// 跳窗的流程圖：一組新人走過的六個階段，上排新人看到的、下排團隊內部；joint＝對應下方「怎麼串起來」的編號
 			flow: [
 				{ stage: "諮詢", front: "諮詢表", back: "洽談紀錄", joint: 1 },
-				{ stage: "報價簽約", front: "報價單", back: "報價系統", joint: 2 },
-				{ stage: "開案", front: "新人協作頁", back: "內部專案", joint: 3 },
-				{ stage: "籌備", front: "任務時程＋確認清單", back: "廠商、會議紀錄、營運帳", joint: 4 },
+				{ stage: "報價簽約", front: "報價單", back: "報價單管理", joint: 2 },
+				{ stage: "開案", front: "新人協作頁", back: "內部客戶專案管理", joint: 3 },
+				{ stage: "籌備", front: "任務時程＋確認清單", back: "廠商、會議紀錄、營運帳務", joint: 4 },
 				{ stage: "婚禮當天", front: "流程、桌次直接列印", back: "" },
-				{ stage: "婚後", front: "照片紀錄（雲端）", back: "" },
+				{ stage: "結案後", front: "照片紀錄（連結雲端）", back: "" },
 			],
 			// 帳款：新人帳款（要簽收）和內部營運帳完全分開，不要寫成同步
 			joints: [
@@ -209,7 +219,7 @@ export const cases = {
 				{ title: "簽約 → 一鍵開案", text: "一個按鈕同時建好內部專案和新人協作頁，任務時程與整套確認清單一起帶出來。" },
 				{ title: "內部資料 → 新人頁面", text: "廠商資料平常在內部管理，要推薦給新人時直接挑出來分享，不用另外整理一份。" },
 			],
-			modules: ["諮詢表單", "洽談紀錄", "報價系統", "專案看板", "新人協作頁", "廠商資料庫", "會議紀錄（內外分開）", "新人帳款簽收", "內部營運帳"],
+			modules: ["諮詢表單", "洽談紀錄", "報價系統", "專案看板", "新人協作頁", "廠商資料庫", "會議紀錄", "新人帳款簽收", "內部營運帳務"],
 			// 摘自評價區婚顧那則
 			quote: "對我們來說，最有感的是每次開完會後，都會對整體調整的方向更加明確，也更有信心知道正在朝著正確的方向前進。",
 		},
@@ -292,7 +302,10 @@ export type CaseItem = {
 	ai: { title: string; text: string }; // 「AI 可延伸」：還沒導入、可以接上的
 	tags: string[];
 	thumb?: string; // 卡片縮圖元件代號，對到 Cases.astro 的 thumbs
-	shots?: { key: string; title: string; text: string }[]; // 跳窗的前後對照圖＋說明
+	shots?: { key: string; title: string; text: string; conclusion?: string }[]; // 內頁的前後對照圖＋說明＋圖下結論句
+	subtitle?: string; // 內頁大標下的副標
+	detailTag?: { text: string; icon?: string }; // 內頁最上面的膠囊
+	pastNow?: { past: { title: string; text: string }; now: { title: string; text: string } }; // 內頁「過去 v.s. 現在」
 	flow?: { stage: string; front: string; back: string; joint?: number }[];
 	joints?: { title: string; text: string }[];
 	modules?: string[];

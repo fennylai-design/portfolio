@@ -1,0 +1,221 @@
+---
+// 案例內頁（11/27）：照 Fenny 自己的社群圖文風格——白底＋角落淡粉紫光暈、大粗標題、白色膠囊小標（編號）、
+// 字大行距寬、關鍵詞粗體加底線、圖放白色圓角框、圖下一句置中結論。不用星星、不用歪斜貼紙。
+// 目前只有有 shots 的案例（婚顧）用這個版型；文字裡用 **關鍵詞** 標粗體底線。
+import type { CaseItem } from "../../content/interior";
+import WeddingThumb from "./thumbs/WeddingThumb.astro";
+import WeddingCover from "./thumbs/WeddingCover.astro";
+import CaseFlow from "./CaseFlow.astro";
+import { asset } from "../../lib/asset";
+import WeddingProcess from "./case-shots/WeddingProcess.astro";
+import WeddingCollab from "./case-shots/WeddingCollab.astro";
+import WeddingOps from "./case-shots/WeddingOps.astro";
+
+interface Props {
+	c: CaseItem;
+	titleId: string;
+}
+const { c, titleId } = Astro.props;
+// 卡片上的封面圖，內頁「過去 v.s. 現在」也放一張
+const covers: Record<string, any> = { wedding: WeddingCover };
+const Cover = c.thumb ? covers[c.thumb] : null;
+
+// 內容檔 shots[].key 對到圖
+const shotParts: Record<string, { C: any; props?: Record<string, unknown> }> = {
+	"wedding-process": { C: WeddingProcess },
+	"wedding-collab": { C: WeddingCollab },
+	"wedding-board": { C: WeddingThumb },
+	"wedding-ops": { C: WeddingOps },
+};
+
+// **關鍵詞** → 粗體底線（先跳脫 HTML）
+const rich = (t: string) =>
+	t
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/\*\*(.+?)\*\*/g, '<strong class="cd-key">$1</strong>');
+---
+
+<article class="cd">
+	<header class="text-center">
+		{c.detailTag ? (
+			<span class="cd-pill">{c.detailTag.icon && <img src={asset(c.detailTag.icon)} alt="" width="20" height="20" />}{c.detailTag.text}</span>
+		) : (
+			<span class="cd-pill">{c.industry}</span>
+		)}
+		<h2 id={titleId} class="mt-5 text-3xl font-bold leading-snug sm:text-4xl">{c.name}</h2>
+		<p class="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-ink/70 sm:text-xl" set:html={rich(c.subtitle ?? c.headline)} />
+	</header>
+
+	{c.pastNow && (
+		<section class="cd-section">
+			<h3 class="cd-h">過去 v.s. 現在</h3>
+			<div class="mt-8 space-y-8">
+				<div class="cd-past">
+					<p class="text-xl font-bold sm:text-2xl">過去：{c.pastNow.past.title}</p>
+					<p class="cd-body mt-3" set:html={rich(c.pastNow.past.text)} />
+				</div>
+				<div>
+					<p class="text-xl font-bold sm:text-2xl">現在：{c.pastNow.now.title}</p>
+					<p class="cd-body mt-3" set:html={rich(c.pastNow.now.text)} />
+				</div>
+			</div>
+			{Cover && <div class="cd-frame mt-10"><Cover glow={false} /></div>}
+		</section>
+	)}
+
+	<section class="cd-section">
+		<h3 class="cd-h">我怎麼串起整個流程</h3>
+		<div class="mt-10 space-y-20">
+			{c.shots!.map((sh, n) => {
+				const part = shotParts[sh.key];
+				return (
+					<div>
+						<span class="cd-pill"><span class="cd-num">{n + 1}</span>{sh.title}</span>
+						<p class="cd-body mt-4" set:html={rich(sh.text)} />
+						{part && <div class="cd-frame mt-6"><part.C {...part.props} /></div>}
+						{sh.conclusion && <p class="mt-6 text-center text-lg font-semibold sm:text-xl" set:html={rich(sh.conclusion)} />}
+					</div>
+				);
+			})}
+		</div>
+	</section>
+
+	{(c.modules || c.flow) && (
+		<section class="cd-section">
+			<h3 class="cd-h">整合的模組與工作流程</h3>
+			{c.modules && (
+				<div class="mt-8">
+					<p class="cd-sub">模組</p>
+					<ul class="mt-4 flex flex-wrap justify-center gap-2.5">
+						{c.modules.map((m) => <li class="cd-pill cd-pill--sm">{m}</li>)}
+					</ul>
+				</div>
+			)}
+			{c.flow && (
+				<div class="mt-12">
+					<p class="cd-sub">工作流程示意圖</p>
+					<div class="cd-frame mt-4"><CaseFlow flow={c.flow} /></div>
+				</div>
+			)}
+		</section>
+	)}
+
+	<section class="cd-section">
+		<h3 class="cd-h">導入後的改變</h3>
+		<ul class="mx-auto mt-8 max-w-2xl space-y-4">
+			{c.outcomes.map((o) => (
+				<li class="cd-body flex gap-3"><span class="font-bold text-brand" aria-hidden="true">✓</span><span>{o}</span></li>
+			))}
+		</ul>
+	</section>
+
+	{c.quote && (
+		<section class="cd-section">
+			<h3 class="cd-h">客戶怎麼說</h3>
+			<blockquote class="cd-frame mx-auto mt-8 max-w-2xl p-7 text-lg leading-relaxed text-ink/80 sm:p-9">
+				{c.quote}
+			</blockquote>
+		</section>
+	)}
+</article>
+
+<style>
+	.cd {
+		color: var(--color-ink);
+	}
+	.cd-section {
+		margin-top: 6rem;
+	}
+	/* 段落大標：置中、大、粗 */
+	.cd-h {
+		text-align: center;
+		color: var(--color-darkblue);
+		font-size: 1.75rem;
+		font-weight: 700;
+		line-height: 1.35;
+	}
+	@media (min-width: 640px) {
+		.cd-h {
+			font-size: 2.125rem;
+		}
+	}
+	/* 小節標：模組／工作流程示意圖 */
+	.cd-sub {
+		text-align: center;
+		font-size: 1rem;
+		font-weight: 700;
+		color: var(--color-muted);
+	}
+	/* 過去那段整段灰字 */
+	.cd-past,
+	.cd-past .cd-body,
+	.cd-past :global(.cd-key) {
+		color: var(--color-muted);
+	}
+	/* 內文：字大、行距寬 */
+	.cd-body {
+		font-size: 1.125rem;
+		line-height: 1.9;
+		color: rgb(34 29 33 / 0.85);
+	}
+	@media (min-width: 640px) {
+		.cd-body {
+			font-size: 1.25rem;
+		}
+	}
+	/* 關鍵詞：粗體＋底線 */
+	.cd :global(.cd-key) {
+		font-weight: 700;
+		color: var(--color-ink);
+		text-decoration: underline;
+		text-decoration-thickness: 2px;
+		text-underline-offset: 5px;
+	}
+	/* 白色膠囊小標 */
+	.cd-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 1.125rem;
+		border-radius: 999px;
+		background: #fff;
+		box-shadow:
+			0 0 0 1px rgb(34 29 33 / 0.05),
+			0 6px 18px -6px rgb(34 29 33 / 0.15);
+		font-size: 1.125rem;
+		font-weight: 700;
+	}
+	.cd-pill--sm {
+		padding: 0.375rem 0.95rem;
+		font-size: 0.9375rem;
+		font-weight: 600;
+	}
+	.cd-num {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.5rem;
+		height: 1.5rem;
+		border-radius: 999px;
+		background: var(--color-ink);
+		color: #fff;
+		font-size: 0.8125rem;
+		font-weight: 700;
+	}
+	/* 圖放白色圓角框 */
+	.cd-frame {
+		border-radius: 24px;
+		background: #fff;
+		padding: 0.75rem;
+		box-shadow:
+			0 0 0 1px rgb(34 29 33 / 0.06),
+			0 18px 40px -20px rgb(34 29 33 / 0.2);
+	}
+	@media (min-width: 640px) {
+		.cd-frame {
+			padding: 1.25rem;
+		}
+	}
+</style>
