@@ -150,15 +150,17 @@ body {
 	--hl-d: calc(var(--hl-i, 0) * 0.12s);
 	background-color: transparent;
 	color: inherit;
-	padding: 0 0.2em 0.1em; /* 底部多留一點，色帶整體偏低、像手劃的 */
+	padding: 0.02em 0.4em 0.08em; /* 11/27 Fenny：斜邊劃線改成圓角膠囊（兩端保留淡入淡出），左右多留一點讓圓角不壓字 */
+	border-radius: 999px;
 	-webkit-box-decoration-break: clone;
 	box-decoration-break: clone;
+	/* 左右兩端淡入淡出（原本斜邊劃線的手感），再加圓角 */
 	background-image: linear-gradient(
-		100deg,
-		transparent 0.2em,
-		var(--color-brand) 0.36em,
-		var(--color-brand) calc(100% - 0.36em),
-		transparent calc(100% - 0.2em)
+		90deg,
+		transparent 0,
+		var(--color-brand) 0.3em,
+		var(--color-brand) calc(100% - 0.3em),
+		transparent 100%
 	);
 	background-repeat: no-repeat;
 	background-size: 0% 100%;

@@ -4,6 +4,7 @@
 // 背景是淡出的白色網格；深藍底上的點綴色用淺藍 hl-sky
 import Section from "../ui/Section.astro";
 import Placeholder from "../ui/Placeholder.astro";
+import ServiceArt from "./ServiceArt.astro";
 import { services } from "../../content/interior";
 import { asset } from "../../lib/asset";
 ---
@@ -29,9 +30,11 @@ import { asset } from "../../lib/asset";
 							</li>
 						))}
 					</ul>
-					<!-- 插圖：卡片底部滿版，上面隔一條線；有圖放 public/services/ 並在 content 填 image，沒圖先顯示待補框 -->
+					<!-- 插圖：卡片底部滿版，上面隔一條線；11/27 起用 ServiceArt 畫的線條流程圖（content 填 art）；也可放圖片（填 image）；都沒有顯示待補框 -->
 					<div class="-mx-7 -mb-7 mt-auto aspect-[4/3] overflow-hidden rounded-b-[26px] border-t border-white/10">
-						{s.image
+						{s.art
+							? <ServiceArt kind={s.art} />
+							: s.image
 							? <img src={asset(s.image)} alt="" class="h-full w-full object-cover" loading="lazy" />
 							: <Placeholder label={`插圖：${s.sub}`} class="h-full w-full border-0" />}
 					</div>

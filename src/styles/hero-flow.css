@@ -81,7 +81,7 @@
 
 /* 等寬英文小字：STEP 01 / NOTION 這類標頭 */
 .hf-eyebrow {
-	font-family: ui-monospace, "SF Mono", Menlo, monospace;
+	font-family: ui-monospace, "SF Mono", Menlo, var(--font-sans), monospace; /* 中文字落到源石黑體，不跳系統字 */
 	font-size: 11px;
 	letter-spacing: 0.14em;
 	text-transform: uppercase;

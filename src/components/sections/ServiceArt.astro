@@ -1,0 +1,117 @@
+---
+// 服務方案卡片底部的三張線條流程圖（11/27，參考 Fenny 給的三張深色線條圖，改成圓角膠囊、圓潤感）
+// 整張用 SVG 畫（viewBox 400×300＝卡片插圖框 4:3），跟著卡片等比縮放，手機不會變形或拉長
+// 線條白色半透明；重點用淺藍 hl-sky；11/27 小字說明與標註拿掉（notes 資料保留不顯示）
+// kind：diagnosis 診斷（同心圓＋四個卡點）／build 建置（中心放射：左邊每天在用的工具、右邊 AI 與 Notion）／adopt 導入（圓角方形＋四角）
+interface Props {
+	kind: "diagnosis" | "build" | "adopt";
+}
+const { kind } = Astro.props;
+
+type Pill = { x: number; y: number; w: number; text: string; accent?: boolean; dashed?: boolean };
+type Line = { x1: number; y1: number; x2: number; y2: number; accent?: boolean; dashed?: boolean };
+
+const H = 34; // 膠囊高度
+const SKY = "var(--color-hl-sky)";
+
+const art: Record<Props["kind"], { pills: Pill[]; lines: Line[]; caption: string; notes?: { x: number; y: number; text: string; anchor?: string; accent?: boolean }[] }> = {
+	diagnosis: {
+		pills: [
+			{ x: 16, y: 44, w: 128, text: "資料散在 LINE" },
+			{ x: 262, y: 44, w: 122, text: "重複輸入", accent: true },
+			{ x: 16, y: 196, w: 128, text: "客戶追問進度", accent: true },
+			{ x: 262, y: 196, w: 122, text: "帳目對不上" },
+		],
+		lines: [],
+		notes: [
+			{ x: 323, y: 34, text: "可交給 AI", anchor: "middle", accent: true },
+			{ x: 80, y: 186, text: "可交給 AI", anchor: "middle", accent: true },
+		],
+		caption: "找出最花時間的環節，分辨哪些能交給 AI",
+	},
+	build: {
+		pills: [
+			{ x: 16, y: 52, w: 118, text: "Gmail" },
+			{ x: 16, y: 120, w: 118, text: "Google 行事曆" },
+			{ x: 16, y: 188, w: 118, text: "表單" },
+			{ x: 276, y: 82, w: 108, text: "AI", accent: true, dashed: true },
+			{ x: 276, y: 158, w: 108, text: "Notion", accent: true, dashed: true },
+		],
+		lines: [
+			{ x1: 134, y1: 69, x2: 158, y2: 101 },
+			{ x1: 134, y1: 137, x2: 145, y2: 137 },
+			{ x1: 134, y1: 205, x2: 158, y2: 173 },
+			{ x1: 250, y1: 114, x2: 276, y2: 99, accent: true, dashed: true },
+			{ x1: 250, y1: 160, x2: 276, y2: 175, accent: true, dashed: true },
+		],
+		notes: [
+			{ x: 16, y: 40, text: "每天在用的工具" },
+			{ x: 384, y: 70, text: "幫你整理", anchor: "end", accent: true },
+		],
+		caption: "資料進同一個地方，AI 幫你整理",
+	},
+	adopt: {
+		pills: [
+			{ x: 16, y: 34, w: 108, text: "使用教學" },
+			{ x: 276, y: 34, w: 108, text: "客製化教材" },
+			{ x: 16, y: 214, w: 108, text: "使用追蹤" },
+			{ x: 276, y: 214, w: 108, text: "2 個月諮詢" },
+		],
+		lines: [
+			{ x1: 90, y1: 68, x2: 112, y2: 98 },
+			{ x1: 310, y1: 68, x2: 288, y2: 98 },
+			{ x1: 90, y1: 214, x2: 112, y2: 190 },
+			{ x1: 310, y1: 214, x2: 288, y2: 190 },
+		],
+		caption: "交付的不只是系統，是團隊會用的流程",
+	},
+};
+const a = art[kind];
+---
+
+<svg viewBox="0 0 400 300" class="h-full w-full" role="img" aria-label={a.caption} font-family="inherit">
+	<!-- 小字拿掉後整體往下移 9，讓圖在框裡上下置中 -->
+	<g transform="translate(0 9)">
+	{kind === "diagnosis" && (
+		<g fill="none">
+			<circle cx="200" cy="138" r="128" stroke="rgb(255 255 255 / 0.08)" />
+			<circle cx="200" cy="138" r="88" stroke="rgb(255 255 255 / 0.12)" />
+			<circle cx="200" cy="138" r="56" stroke={SKY} stroke-opacity="0.7" fill="rgb(255 255 255 / 0.04)" />
+		</g>
+	)}
+	{kind === "diagnosis" && <text x="200" y="143.5" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">你的工作流程</text>}
+
+	{kind === "build" && (
+		<g fill="none">
+			<circle cx="200" cy="137" r="68" stroke="rgb(255 255 255 / 0.18)" stroke-dasharray="2 4" />
+			<circle cx="200" cy="137" r="55" stroke={SKY} stroke-opacity="0.7" fill="rgb(255 255 255 / 0.04)" />
+		</g>
+	)}
+	{kind === "build" && <text x="200" y="142.5" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">專案管理中心</text>}
+
+	{kind === "adopt" && (
+		<g>
+			<!-- 11/27 Fenny：資料夾改成方形（保留圓角） -->
+			<rect x="112" y="80" width="176" height="128" rx="18"
+				fill="rgb(255 255 255 / 0.04)"
+				stroke={SKY}
+				stroke-opacity="0.7"
+			/>
+			<text x="200" y="150" text-anchor="middle" font-size="18" font-weight="700" fill="#fff">你的團隊</text>
+		</g>
+	)}
+
+	{a.lines.map((l) => (
+		<line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke={l.accent ? SKY : "rgb(255 255 255 / 0.3)"} stroke-opacity={l.accent ? 0.6 : 1} stroke-dasharray={l.dashed ? "4 4" : undefined} />
+	))}
+
+	{a.pills.map((p) => (
+		<g>
+			<rect x={p.x} y={p.y} width={p.w} height={H} rx={H / 2} fill="rgb(255 255 255 / 0.05)" stroke={p.accent ? SKY : "rgb(255 255 255 / 0.28)"} stroke-opacity={p.accent ? 0.8 : 1} stroke-dasharray={p.dashed ? "4 3" : undefined} />
+			<text x={p.x + p.w / 2} y={p.y + H / 2 + 5} text-anchor="middle" font-size="15" font-weight="500" fill={p.accent ? SKY : "rgb(255 255 255 / 0.88)"}>{p.text}</text>
+		</g>
+	))}
+
+	<!-- 11/27 Fenny：小字（說明、標註）都拿掉；caption 只留給讀屏用 -->
+	</g>
+</svg>

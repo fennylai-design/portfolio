@@ -21,11 +21,14 @@ import { logos } from "../hero-flow/icons";
 // 11/27 一人公司卡片改放「預約到報價」整張（以 AI Agent 為主，跟婚顧封面做出區隔）；SoloCover 仍用在內頁「過去 v.s. 現在」
 const thumbs: Record<string, any> = { wedding: WeddingCover, solo: SoloProcess };
 const thumbProps: Record<string, Record<string, unknown>> = { solo: { compact: true } };
+// 11/27 Fenny：手機版不用畫的（會改成直排、變很長），改放桌機版縮圖的截圖、等比縮小。sm 以上照舊用畫的
+// 截圖在 public/cases/thumb-*.png（1280 寬、2 倍解析度截的）；改了縮圖內容要重截
+const thumbShots: Record<string, string> = { wedding: "/cases/thumb-wedding.png", solo: "/cases/thumb-solo.png" };
 import { cases } from "../../content/interior";
 ---
 
 <Section id="cases" tone="surface">
-	<h2 class="text-3xl font-bold leading-tight">{cases.title}</h2>
+	<h2 class="text-center text-4xl font-bold leading-tight tracking-tight sm:text-6xl sm:leading-tight">{cases.title}</h2>
 	<div class="mt-12 grid gap-8" data-case-stack>
 		{cases.items.map((c, i) => (
 			<div data-stack-item class="stack-item">
@@ -34,7 +37,7 @@ import { cases } from "../../content/interior";
 				class="lift-card group relative flex cursor-pointer flex-col rounded-[2rem] bg-white p-8 sm:p-10"
 			>
 				<div class="cs-part relative mb-8" style="--j:0">
-					<div class="lift-thumb overflow-hidden rounded-2xl">{c.thumb && thumbs[c.thumb] ? (() => { const Thumb = thumbs[c.thumb!]; return <div class="lift-img"><Thumb {...(thumbProps[c.thumb!] ?? {})} /></div>; })() : <Placeholder label="案例畫面" class="lift-img h-48 sm:h-64" />}</div></div>
+					<div class="lift-thumb overflow-hidden rounded-2xl">{c.thumb && thumbs[c.thumb] ? (() => { const Thumb = thumbs[c.thumb!]; return <div class="lift-img">{thumbShots[c.thumb!] && <img src={asset(thumbShots[c.thumb!])} alt="" class="block w-full sm:hidden" loading="lazy" />}<div class={thumbShots[c.thumb!] ? "hidden sm:block" : ""}><Thumb {...(thumbProps[c.thumb!] ?? {})} /></div></div>; })() : <Placeholder label="案例畫面" class="lift-img h-48 sm:h-64" />}</div></div>
 				{/* 11/27 Fenny：卡片正面精簡成「大標＋一句話＋導入膠囊＋看完整案例」；產業標籤、原本、AI 可延伸、標籤都拿掉（資料留在內容檔） */}
 				{/* 11/27 順序：Notion 膠囊 → 模組膠囊 → 大標 → 副標 → 成果（向下排） */}
 				{c.cardTag && (

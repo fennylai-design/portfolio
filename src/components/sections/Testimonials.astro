@@ -1,22 +1,31 @@
 ---
-// 客戶對我的評價：Bento 排法（11/25）——第一則（最長）左邊一張高卡，其他兩則在右邊上下疊；白卡沿用首屏 hf-card
-// 卡內排法參考 Fenny 11/25 給的評價卡：內文黑體灰字、底部只放身份（頭像 11/25 拿掉）。還沒有評價時顯示待補框
+// 客戶評價：11/27 改成純文字排版，不用卡片（照 Fenny 給的範例圖）
+// 11/27 第二版：引文改黑體（標題維持原樣）
+// 每則：黑體引文、前後用粉色斜線「/」包住（11/27 取代引號），開頭斜線掛在行首左邊；下方小字寫身份；則與則之間細線分隔
+// 動態（11/27 Fenny：Scroll-triggered）：標題、每一則評價各自捲進畫面時從下方 24px 淡入浮上，
+// 一則裡面引文先、身份後（間隔 0.14 秒），0.9 秒 power2.out，只播一次；做法同成功案例（CSS transition＋IntersectionObserver，不裝 GSAP）
+// 還沒有評價時顯示待補框
 import Section from "../ui/Section.astro";
 import Placeholder from "../ui/Placeholder.astro";
 import { testimonials } from "../../content/interior";
-import "../../styles/hero-flow.css";
 ---
 
 <Section id="testimonials">
-	<h2 class="text-3xl font-bold leading-tight">{testimonials.title}</h2>
-	<div class="mt-10 grid gap-5 md:grid-cols-[3fr_2fr] md:grid-rows-2">
+	<h2 data-tm-reveal class="text-3xl font-bold leading-tight"><span class="tm-part block" style="--j:0">{testimonials.title}</span></h2>
+	<div class="mt-10 divide-y divide-line">
 		{testimonials.items.length > 0
-			? testimonials.items.map((t, i) => (
-					<figure class={`hf-card flex h-full flex-col p-6 sm:p-7 ${i === 0 ? "md:row-span-2" : ""}`}>
-						<blockquote class="flex-1 space-y-2 text-lg leading-relaxed text-ink/80">
-							{t.quote.map((q) => <p>{q}</p>)}
+			? testimonials.items.map((t) => (
+					<figure data-tm-reveal class="py-10 first:pt-0 last:pb-0">
+						<blockquote style="--j:0" class="tm-part relative space-y-4 pl-6 text-lg leading-relaxed text-ink/80 sm:pl-7 sm:text-xl sm:leading-relaxed">
+							<span aria-hidden="true" class="absolute left-0 top-0 text-[1.3em] font-medium leading-[1.1] text-brand">/</span>
+							{t.quote.map((q, i) => (
+								<p>
+									{q}
+									{i === t.quote.length - 1 && <span aria-hidden="true" class="ml-2 text-[1.3em] font-medium leading-[0] text-brand">/</span>}
+								</p>
+							))}
 						</blockquote>
-						<figcaption class="mt-4 text-sm font-medium text-muted">{t.who}</figcaption>
+						<figcaption style="--j:1" class="tm-part mt-5 pl-6 text-sm font-medium tracking-wider text-muted sm:pl-7">{t.who}</figcaption>
 					</figure>
 				))
 			: Array.from({ length: testimonials.placeholders }).map((_, n) => (
@@ -24,3 +33,41 @@ import "../../styles/hero-flow.css";
 				))}
 	</div>
 </Section>
+
+<style>
+	/* 只有 JS 啟動（加上 .tm-anim）且沒設定減少動態時才藏起來，否則內容直接顯示 */
+	@media (prefers-reduced-motion: no-preference) {
+		.tm-anim .tm-part {
+			opacity: 0;
+			transform: translateY(24px);
+			transition:
+				opacity 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+				transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+		}
+		.tm-anim.is-in .tm-part {
+			opacity: 1;
+			transform: none;
+			transition-delay: calc(var(--j) * 0.14s);
+		}
+	}
+</style>
+
+<script>
+	const items = document.querySelectorAll<HTMLElement>("[data-tm-reveal]");
+	if (items.length && !matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+		const io = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (!entry.isIntersecting) return;
+					entry.target.classList.add("is-in");
+					io.unobserve(entry.target);
+				});
+			},
+			{ threshold: 0, rootMargin: "0px 0px -15% 0px" }, // 頂端進到畫面下方 85% 就播
+		);
+		items.forEach((el) => {
+			el.classList.add("tm-anim");
+			io.observe(el);
+		});
+	}
+</script>
