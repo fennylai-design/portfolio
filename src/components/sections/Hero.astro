@@ -29,7 +29,8 @@ const { glows = heroGlows, editable = false } = Astro.props;
 		></div>
 	))}
 	<div class="relative mx-auto flex w-full max-w-6xl flex-col px-6">
-		<h1 class="mx-auto max-w-3xl text-center font-serif lg:max-w-5xl text-[2rem] font-bold leading-tight text-ink sm:text-[2.5rem]">
+		<!-- 11/27 Fenny：大標改大字黑體（原 Noto Serif 明體 2–2.5rem）；手機維持 2rem -->
+		<h1 class="mx-auto max-w-5xl text-center text-[2rem] font-bold leading-tight tracking-tight text-ink md:text-5xl md:leading-tight lg:text-6xl lg:leading-tight">
 			{hero.titleLines.map((line) => <span class="block">{line}</span>)}
 		</h1>
 
