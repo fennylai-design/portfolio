@@ -39,8 +39,8 @@ import { cases } from "../../content/interior";
 				class="lift-card group relative flex cursor-pointer flex-col rounded-[2rem] bg-white p-8 sm:p-10"
 			>
 				<div class="cs-part mb-8" style="--j:0"><div class="lift-thumb overflow-hidden rounded-2xl">{c.thumb && thumbs[c.thumb] ? (() => { const Thumb = thumbs[c.thumb!]; return <div class="lift-img"><Thumb /></div>; })() : <Placeholder label="案例畫面" class="lift-img h-48 sm:h-64" />}</div></div>
-				<p class="cs-part text-sm font-semibold tracking-[0.2em] text-brand" style="--j:1">{c.industry}</p>
-				<h3 class="cs-part mt-3 text-3xl font-bold leading-tight sm:text-4xl" style="--j:1">{c.name}</h3>
+				{/* 11/27 Fenny：卡片正面不放產業標籤（跳窗裡保留） */}
+				<h3 class="cs-part text-3xl font-bold leading-tight sm:text-4xl" style="--j:1">{c.name}</h3>
 
 				<div class="cs-part mt-6 max-w-3xl" style="--j:2">
 					<p class="text-lg leading-relaxed text-ink/70"><span class="mr-3 text-sm text-muted">原本</span>{c.before}</p>

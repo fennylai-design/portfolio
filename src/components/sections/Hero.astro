@@ -34,7 +34,7 @@ const { glows = heroGlows, editable = false } = Astro.props;
 		</h1>
 
 		<div class="order-3 mt-12 hidden lg:order-none lg:block">
-			<p class="mb-6 text-center text-lg font-bold text-ink/70">{hero.flowCaption}</p>
+			{hero.flowCaption && <p class="mb-6 text-center text-lg font-bold text-ink/70">{hero.flowCaption}</p>}
 			<HeroFlow />
 		</div>
 
@@ -55,7 +55,7 @@ const { glows = heroGlows, editable = false } = Astro.props;
 		</div>
 
 		<div class="order-2 mt-14 lg:hidden">
-			<p class="mb-6 text-center text-base font-bold text-ink/70">{hero.flowCaption}</p>
+			{hero.flowCaption && <p class="mb-6 text-center text-base font-bold text-ink/70">{hero.flowCaption}</p>}
 			<HeroFlowMobile />
 		</div>
 	</div>
