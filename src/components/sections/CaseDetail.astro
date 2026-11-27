@@ -8,6 +8,7 @@ import WeddingCover from "./thumbs/WeddingCover.astro";
 import SoloCover from "./thumbs/SoloCover.astro";
 import CaseFlow from "./CaseFlow.astro";
 import { asset } from "../../lib/asset";
+import { logos } from "../hero-flow/icons";
 import WeddingProcess from "./case-shots/WeddingProcess.astro";
 import WeddingCollab from "./case-shots/WeddingCollab.astro";
 import WeddingOps from "./case-shots/WeddingOps.astro";
@@ -49,7 +50,7 @@ const rich = (t: string) =>
 <article class="cd">
 	<header class="text-center">
 		{c.detailTag ? (
-			<span class="cd-pill">{c.detailTag.icon && <img src={asset(c.detailTag.icon)} alt="" width="20" height="20" />}{c.detailTag.text}</span>
+			<span class="cd-pill">{c.detailTag.ai && <><img src={logos.claude} alt="" width="20" height="20" /><img src={logos.codex} alt="" width="20" height="20" /></>}{c.detailTag.icon && <img src={asset(c.detailTag.icon)} alt="" width="20" height="20" />}{c.detailTag.text}</span>
 		) : (
 			<span class="cd-pill">{c.industry}</span>
 		)}
@@ -102,10 +103,18 @@ const rich = (t: string) =>
 					</ul>
 				</div>
 			)}
+			{c.tools && (
+				<div class="mt-8">
+					<p class="cd-sub">串接工具</p>
+					<ul class="mt-4 flex flex-wrap justify-center gap-2.5">
+						{c.tools.map((m) => <li class="cd-pill cd-pill--sm">{m}</li>)}
+					</ul>
+				</div>
+			)}
 			{c.flow && (
 				<div class="mt-12">
 					<p class="cd-sub">工作流程示意圖</p>
-					<div class="cd-frame mt-4"><CaseFlow flow={c.flow} /></div>
+					<div class="cd-frame mt-4"><CaseFlow flow={c.flow} frontLabel={c.flowFrontLabel} /></div>
 				</div>
 			)}
 		</section>

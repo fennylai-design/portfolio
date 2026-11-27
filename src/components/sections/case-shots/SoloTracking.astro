@@ -3,7 +3,7 @@
 // 以前：進度靠記憶，每天自己翻行事曆、任務、信件、各專案文件。
 // 現在：AI Agent 從行事曆、Notion、Email、客戶共用頁收資料，每天整理日報、每週整理週報；人看完決定今天先做什麼、下週重點。
 // 視覺語言照 ② SoloProcess：以前灰卡、現在白卡；AI 深色卡＋Claude／Codex 頭像；工具小卡；首屏同款虛線箭頭；人用預設頭像白卡。
-// 動態：一組一組出現（來源 → AI＋日報 → 週報 → 人），只播一次；沒有 JS 或開了減少動態，直接顯示完成畫面。
+// 動態（11/27 Fenny 改）：只分「以前」「現在」兩張大卡依序出現，不再一層層跳。原本：一組一組出現（來源 → AI＋日報 → 週報 → 人），只播一次；沒有 JS 或開了減少動態，直接顯示完成畫面。
 // 專案名、日期、數字都是假資料。調整用 /portfolio/lab/case-thumbs/
 import "../../../styles/hero-flow.css";
 import { svg } from "../../hero-flow/icons";
@@ -50,7 +50,7 @@ const T = [200, 850, 1500, 2150]; // 來源、AI＋日報、週報、人
 
 <div class="st" data-st>
 	{/* 以前 */}
-	<section class="st-row st-row--before">
+	<section class="st-row st-row--before" data-at="0">
 		<p class="st-title"><span class="st-tag">以前</span>進度靠記憶，每天自己翻一輪</p>
 		<ul class="st-chips mt-3">
 			{before.map((t) => <li class="st-chip">{t}</li>)}
@@ -59,12 +59,12 @@ const T = [200, 850, 1500, 2150]; // 來源、AI＋日報、週報、人
 	</section>
 
 	{/* 現在 */}
-	<section class="st-row st-row--after">
+	<section class="st-row st-row--after" data-at="450">
 		<p class="st-title"><span class="st-tag st-tag--after">現在</span>AI 每天、每週整理好，人決定先做什麼</p>
 
 		<div class="st-flow mt-4">
 			{/* 資料來源 */}
-			<div class="st-sources" data-at={T[0]}>
+			<div class="st-sources">
 				<p class="st-sub">從這些地方收資料</p>
 				<ul class="st-src-list">
 					{sources.map((s) => (
@@ -76,14 +76,14 @@ const T = [200, 850, 1500, 2150]; // 來源、AI＋日報、週報、人
 				</ul>
 			</div>
 
-			<span class="st-arrow st-arrow--h" data-at={T[1]} set:html={ARROW_H} />
-			<span class="st-arrow st-arrow--v" data-at={T[1]} set:html={ARROW_V} />
+			<span class="st-arrow st-arrow--h" set:html={ARROW_H} />
+			<span class="st-arrow st-arrow--v" set:html={ARROW_V} />
 
 			{/* AI 整理出來的日報、週報 */}
 			<div class="st-ai">
-				<p class="st-ai-head" data-at={T[1]}><Agents size="sm" /><span class="st-ai-name">AI Agent 整理</span></p>
+				<p class="st-ai-head"><Agents size="sm" /><span class="st-ai-name">AI Agent 整理</span></p>
 				<div class="st-reports">
-					<article class="hf-card st-report" data-at={T[1]}>
+					<article class="hf-card st-report">
 						<header class="st-report-head">
 							<span class="font-bold">早安日報</span>
 							<span class="hf-tag hf-tag--neutral">每天 08:30</span>
@@ -103,7 +103,7 @@ const T = [200, 850, 1500, 2150]; // 來源、AI＋日報、週報、人
 						<p class="st-remind"><span set:html={svg("bell", 12)} />{daily.remind}</p>
 					</article>
 
-					<article class="hf-card st-report" data-at={T[2]}>
+					<article class="hf-card st-report">
 						<header class="st-report-head">
 							<span class="font-bold">週回顧</span>
 							<span class="hf-tag hf-tag--neutral">每週五</span>
@@ -124,14 +124,14 @@ const T = [200, 850, 1500, 2150]; // 來源、AI＋日報、週報、人
 		</div>
 
 		{/* 人：看完決定 */}
-		<div class="st-human-wrap" data-at={T[3]}>
+		<div class="st-human-wrap">
 			<span class="st-arrow" set:html={ARROW_V} />
 			<div class="hf-card st-human">
 				<span class="st-avatar"><img src={humanIcon} alt="人" width="28" height="35" /></span>
 				<span class="st-human-text">在一個地方確認所有事項，決定今天要執行的項目，根據週報決定下週重點</span>
 			</div>
 		</div>
-		<p class="st-note st-note--after" data-at={T[3]}>專案一多，也不會漏掉該跟進的事</p>
+		<p class="st-note st-note--after">專案一多，也不會漏掉該跟進的事</p>
 	</section>
 </div>
 

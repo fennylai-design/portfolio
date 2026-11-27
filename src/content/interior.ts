@@ -265,8 +265,8 @@ export const cases = {
 				{ key: "self-tracking", title: "好幾個專案，一頁看完今天和這週", text: "以前各專案進度靠記憶，文件也一份份寄來寄去；現在需要文件、報告或協作時，直接**分享 Notion 頁面**和客戶一起改；每天早上 AI Agent 整理**行程、待辦和各專案現況**，每週回顧進度與決策、列出下週重點，提醒還有什麼沒收尾。", conclusion: "專案一多，也**不會漏掉該跟進的事**" },
 			],
 			subtitle: "Notion 記錄管理專案、分享給客戶，AI Agent 串起整段流程，人最後做決策與審核",
-			detailTag: { text: "AI Agent × Notion 導入", icon: "/cases/notion.svg" },
-			cardTag: { text: "AI Agent × Notion 工作流程導入", icon: "/cases/notion.svg" },
+			detailTag: { text: "AI x Notion 導入", icon: "/cases/notion.svg", ai: true },
+			cardTag: { text: "AI x Notion 導入", icon: "/cases/notion.svg", ai: true },
 			cardOutcomes: ["客戶一預約，諮詢文件和報價單自動建好", "問題清單、簡報照框架產出，人只做審核", "每天、每週自動整理各專案進度"],
 			pastNow: {
 				past: { title: "資料散在 Email、行事曆和腦中", text: "預約、諮詢準備、報價各做各的，每多一位客戶，就多一份**要自己記住的事**。" },
@@ -290,7 +290,9 @@ export const cases = {
 				{ title: "諮詢 → 報價單", text: "整理需求清單、附上報價依據；價格和方案由人決定，再產出 PDF 寄出。" },
 				{ title: "各專案 → 日報、週報", text: "需要文件、報告或協作時分享 Notion 頁面給客戶；每天、每週自動整理各專案進度，提醒該跟進的事。" },
 			],
-			modules: ["預約串接", "客戶資料庫", "諮詢文件", "問題清單", "會議簡報", "報價系統", "價格調整紀錄", "客戶共用頁", "日報", "週報"],
+			modules: ["預約串接", "客戶資料庫", "諮詢文件", "會議簡報", "報價系統", "工作日報／週報"],
+			tools: ["AI", "Gmail", "Notion", "Google Calendar", "表單系統"],
+			flowFrontLabel: "客戶看到的",
 		},
 	] as CaseItem[],
 };
@@ -313,13 +315,15 @@ export type CaseItem = {
 	thumb?: string; // 卡片縮圖元件代號，對到 Cases.astro 的 thumbs
 	shots?: { key: string; title: string; text: string; conclusion?: string }[]; // 內頁的前後對照圖＋說明＋圖下結論句
 	subtitle?: string; // 內頁大標下的副標
-	detailTag?: { text: string; icon?: string }; // 內頁最上面的膠囊
-	cardTag?: { text: string; icon?: string }; // 卡片正面的導入膠囊
+	detailTag?: { text: string; icon?: string; ai?: boolean }; // ai：膠囊前面加 Claude、Codex 頭像 // 內頁最上面的膠囊
+	cardTag?: { text: string; icon?: string; ai?: boolean }; // 卡片正面的導入膠囊
 	cardOutcomes?: string[]; // 卡片上的成果簡短版
 	pastNow?: { past: { title: string; text: string }; now: { title: string; text: string } }; // 內頁「過去 v.s. 現在」
 	flow?: { stage: string; front: string; back: string; joint?: number }[];
 	joints?: { title: string; text: string }[];
 	modules?: string[];
+	tools?: string[]; // 內頁「串接工具」
+	flowFrontLabel?: string; // 流程圖上排標籤，預設「新人看到的」（婚顧）
 	quote?: string;
 };
 

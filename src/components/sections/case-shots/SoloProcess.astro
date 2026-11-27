@@ -2,7 +2,7 @@
 // 一人公司跳窗圖 ②（11/27 v2，照 Fenny 討論重做）：預約到報價，上「以前」下「現在」，三站（預約／會前準備／報價）上下對齊。
 // 以前：灰色、慢，每站冒出要手動做的事，耗時條慢慢填到「2–3 小時」。
 // 現在：粉色、快，每站先 AI Agent 產出（黑標）→ 再到人審核（粉標）；審核的修正、報價的新做法都記回「AI 記憶」，下一次直接用新版本。耗時條只到 15–30 分鐘。
-// 動態：每個元素有 data-at（毫秒），捲進畫面時依時間亮起，只播一次（11/27）；沒有 JS 或開了減少動態，直接顯示完成畫面。
+// 動態（11/27 Fenny 改）：只分「以前」「現在」兩張大卡依序出現，不再一層層跳。原本：每個元素有 data-at（毫秒），捲進畫面時依時間亮起，只播一次（11/27）；沒有 JS 或開了減少動態，直接顯示完成畫面。
 // 寬版：三欄橫排；窄版（手機）：三站改直排，以前、現在變上下兩張。調整用 /portfolio/lab/case-thumbs/
 import "../../../styles/hero-flow.css";
 import { svg, type IconName } from "../../hero-flow/icons";
@@ -61,7 +61,7 @@ const T = {
 
 <div class="sf" data-sf>
 	{/* 以前 */}
-	<section class="sf-row sf-row--before">
+	<section class="sf-row sf-row--before" data-at="0">
 		<header class="sf-head">
 			<p class="sf-title"><span class="sf-tag">以前</span>每一步都自己來</p>
 			<div class="sf-time">
@@ -70,7 +70,7 @@ const T = {
 		</header>
 		<ol class="sf-cols">
 			{stages.map((s, i) => (
-				<li class="sf-col" data-at={T.before[i]}>
+				<li class="sf-col">
 					<p class="sf-stop">
 						<span class="sf-dot" set:html={svg(s.icon, 14)} />
 						<span class="sf-stop-label"><span class="num">{String(i + 1).padStart(2, "0")}</span>{s.label}</span>
@@ -83,11 +83,11 @@ const T = {
 				</li>
 			))}
 		</ol>
-		<p class="sf-note sf-note--before" data-at={T.before[2]}>資訊分散在好幾個平台，零碎時間花一花；光做就很累，沒時間調整改善</p>
+		<p class="sf-note sf-note--before">資訊分散在好幾個平台，零碎時間花一花；光做就很累，沒時間調整改善</p>
 	</section>
 
 	{/* 現在 */}
-	<section class="sf-row sf-row--after">
+	<section class="sf-row sf-row--after" data-at="450">
 		<header class="sf-head">
 			<p class="sf-title"><span class="sf-tag sf-tag--after">現在</span>AI 先整理，人負責審核與決策</p>
 			<div class="sf-time">
@@ -96,7 +96,7 @@ const T = {
 		</header>
 		<ol class="sf-cols">
 			{stages.map((s, i) => (
-				<li class="sf-col" data-at={T.after[i]}>
+				<li class="sf-col">
 					<p class="sf-stop sf-stop--after">
 						<span class="sf-dot" set:html={svg(s.icon, 14)} />
 						<span class="sf-stop-label"><span class="num">{String(i + 1).padStart(2, "0")}</span>{s.label}</span>
@@ -120,7 +120,7 @@ const T = {
 		{/* AI → 人：每站一支往下的虛線箭頭；會前準備多一支往上的「錯了退回」（跟首屏同一套虛線箭頭） */}
 		<div class="sf-links">
 			{stages.map((_, i) => (
-				<div class="sf-link" data-at={T.after[i]}>
+				<div class="sf-link">
 					<span class="sf-arrow" set:html={ARROW} />
 					{i === 1 && (
 						<span class="sf-back">
@@ -133,7 +133,7 @@ const T = {
 		</div>
 
 		{/* 人：一整張白卡，三站的審核排在一起 */}
-		<div class="hf-card sf-human-card" data-at={T.after[0]}>
+		<div class="hf-card sf-human-card">
 			<p class="sf-human-head"><span class="sf-avatar"><img src={humanIcon} alt="人" width="28" height="35" /></span><span class="font-bold">審核與決策</span></p>
 			<ol class="sf-human-cols">
 				{stages.map((s, i) => (
@@ -146,7 +146,7 @@ const T = {
 		</div>
 
 		{/* AI 記憶：每次修正、新做法都記回去 */}
-		<div class="sf-memory" data-at={T.after[2]}>
+		<div class="sf-memory">
 			<p class="sf-memory-head">
 				<span class="sf-memory-ico" aria-hidden="true">🧠</span>
 				<span class="font-bold">AI 記憶</span>
@@ -158,7 +158,7 @@ const T = {
 				))}
 			</ul>
 		</div>
-		<p class="sf-note sf-note--after" data-at={T.after[2]}>省下來的心力，花在每一次怎麼優化得更好</p>
+		<p class="sf-note sf-note--after">省下來的心力，花在每一次怎麼優化得更好</p>
 	</section>
 </div>
 

@@ -30,17 +30,17 @@ const T = [200, 850, 1500]; // 輸入、AI 產出、人
 ---
 
 <div class="so" data-so>
-	<section class="so-row so-row--before">
+	<section class="so-row so-row--before" data-at="0">
 		<p class="so-title"><span class="so-tag">以前</span>每次從頭想怎麼寫、該報多少</p>
 		<ul class="so-chips">{before.map((t) => <li class="so-chip">{t}</li>)}</ul>
 		<p class="so-note so-note--before">報多報少憑感覺，客戶沒說出口的需求也容易漏掉</p>
 	</section>
 
-	<section class="so-row so-row--after">
+	<section class="so-row so-row--after" data-at="450">
 		<p class="so-title"><span class="so-tag so-tag--after">現在</span>AI 先研究、寫初版，人來決定</p>
 
 		<div class="so-flow">
-			<div data-at={T[0]}>
+			<div>
 				<p class="so-sub">AI 先讀這些</p>
 				<ul class="so-src-list">
 					{inputs.map((s) => (
@@ -52,10 +52,10 @@ const T = [200, 850, 1500]; // 輸入、AI 產出、人
 				</ul>
 			</div>
 
-			<span class="so-arrow so-arrow--h" data-at={T[1]} set:html={ARROW_H} />
-			<span class="so-arrow so-arrow--v" data-at={T[1]} set:html={ARROW_V} />
+			<span class="so-arrow so-arrow--h" set:html={ARROW_H} />
+			<span class="so-arrow so-arrow--v" set:html={ARROW_V} />
 
-			<div class="so-ai" data-at={T[1]}>
+			<div class="so-ai">
 				<p class="so-ai-head"><Agents size="sm" />AI Agent 產出初版</p>
 				<div class="so-outs so-outs--2">
 					<article class="hf-card so-out">
@@ -90,14 +90,14 @@ const T = [200, 850, 1500]; // 輸入、AI 產出、人
 			</div>
 		</div>
 
-		<div class="so-human-wrap" data-at={T[2]}>
+		<div class="so-human-wrap">
 			<span class="so-arrow" set:html={ARROW_V} />
 			<div class="hf-card so-human">
 				<span class="so-avatar"><img src={humanIcon} alt="人" width="28" height="35" /></span>
 				<span class="so-human-text">決定方案與價格，審核調整後產出 PDF 寄出</span>
 			</div>
 		</div>
-		<p class="so-note so-note--after" data-at={T[2]}>AI 負責整理，判斷留給人</p>
+		<p class="so-note so-note--after">AI 負責整理，判斷留給人</p>
 	</section>
 	<SoloAnim />
 </div>

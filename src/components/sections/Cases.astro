@@ -16,6 +16,7 @@ import WeddingCover from "./thumbs/WeddingCover.astro";
 import SoloCover from "./thumbs/SoloCover.astro";
 import CaseDetail from "./CaseDetail.astro";
 import { asset } from "../../lib/asset";
+import { logos } from "../hero-flow/icons";
 // 卡片縮圖（用程式畫）：內容檔的 thumb 欄位對到這裡；沒有就顯示佔位框
 const thumbs: Record<string, any> = { wedding: WeddingCover, solo: SoloCover };
 import { cases } from "../../content/interior";
@@ -36,7 +37,7 @@ import { cases } from "../../content/interior";
 				{/* 11/27 順序：Notion 膠囊 → 模組膠囊 → 大標 → 副標 → 成果（向下排） */}
 				{c.cardTag && (
 					<p class="cs-part mb-4" style="--j:1">
-						<span class="card-pill">{c.cardTag.icon && <img src={asset(c.cardTag.icon)} alt="" width="18" height="18" />}{c.cardTag.text}</span>
+						<span class="card-pill">{c.cardTag.ai && <><img src={logos.claude} alt="" width="18" height="18" /><img src={logos.codex} alt="" width="18" height="18" /></>}{c.cardTag.icon && <img src={asset(c.cardTag.icon)} alt="" width="18" height="18" />}{c.cardTag.text}</span>
 					</p>
 				)}
 				{c.modules && (
