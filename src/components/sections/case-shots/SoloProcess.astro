@@ -1,0 +1,605 @@
+---
+// 一人公司跳窗圖 ②（11/27 v2，照 Fenny 討論重做）：預約到報價，上「以前」下「現在」，三站（預約／會前準備／報價）上下對齊。
+// 以前：灰色、慢，每站冒出要手動做的事，耗時條慢慢填到「2–3 小時」。
+// 現在：粉色、快，每站先 AI Agent 產出（黑標）→ 再到人審核（粉標）；審核的修正、報價的新做法都記回「AI 記憶」，下一次直接用新版本。耗時條只到 15–30 分鐘。
+// 動態：每個元素有 data-at（毫秒），捲進畫面時依時間亮起，只播一次（11/27）；沒有 JS 或開了減少動態，直接顯示完成畫面。
+// 寬版：三欄橫排；窄版（手機）：三站改直排，以前、現在變上下兩張。調整用 /portfolio/lab/case-thumbs/
+import "../../../styles/hero-flow.css";
+import { svg, type IconName } from "../../hero-flow/icons";
+import Agents from "../../hero-flow/Agents.astro";
+import { asset } from "../../../lib/asset";
+import { humanIcon } from "./solo-shared";
+
+// AI 串接的工具小圖示：只用代表色＋簡化圖形，不放官方 logo（Notion 用 public/cases/notion.svg）
+type Tool = "mail" | "cal" | "notion" | "daily" | "web" | "slides" | "pdf";
+const toolSvg: Record<Exclude<Tool, "notion">, string> = {
+	mail: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3" fill="#ea4335"/><path d="M5.5 8l6.5 5 6.5-5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+	cal: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3" fill="#4285f4"/><path d="M3 9h18" stroke="#fff" stroke-width="1.6"/><rect x="7" y="12" width="3" height="3" rx=".6" fill="#fff"/></svg>',
+	daily: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2.5" fill="#f6b400"/><path d="M8 8h8M8 11.5h8M8 15h5" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg>',
+	web: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#14a3a3"/><path d="M2.5 12h19M12 2.5c2.8 3 2.8 16 0 19M12 2.5c-2.8 3-2.8 16 0 19" fill="none" stroke="#fff" stroke-width="1.4"/></svg>',
+	slides: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="15" rx="2.5" fill="#f4a020"/><rect x="6" y="8" width="12" height="7" rx="1" fill="#fff"/><path d="M12 19v2.5" stroke="#f4a020" stroke-width="2"/></svg>',
+	pdf: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2.5" fill="#d93025"/><text x="12" y="15.5" text-anchor="middle" font-size="6.5" font-weight="700" fill="#fff" font-family="sans-serif">PDF</text></svg>',
+};
+const notionIcon = asset("/cases/notion.svg");
+// 跟首屏同一套虛線箭頭：起點圓點＋粉色虛線＋三角
+const ARROW = '<svg width="12" height="44" viewBox="0 0 12 44" aria-hidden="true"><circle cx="6" cy="4" r="3" class="hf-node" /><path d="M6 10V32" class="hf-line" /><path d="M1.5 33L6 42L10.5 33z" class="hf-node" /></svg>';
+
+type Stage = { icon: IconName; label: string };
+const stages: Stage[] = [
+	{ icon: "bell", label: "預約" },
+	{ icon: "chat", label: "會前準備" },
+	{ icon: "receipt", label: "報價" },
+];
+
+// 以前：每站要自己做的事
+const before: string[][] = [
+	["到各平台檢查 Email", "確認行事曆"],
+	["準備訪談問題", "查客戶資訊", "做簡報"],
+	["從頭想怎麼寫", "想該報多少"],
+];
+
+// 現在：每站 AI Agent 做的、人做的；loop＝人審核後記回 AI 記憶
+const after: { ai: { tool: Tool; text: string }[]; human: string }[] = [
+	{ ai: [{ tool: "mail", text: "掃描 Email" }, { tool: "cal", text: "對行事曆" }, { tool: "notion", text: "建好諮詢文件＋報價單" }, { tool: "daily", text: "寫進每日日報提醒" }], human: "看日報確認" },
+	{ ai: [{ tool: "notion", text: "產出訪談問題" }, { tool: "web", text: "搜尋客戶資訊" }, { tool: "slides", text: "會議簡報框架" }], human: "審核確認" },
+	{ ai: [{ tool: "notion", text: "整理會議記錄" }, { tool: "notion", text: "評估製作項目" }, { tool: "pdf", text: "初版報價單＋報價原因" }], human: "審核調整" },
+];
+
+const memory = [
+	"退回的錯誤記住，下次不再犯",
+	"報價新增一項服務 → 之後照新版本",
+	"報價方式調整 → 之後照新版本",
+];
+
+// 時間軸（毫秒）
+// 11/27 Fenny：以前、現在都改成一站一站整組出現（01 一起、02 一起、03 一起）；人的白卡跟 01 一起出現；AI 記憶跟 03 一起
+const T = {
+	before: [200, 800, 1400], // 以前每站
+	after: [2100, 2800, 3500], // 現在每站
+};
+---
+
+<div class="sf" data-sf>
+	{/* 以前 */}
+	<section class="sf-row sf-row--before">
+		<header class="sf-head">
+			<p class="sf-title"><span class="sf-tag">以前</span>每一步都自己來</p>
+			<div class="sf-time">
+				<span class="sf-time-text num">2–3 小時</span>
+			</div>
+		</header>
+		<ol class="sf-cols">
+			{stages.map((s, i) => (
+				<li class="sf-col" data-at={T.before[i]}>
+					<p class="sf-stop">
+						<span class="sf-dot" set:html={svg(s.icon, 14)} />
+						<span class="sf-stop-label"><span class="num">{String(i + 1).padStart(2, "0")}</span>{s.label}</span>
+					</p>
+					<ul class="sf-items">
+						{before[i].map((t) => (
+							<li class="sf-chip sf-chip--plain">{t}</li>
+						))}
+					</ul>
+				</li>
+			))}
+		</ol>
+		<p class="sf-note sf-note--before" data-at={T.before[2]}>資訊分散在好幾個平台，零碎時間花一花；光做就很累，沒時間調整改善</p>
+	</section>
+
+	{/* 現在 */}
+	<section class="sf-row sf-row--after">
+		<header class="sf-head">
+			<p class="sf-title"><span class="sf-tag sf-tag--after">現在</span>AI 先整理，人負責審核與決策</p>
+			<div class="sf-time">
+				<span class="sf-time-text sf-time-text--after num">15–30 分鐘</span>
+			</div>
+		</header>
+		<ol class="sf-cols">
+			{stages.map((s, i) => (
+				<li class="sf-col" data-at={T.after[i]}>
+					<p class="sf-stop sf-stop--after">
+						<span class="sf-dot" set:html={svg(s.icon, 14)} />
+						<span class="sf-stop-label"><span class="num">{String(i + 1).padStart(2, "0")}</span>{s.label}</span>
+					</p>
+					<div class="sf-box sf-box--ai">
+						<span class="sf-ai-head"><Agents size="sm" /><span class="sf-ai-name">AI Agent</span></span>
+						<ul class="sf-tools">
+							{after[i].ai.map((t) => (
+								<li class="sf-tool">
+									{t.tool === "notion" ? <img src={notionIcon} alt="" width="16" height="16" class="sf-tool-ico sf-tool-ico--notion" /> : <span class="sf-tool-ico" set:html={toolSvg[t.tool]} />}
+									<span class="sf-tool-text">{t.text}</span>
+									<span class="sf-tool-ok" set:html={svg("check", 12)} />
+								</li>
+							))}
+						</ul>
+					</div>
+				</li>
+			))}
+		</ol>
+
+		{/* AI → 人：每站一支往下的虛線箭頭；會前準備多一支往上的「錯了退回」（跟首屏同一套虛線箭頭） */}
+		<div class="sf-links">
+			{stages.map((_, i) => (
+				<div class="sf-link" data-at={T.after[i]}>
+					<span class="sf-arrow" set:html={ARROW} />
+					{i === 1 && (
+						<span class="sf-back">
+							<span class="sf-arrow sf-arrow--up" set:html={ARROW} />
+							<span class="sf-arrow-label">錯了退回<br />AI 重新調整</span>
+						</span>
+					)}
+				</div>
+			))}
+		</div>
+
+		{/* 人：一整張白卡，三站的審核排在一起 */}
+		<div class="hf-card sf-human-card" data-at={T.after[0]}>
+			<p class="sf-human-head"><span class="sf-avatar"><img src={humanIcon} alt="人" width="28" height="35" /></span><span class="font-bold">審核與決策</span></p>
+			<ol class="sf-human-cols">
+				{stages.map((s, i) => (
+					<li class="sf-human-item">
+						<span class="num sf-human-num">{String(i + 1).padStart(2, "0")}</span>
+						<span class="sf-human">{after[i].human}</span>
+					</li>
+				))}
+			</ol>
+		</div>
+
+		{/* AI 記憶：每次修正、新做法都記回去 */}
+		<div class="sf-memory" data-at={T.after[2]}>
+			<p class="sf-memory-head">
+				<span class="sf-memory-ico" aria-hidden="true">🧠</span>
+				<span class="font-bold">AI 記憶</span>
+				<span class="text-ink/60">每次的修正與新做法都記回去，下一次直接照新版本</span>
+			</p>
+			<ul class="sf-memory-list">
+				{memory.map((m) => (
+					<li class="sf-memory-item"><span class="sf-plus">+1</span>{m}</li>
+				))}
+			</ul>
+		</div>
+		<p class="sf-note sf-note--after" data-at={T.after[2]}>省下來的心力，花在每一次怎麼優化得更好</p>
+	</section>
+</div>
+
+<style>
+	.num {
+		font-variant-numeric: tabular-nums;
+	}
+	.sf {
+		container-type: inline-size;
+		display: grid;
+		gap: 1rem;
+		color: var(--color-ink);
+	}
+	.sf-row {
+		padding: 1.125rem;
+		border-radius: 20px;
+		background: #fff;
+		box-shadow: 0 1px 2px rgb(34 29 33 / 0.04), 0 8px 24px rgb(34 29 33 / 0.06);
+	}
+	.sf-row--before {
+		background: #f6f4f2;
+		box-shadow: inset 0 0 0 1px rgb(34 29 33 / 0.06);
+	}
+
+	/* 標題列＋耗時條 */
+	/* 標題左、時間右，手機也排同一行 */
+	.sf-head {
+		display: flex;
+		align-items: baseline;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 0.25rem 0.75rem;
+	}
+	.sf-title {
+		display: flex;
+		align-items: baseline;
+		gap: 0.5rem;
+		font-size: 15px;
+		font-weight: 700;
+	}
+	.sf-tag {
+		white-space: nowrap;
+		font-family: ui-monospace, "SF Mono", Menlo, monospace;
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		color: var(--color-muted);
+	}
+	.sf-tag--after {
+		color: var(--color-brand);
+	}
+	.sf-time {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+	}
+	.sf-time {
+		justify-content: flex-end;
+	}
+	.sf-time-text {
+		white-space: nowrap;
+		font-size: 15px;
+		font-weight: 700;
+		text-align: right;
+		color: rgb(34 29 33 / 0.6);
+	}
+	.sf-time-text--after {
+		color: var(--color-brand);
+	}
+
+	/* 三站 */
+	.sf-cols {
+		display: grid;
+		gap: 1rem;
+		margin-top: 1rem;
+	}
+	.sf-col {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		min-width: 0;
+	}
+	.sf-stop {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.sf-dot {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		border-radius: 999px;
+		background: rgb(34 29 33 / 0.08);
+		color: rgb(34 29 33 / 0.55);
+	}
+	.sf-stop--after .sf-dot {
+		background: var(--color-brand);
+		color: #fff;
+		box-shadow: 0 0 0 4px rgb(217 53 141 / 0.15);
+	}
+	.sf-stop-label {
+		display: inline-flex;
+		gap: 0.375rem;
+		font-size: 13px;
+		font-weight: 700;
+	}
+	.sf-stop-label .num {
+		color: var(--color-muted);
+		font-weight: 600;
+	}
+	.sf-stop--after .sf-stop-label .num {
+		color: var(--color-brand);
+	}
+
+	.sf-items {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.375rem;
+	}
+	.sf-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		padding: 3px 9px;
+		border-radius: 999px;
+		background: #fff;
+		box-shadow: inset 0 0 0 1px rgb(34 29 33 / 0.1);
+		font-size: 12px;
+		line-height: 1.5;
+		color: rgb(34 29 33 / 0.8);
+	}
+	.sf-chip > span {
+		display: inline-flex;
+		color: var(--color-brand);
+	}
+	.sf-chip--plain {
+		color: rgb(34 29 33 / 0.6);
+	}
+
+	/* 現在：AI 產出框、人審核框 */
+	.sf-box {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.375rem;
+		padding: 0.625rem 0.75rem;
+		border-radius: 14px;
+	}
+	/* AI 產出：跟首屏一樣的深色卡＋Claude、Codex 頭像 */
+	.sf-box--ai {
+		gap: 0.5rem;
+		background: var(--color-ink);
+		color: #fefcfa;
+		box-shadow: 0 2px 4px rgb(34 29 33 / 0.12), 0 12px 24px -10px rgb(34 29 33 / 0.35);
+	}
+	.sf-ai-head {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.sf-ai-name {
+		font-size: 12px;
+		font-weight: 700;
+	}
+	.sf-box--ai :global(.hf-agent) {
+		box-shadow: 0 0 0 2px var(--color-ink);
+	}
+	.sf-box--ai .sf-chip {
+		background: rgb(255 255 255 / 0.08);
+		box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+		color: rgb(254 252 250 / 0.9);
+	}
+	.sf-box--ai .sf-chip > span {
+		color: #f27bb8;
+	}
+	/* 人：預設頭像 */
+	.sf-avatar img {
+		width: auto;
+		height: 24px;
+	}
+	.sf-avatar {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		height: 24px;
+	}
+	/* AI 卡同一排等高 */
+	.sf-box--ai {
+		flex: 1;
+	}
+	/* 虛線箭頭列：跟上面三欄對齊 */
+	.sf-links {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+	.sf-link {
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 0.75rem;
+		min-height: 52px;
+	}
+	.sf-arrow {
+		display: inline-flex;
+	}
+	.sf-arrow--up {
+		transform: rotate(180deg);
+	}
+	.sf-back {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+	}
+	.sf-arrow-label {
+		font-size: 11px;
+		font-weight: 600;
+		line-height: 1.35;
+		color: var(--color-brand);
+	}
+	/* 會前準備：往下、往上兩支並排 */
+	.sf-link:nth-child(2) {
+		gap: 1.5rem;
+	}
+	/* 人：一整張白卡 */
+	.sf-human-card {
+		padding: 0.75rem 0.875rem;
+		border-radius: 16px;
+	}
+	.sf-human-head {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 13px;
+	}
+	.sf-human-cols {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.5rem;
+		margin-top: 0.625rem;
+	}
+	.sf-human-item {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.375rem;
+		padding: 0.5rem;
+		border-radius: 10px;
+		background: var(--color-pink-50);
+	}
+	.sf-human-num {
+		font-size: 11px;
+		font-weight: 600;
+		color: var(--color-brand);
+	}
+	/* AI 串接的工具小卡 */
+	.sf-tools {
+		display: grid;
+		gap: 0.375rem;
+		width: 100%;
+	}
+	.sf-tool {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.4rem 0.5rem;
+		border-radius: 10px;
+		background: rgb(255 255 255 / 0.08);
+		box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+	}
+	.sf-tool-ico {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		border-radius: 7px;
+		background: #fff;
+	}
+	.sf-tool-ico--notion {
+		padding: 4px;
+	}
+	.sf-tool-text {
+		min-width: 0;
+		font-size: 12px;
+		line-height: 1.4;
+		color: rgb(254 252 250 / 0.92);
+	}
+	.sf-tool-ok {
+		display: inline-flex;
+		margin-left: auto;
+		color: #f27bb8;
+	}
+	.sf-who {
+		padding: 1px 8px;
+		border-radius: 999px;
+		font-size: 11px;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+	.sf-who--ai {
+		background: var(--color-ink);
+		color: #fff;
+	}
+	.sf-who--human {
+		background: var(--color-brand);
+		color: #fff;
+	}
+	.sf-human {
+		font-size: 13px;
+		font-weight: 700;
+		color: var(--color-brand);
+	}
+
+	/* AI 記憶 */
+	.sf-memory {
+		margin-top: 1rem;
+		padding: 0.75rem 0.875rem;
+		border-radius: 14px;
+		border: 1.5px dashed rgb(217 53 141 / 0.35);
+	}
+	.sf-memory-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.375rem 0.5rem;
+		font-size: 13px;
+	}
+	.sf-memory-ico {
+		font-size: 16px;
+		line-height: 1;
+	}
+	.sf-memory-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.375rem;
+		margin-top: 0.625rem;
+	}
+	.sf-memory-item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		padding: 3px 10px 3px 4px;
+		border-radius: 999px;
+		background: #fff;
+		box-shadow: inset 0 0 0 1px rgb(34 29 33 / 0.1);
+		font-size: 12px;
+	}
+	.sf-plus {
+		padding: 0 6px;
+		border-radius: 999px;
+		background: rgb(34 29 33 / 0.08);
+		color: rgb(34 29 33 / 0.65);
+		font-size: 11px;
+		font-weight: 700;
+	}
+
+	/* 底部一句 */
+	.sf-note {
+		margin-top: 0.875rem;
+		padding: 0.5rem 0.875rem;
+		border-radius: 12px;
+		font-size: 12px;
+		font-weight: 600;
+	}
+	.sf-note--before {
+		background: #fdf4d6;
+		color: #8a5d00;
+	}
+	.sf-note--after {
+		background: var(--color-pink-50);
+		color: var(--color-brand);
+	}
+
+	/* 動態：data-at 的元素先藏起來，加上 is-on 才出現（只有 JS 啟動時才會加 sf--anim） */
+	.sf--anim [data-at] {
+		opacity: 0;
+		transform: translateY(6px);
+		transition:
+			opacity 0.3s ease,
+			transform 0.3s ease;
+	}
+	.sf--anim [data-at].is-on {
+		opacity: 1;
+		transform: none;
+	}
+
+	/* 窄版：三站直排，箭頭列只留一支往下，加上退回／記回的說明 */
+	@container (max-width: 639px) {
+		.sf-links {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.sf-links > .sf-link:not(:nth-child(2)) {
+			display: none;
+		}
+		.sf-human-cols {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.sf-human-item {
+			justify-content: flex-start;
+		}
+	}
+
+	/* 寬版：三站橫排，標題列左右排 */
+	@container (min-width: 640px) {
+		.sf-row {
+			padding: 1.25rem 1.375rem;
+		}
+		.sf-head {
+			grid-template-columns: auto minmax(0, 1fr);
+			align-items: center;
+			gap: 1.25rem;
+		}
+		.sf-cols {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+</style>
+
+<script>
+	// 依 data-at 的時間一個個亮起；捲進畫面播一次就停在完成畫面（11/27 Fenny：跑一次就好）
+
+	document.querySelectorAll<HTMLElement>("[data-sf]").forEach((root) => {
+		if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+		const els = Array.from(root.querySelectorAll<HTMLElement>("[data-at]"));
+		root.classList.add("sf--anim");
+
+		const io = new IntersectionObserver(
+			(entries) => {
+				if (!entries.some((e) => e.isIntersecting)) return;
+				io.disconnect();
+				els.forEach((el) => window.setTimeout(() => el.classList.add("is-on"), Number(el.dataset.at) || 0));
+			},
+			{ threshold: 0.3 },
+		);
+		io.observe(root);
+	});
+</script>

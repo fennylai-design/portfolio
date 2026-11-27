@@ -1,0 +1,176 @@
+---
+// 一人公司跳窗圖 ④（11/27）：報價單——AI 先研究，人來決定。
+// 以前：從頭想怎麼寫、該報多少，翻筆記回想客戶說過什麼。
+// 現在：會議記錄＋客戶官網＋社群 → AI Agent 評估製作項目、產出附報價依據的初版報價單，和需求清單（對照客戶說過的話）→ 人決定方案與價格、審核調整 → 產出 PDF 寄出。
+// 金額一律遮住（網站不放價格）；客戶名、內容都是假資料。樣式在 src/styles/solo-shot.css。調整用 /portfolio/lab/case-thumbs/
+import "../../../styles/hero-flow.css";
+import "../../../styles/solo-shot.css";
+import { svg } from "../../hero-flow/icons";
+import Agents from "../../hero-flow/Agents.astro";
+import SoloAnim from "./SoloAnim.astro";
+import { toolSvg, notionIcon, ARROW_H, ARROW_V, type SoloTool, humanIcon } from "./solo-shared";
+
+const before = ["翻會議筆記", "回想客戶說過什麼", "估要做哪些項目", "從空白文件開始寫"];
+const inputs: { tool: SoloTool; title: string; text: string }[] = [
+	{ tool: "notion", title: "會議記錄", text: "諮詢時聊到的需求" },
+	{ tool: "web", title: "客戶官網", text: "服務、詢價表單" },
+	{ tool: "social", title: "客戶社群", text: "最近在推什麼" },
+];
+const items: { name: string; why: string }[] = [
+	{ name: "系統架構規劃", why: "案場、業主、工班要串在一起" },
+	{ name: "業主進度頁", why: "業主常在 LINE 追問進度" },
+	{ name: "團隊導入教學", why: "5 人團隊要一起用" },
+];
+const needs: { need: string; said: string }[] = [
+	{ need: "業主能自己看到案場進度", said: "每天都在 LINE 回同一個問題" },
+	{ need: "案場資料集中在一個地方", said: "照片、報價、工班時間很分散" },
+	{ need: "新同事上手有固定做法", said: "每個人記的方式都不一樣" },
+];
+const T = [200, 850, 1500]; // 輸入、AI 產出、人
+---
+
+<div class="so" data-so>
+	<section class="so-row so-row--before">
+		<p class="so-title"><span class="so-tag">以前</span>每次從頭想怎麼寫、該報多少</p>
+		<ul class="so-chips">{before.map((t) => <li class="so-chip">{t}</li>)}</ul>
+		<p class="so-note so-note--before">報多報少憑感覺，客戶沒說出口的需求也容易漏掉</p>
+	</section>
+
+	<section class="so-row so-row--after">
+		<p class="so-title"><span class="so-tag so-tag--after">現在</span>AI 先研究、寫初版，人來決定</p>
+
+		<div class="so-flow">
+			<div data-at={T[0]}>
+				<p class="so-sub">AI 先讀這些</p>
+				<ul class="so-src-list">
+					{inputs.map((s) => (
+						<li class="so-src">
+							{s.tool === "notion" ? <img src={notionIcon} alt="" width="16" height="16" class="so-ico so-ico--notion" /> : <span class="so-ico" set:html={toolSvg[s.tool as Exclude<SoloTool, "notion">]} />}
+							<b>{s.title}</b>
+						</li>
+					))}
+				</ul>
+			</div>
+
+			<span class="so-arrow so-arrow--h" data-at={T[1]} set:html={ARROW_H} />
+			<span class="so-arrow so-arrow--v" data-at={T[1]} set:html={ARROW_V} />
+
+			<div class="so-ai" data-at={T[1]}>
+				<p class="so-ai-head"><Agents size="sm" />AI Agent 產出初版</p>
+				<div class="so-outs so-outs--2">
+					<article class="hf-card so-out">
+						<header class="so-out-head">
+							<span class="flex items-center gap-1.5"><span class="inline-flex" set:html={toolSvg.pdf} />初版報價單</span>
+							<span class="hf-tag hf-tag--wait">待人審核</span>
+						</header>
+						<ul class="qt-items">
+							{items.map((it) => (
+								<li>
+									<span class="qt-row"><b>{it.name}</b><span class="qt-price" aria-label="金額不公開">NT$ ●●,●●●</span></span>
+									<span class="qt-why">報價依據：{it.why}</span>
+								</li>
+							))}
+						</ul>
+					</article>
+					<article class="hf-card so-out">
+						<header class="so-out-head">
+							<span>需求清單</span>
+							<span class="hf-tag hf-tag--neutral">對照客戶說過的話</span>
+						</header>
+						<ul class="qt-appendix">
+							{needs.map((a) => (
+								<li>
+									<p class="font-bold"><span class="qt-label qt-label--ask">需求</span>{a.need}</p>
+									<p class="qt-said">客戶說：「{a.said}」</p>
+								</li>
+							))}
+						</ul>
+					</article>
+				</div>
+			</div>
+		</div>
+
+		<div class="so-human-wrap" data-at={T[2]}>
+			<span class="so-arrow" set:html={ARROW_V} />
+			<div class="hf-card so-human">
+				<span class="so-avatar"><img src={humanIcon} alt="人" width="28" height="35" /></span>
+				<span class="so-human-text">決定方案與價格，審核調整後產出 PDF 寄出</span>
+			</div>
+		</div>
+		<p class="so-note so-note--after" data-at={T[2]}>AI 負責整理，判斷留給人</p>
+	</section>
+	<SoloAnim />
+</div>
+
+<style>
+	.qt-items {
+		display: grid;
+		gap: 0.375rem;
+		margin-top: 0.625rem;
+	}
+	.qt-items > li {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		padding: 0.375rem 0.5rem;
+		border-radius: 8px;
+		background: #faf7f3;
+	}
+	.qt-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+	}
+	.qt-price {
+		font-size: 11px;
+		letter-spacing: 0.04em;
+		color: rgb(34 29 33 / 0.35);
+		white-space: nowrap;
+	}
+	.qt-why,
+	.qt-said {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.qt-why {
+		font-size: 11px;
+		color: var(--color-brand);
+	}
+	.qt-appendix {
+		display: grid;
+		gap: 0.5rem;
+		margin-top: 0.625rem;
+	}
+	.qt-appendix > li {
+		display: grid;
+		gap: 0.25rem;
+		padding-bottom: 0.5rem;
+		border-bottom: 1px dashed rgb(34 29 33 / 0.1);
+		line-height: 1.5;
+	}
+	.qt-appendix > li:last-child {
+		padding-bottom: 0;
+		border-bottom: 0;
+	}
+	.qt-label {
+		margin-right: 0.375rem;
+		padding: 0 7px;
+		border-radius: 999px;
+		background: #faf7f3;
+		box-shadow: inset 0 0 0 1px rgb(34 29 33 / 0.1);
+		font-size: 11px;
+		font-weight: 600;
+		color: rgb(34 29 33 / 0.6);
+	}
+	.qt-said {
+		font-size: 11px;
+		color: rgb(34 29 33 / 0.6);
+	}
+	.qt-label--ask {
+		background: var(--color-pink-50);
+		box-shadow: inset 0 0 0 1px rgb(217 53 141 / 0.2);
+		color: var(--color-brand);
+	}
+</style>

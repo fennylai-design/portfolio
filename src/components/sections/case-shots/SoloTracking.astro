@@ -1,0 +1,481 @@
+---
+// 一人公司跳窗圖 ④（11/27）：多專案追蹤——日報、週報。
+// 以前：進度靠記憶，每天自己翻行事曆、任務、信件、各專案文件。
+// 現在：AI Agent 從行事曆、Notion、Email、客戶共用頁收資料，每天整理日報、每週整理週報；人看完決定今天先做什麼、下週重點。
+// 視覺語言照 ② SoloProcess：以前灰卡、現在白卡；AI 深色卡＋Claude／Codex 頭像；工具小卡；首屏同款虛線箭頭；人用預設頭像白卡。
+// 動態：一組一組出現（來源 → AI＋日報 → 週報 → 人），只播一次；沒有 JS 或開了減少動態，直接顯示完成畫面。
+// 專案名、日期、數字都是假資料。調整用 /portfolio/lab/case-thumbs/
+import "../../../styles/hero-flow.css";
+import { svg } from "../../hero-flow/icons";
+import Agents from "../../hero-flow/Agents.astro";
+import { asset } from "../../../lib/asset";
+import { humanIcon } from "./solo-shared";
+
+type Tool = "mail" | "cal" | "notion" | "share";
+const toolSvg: Record<Exclude<Tool, "notion">, string> = {
+	mail: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3" fill="#ea4335"/><path d="M5.5 8l6.5 5 6.5-5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+	cal: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3" fill="#4285f4"/><path d="M3 9h18" stroke="#fff" stroke-width="1.6"/><rect x="7" y="12" width="3" height="3" rx=".6" fill="#fff"/></svg>',
+	share: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#d9358d"/><circle cx="9" cy="10" r="2.2" fill="#fff"/><circle cx="15.5" cy="10" r="2.2" fill="#fff"/><path d="M5.5 17c.8-2 2-3 3.5-3s2.7 1 3.5 3M12 17c.8-2 2-3 3.5-3s2.7 1 3.5 3" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg>',
+};
+const notionIcon = asset("/cases/notion.svg");
+const ARROW_H = '<svg width="44" height="12" viewBox="0 0 44 12" aria-hidden="true"><circle cx="4" cy="6" r="3" class="hf-node" /><path d="M10 6H32" class="hf-line" /><path d="M33 1.5L42 6L33 10.5z" class="hf-node" /></svg>';
+const ARROW_V = '<svg width="12" height="44" viewBox="0 0 12 44" aria-hidden="true"><circle cx="6" cy="4" r="3" class="hf-node" /><path d="M6 10V32" class="hf-line" /><path d="M1.5 33L6 42L10.5 33z" class="hf-node" /></svg>';
+
+const before = ["翻行事曆", "翻 Notion 任務", "翻 Email", "翻各專案文件", "文件一份份寄給客戶"];
+const sources: { tool: Tool; text: string }[] = [
+	{ tool: "cal", text: "行事曆" },
+	{ tool: "notion", text: "專案與任務" },
+	{ tool: "mail", text: "Email" },
+	{ tool: "share", text: "客戶共用頁" },
+];
+const projects: { name: string; state: string; tone: "ai" | "wait" | "done" }[] = [
+	{ name: "晨光工作室", state: "報價待寄", tone: "wait" },
+	{ name: "青禾設計", state: "建置中", tone: "ai" },
+	{ name: "小日子團隊", state: "客戶回饋了", tone: "done" },
+];
+const daily = {
+	schedule: "10:00 晨光工作室・線上諮詢",
+	todos: ["寄出晨光工作室報價單", "回覆小日子團隊的回饋"],
+	remind: "報價單已經 2 天沒寄",
+};
+const weekly = [
+	{ label: "這週完成", value: "8 件" },
+	{ label: "還沒收尾", value: "2 件" },
+	{ label: "做了的決定", value: "3 個" },
+];
+const nextWeek = ["青禾設計交付第一版", "整理報價新版本"];
+
+const T = [200, 850, 1500, 2150]; // 來源、AI＋日報、週報、人
+---
+
+<div class="st" data-st>
+	{/* 以前 */}
+	<section class="st-row st-row--before">
+		<p class="st-title"><span class="st-tag">以前</span>進度靠記憶，每天自己翻一輪</p>
+		<ul class="st-chips mt-3">
+			{before.map((t) => <li class="st-chip">{t}</li>)}
+		</ul>
+		<p class="st-note st-note--before">專案一多，該跟進的事容易漏掉</p>
+	</section>
+
+	{/* 現在 */}
+	<section class="st-row st-row--after">
+		<p class="st-title"><span class="st-tag st-tag--after">現在</span>AI 每天、每週整理好，人決定先做什麼</p>
+
+		<div class="st-flow mt-4">
+			{/* 資料來源 */}
+			<div class="st-sources" data-at={T[0]}>
+				<p class="st-sub">從這些地方收資料</p>
+				<ul class="st-src-list">
+					{sources.map((s) => (
+						<li class="st-src">
+							{s.tool === "notion" ? <img src={notionIcon} alt="" width="16" height="16" class="st-ico st-ico--notion" /> : <span class="st-ico" set:html={toolSvg[s.tool]} />}
+							<span>{s.text}</span>
+						</li>
+					))}
+				</ul>
+			</div>
+
+			<span class="st-arrow st-arrow--h" data-at={T[1]} set:html={ARROW_H} />
+			<span class="st-arrow st-arrow--v" data-at={T[1]} set:html={ARROW_V} />
+
+			{/* AI 整理出來的日報、週報 */}
+			<div class="st-ai">
+				<p class="st-ai-head" data-at={T[1]}><Agents size="sm" /><span class="st-ai-name">AI Agent 整理</span></p>
+				<div class="st-reports">
+					<article class="hf-card st-report" data-at={T[1]}>
+						<header class="st-report-head">
+							<span class="font-bold">早安日報</span>
+							<span class="hf-tag hf-tag--neutral">每天 08:30</span>
+						</header>
+						<p class="st-sec">今日行程</p>
+						<p class="st-line">{daily.schedule}</p>
+						<p class="st-sec">各專案現況</p>
+						<ul class="st-projects">
+							{projects.map((p) => (
+								<li><span>{p.name}</span><span class={`hf-tag hf-tag--${p.tone}`}>{p.state}</span></li>
+							))}
+						</ul>
+						<p class="st-sec">今天先做</p>
+						<ul class="st-todos">
+							{daily.todos.map((t) => <li><span class="st-box" aria-hidden="true"></span>{t}</li>)}
+						</ul>
+						<p class="st-remind"><span set:html={svg("bell", 12)} />{daily.remind}</p>
+					</article>
+
+					<article class="hf-card st-report" data-at={T[2]}>
+						<header class="st-report-head">
+							<span class="font-bold">週回顧</span>
+							<span class="hf-tag hf-tag--neutral">每週五</span>
+						</header>
+						<ul class="st-stats">
+							{weekly.map((w) => (
+								<li><span class="num st-stat-num">{w.value}</span><span class="st-stat-label">{w.label}</span></li>
+							))}
+						</ul>
+						<p class="st-sec">下週重點</p>
+						<ul class="st-todos">
+							{nextWeek.map((t) => <li><span class="st-dot" aria-hidden="true"></span>{t}</li>)}
+						</ul>
+						<p class="st-remind"><span set:html={svg("bell", 12)} />還有 2 件沒收尾，排進下週</p>
+					</article>
+				</div>
+			</div>
+		</div>
+
+		{/* 人：看完決定 */}
+		<div class="st-human-wrap" data-at={T[3]}>
+			<span class="st-arrow" set:html={ARROW_V} />
+			<div class="hf-card st-human">
+				<span class="st-avatar"><img src={humanIcon} alt="人" width="28" height="35" /></span>
+				<span class="st-human-text">在一個地方確認所有事項，決定今天要執行的項目，根據週報決定下週重點</span>
+			</div>
+		</div>
+		<p class="st-note st-note--after" data-at={T[3]}>專案一多，也不會漏掉該跟進的事</p>
+	</section>
+</div>
+
+<style>
+	.num {
+		font-variant-numeric: tabular-nums;
+	}
+	.st {
+		container-type: inline-size;
+		display: grid;
+		gap: 1rem;
+		color: var(--color-ink);
+	}
+	.st-row {
+		padding: 1.125rem;
+		border-radius: 20px;
+		background: #fff;
+		box-shadow: 0 1px 2px rgb(34 29 33 / 0.04), 0 8px 24px rgb(34 29 33 / 0.06);
+	}
+	.st-row--before {
+		background: #f6f4f2;
+		box-shadow: inset 0 0 0 1px rgb(34 29 33 / 0.06);
+	}
+	.st-title {
+		display: flex;
+		align-items: baseline;
+		gap: 0.5rem;
+		font-size: 15px;
+		font-weight: 700;
+	}
+	.st-tag {
+		white-space: nowrap;
+		font-family: ui-monospace, "SF Mono", Menlo, monospace;
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		color: var(--color-muted);
+	}
+	.st-tag--after {
+		color: var(--color-brand);
+	}
+	.st-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.375rem;
+	}
+	.st-chip {
+		padding: 3px 9px;
+		border-radius: 999px;
+		background: #fff;
+		box-shadow: inset 0 0 0 1px rgb(34 29 33 / 0.1);
+		font-size: 12px;
+		color: rgb(34 29 33 / 0.6);
+	}
+	.st-note {
+		margin-top: 0.875rem;
+		padding: 0.5rem 0.875rem;
+		border-radius: 12px;
+		font-size: 12px;
+		font-weight: 600;
+	}
+	.st-note--before {
+		background: #fdf4d6;
+		color: #8a5d00;
+	}
+	.st-note--after {
+		background: var(--color-pink-50);
+		color: var(--color-brand);
+	}
+
+	/* 現在：來源 → AI 報告 */
+	.st-flow {
+		display: grid;
+		justify-items: center;
+		gap: 0.5rem;
+	}
+	.st-flow > * {
+		min-width: 0;
+		width: 100%;
+	}
+	.st-flow > .st-arrow {
+		width: auto;
+	}
+	.st-sub {
+		font-size: 12px;
+		font-weight: 600;
+		color: var(--color-muted);
+	}
+	.st-src-list {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.375rem;
+		margin-top: 0.5rem;
+	}
+	.st-src {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.4rem 0.5rem;
+		border-radius: 10px;
+		background: #fff;
+		box-shadow: inset 0 0 0 1px rgb(34 29 33 / 0.1), 0 2px 6px rgb(34 29 33 / 0.05);
+		font-size: 12px;
+		font-weight: 600;
+	}
+	.st-ico {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		border-radius: 7px;
+		background: #fff;
+		box-shadow: inset 0 0 0 1px rgb(34 29 33 / 0.08);
+	}
+	.st-ico--notion {
+		padding: 4px;
+	}
+	.st-arrow {
+		display: inline-flex;
+	}
+	.st-arrow--h {
+		display: none;
+	}
+
+	/* AI：深色底，裡面放兩張報告 */
+	.st-ai {
+		padding: 0.75rem;
+		border-radius: 18px;
+		background: var(--color-ink);
+		color: #fefcfa;
+		box-shadow: 0 2px 4px rgb(34 29 33 / 0.12), 0 12px 24px -10px rgb(34 29 33 / 0.35);
+	}
+	.st-ai-head {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.st-ai :global(.hf-agent) {
+		box-shadow: 0 0 0 2px var(--color-ink);
+	}
+	.st-ai-name {
+		font-size: 12px;
+		font-weight: 700;
+	}
+	.st-reports {
+		display: grid;
+		gap: 0.625rem;
+		margin-top: 0.625rem;
+	}
+	.st-report {
+		padding: 0.75rem 0.875rem;
+		border-radius: 14px;
+		color: var(--color-ink);
+		font-size: 12px;
+	}
+	.st-report-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		font-size: 13px;
+	}
+	.st-report .hf-tag {
+		padding: 0 8px;
+		font-size: 11px;
+	}
+	.st-sec {
+		margin-top: 0.625rem;
+		font-size: 11px;
+		font-weight: 600;
+		color: var(--color-muted);
+	}
+	.st-line {
+		margin-top: 0.25rem;
+		font-weight: 600;
+	}
+	.st-projects {
+		display: grid;
+		gap: 0.25rem;
+		margin-top: 0.25rem;
+	}
+	.st-projects > li {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		padding: 0.25rem 0.5rem;
+		border-radius: 8px;
+		background: #faf7f3;
+	}
+	.st-todos {
+		display: grid;
+		gap: 0.25rem;
+		margin-top: 0.25rem;
+	}
+	.st-todos > li {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.st-box {
+		flex: none;
+		width: 12px;
+		height: 12px;
+		border-radius: 3px;
+		box-shadow: inset 0 0 0 1.5px rgb(34 29 33 / 0.3);
+	}
+	.st-dot {
+		flex: none;
+		width: 6px;
+		height: 6px;
+		border-radius: 999px;
+		background: var(--color-brand);
+	}
+	.st-remind {
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+		margin-top: 0.625rem;
+		padding: 0.375rem 0.5rem;
+		border-radius: 8px;
+		background: #fdf1e3;
+		color: #a8641d;
+		font-size: 11px;
+		font-weight: 600;
+	}
+	.st-remind > span {
+		display: inline-flex;
+	}
+	.st-stats {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 0.375rem;
+		margin-top: 0.625rem;
+	}
+	.st-stats > li {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 0.375rem 0.125rem;
+		border-radius: 10px;
+		box-shadow: inset 0 0 0 1px rgb(34 29 33 / 0.08);
+	}
+	.st-stat-num {
+		font-size: 16px;
+		font-weight: 700;
+		line-height: 1.3;
+	}
+	.st-stat-label {
+		font-size: 11px;
+		color: var(--color-muted);
+		white-space: nowrap;
+	}
+
+	/* 人 */
+	.st-human-wrap {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.25rem;
+		margin-top: 0.5rem;
+	}
+	.st-human {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		width: 100%;
+		padding: 0.75rem 0.875rem;
+		border-radius: 16px;
+		font-size: 13px;
+	}
+	.st-human-text {
+		color: var(--color-brand);
+		font-weight: 700;
+	}
+	.st-avatar img {
+		width: auto;
+		height: 24px;
+	}
+	.st-avatar {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		height: 24px;
+	}
+
+	/* 動態：data-at 的元素先藏起來，加上 is-on 才出現 */
+	.st--anim [data-at] {
+		opacity: 0;
+		transform: translateY(6px);
+		transition:
+			opacity 0.3s ease,
+			transform 0.3s ease;
+	}
+	.st--anim [data-at].is-on {
+		opacity: 1;
+		transform: none;
+	}
+
+	/* 寬版：來源｜箭頭｜AI 報告 橫排，兩張報告並排 */
+	@container (min-width: 640px) {
+		.st-row {
+			padding: 1.25rem 1.375rem;
+		}
+		.st-flow {
+			grid-template-columns: minmax(0, 0.55fr) auto minmax(0, 2fr);
+			align-items: center;
+			gap: 0.75rem;
+		}
+		.st-src-list {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.st-arrow--h {
+			display: inline-flex;
+		}
+		.st-flow > .st-arrow--v {
+			display: none;
+		}
+		.st-reports {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			align-items: start;
+		}
+	}
+</style>
+
+<script>
+	// 一組一組出現，只播一次
+	document.querySelectorAll<HTMLElement>("[data-st]").forEach((root) => {
+		if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+		const els = Array.from(root.querySelectorAll<HTMLElement>("[data-at]"));
+		root.classList.add("st--anim");
+		const io = new IntersectionObserver(
+			(entries) => {
+				if (!entries.some((e) => e.isIntersecting)) return;
+				io.disconnect();
+				els.forEach((el) => window.setTimeout(() => el.classList.add("is-on"), Number(el.dataset.at) || 0));
+			},
+			{ threshold: 0.3 },
+		);
+		io.observe(root);
+	});
+</script>

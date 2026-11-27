@@ -13,10 +13,11 @@ import Tag from "../ui/Tag.astro";
 import Placeholder from "../ui/Placeholder.astro";
 import CaseFlow from "./CaseFlow.astro";
 import WeddingCover from "./thumbs/WeddingCover.astro";
+import SoloCover from "./thumbs/SoloCover.astro";
 import CaseDetail from "./CaseDetail.astro";
 import { asset } from "../../lib/asset";
 // 卡片縮圖（用程式畫）：內容檔的 thumb 欄位對到這裡；沒有就顯示佔位框
-const thumbs: Record<string, any> = { wedding: WeddingCover };
+const thumbs: Record<string, any> = { wedding: WeddingCover, solo: SoloCover };
 import { cases } from "../../content/interior";
 ---
 

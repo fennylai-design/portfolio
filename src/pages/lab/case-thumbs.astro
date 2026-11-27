@@ -5,6 +5,11 @@
 import Layout from "../../layouts/Layout.astro";
 import WeddingThumb from "../../components/sections/thumbs/WeddingThumb.astro";
 import WeddingCover from "../../components/sections/thumbs/WeddingCover.astro";
+import SoloCover from "../../components/sections/thumbs/SoloCover.astro";
+import SoloProcess from "../../components/sections/case-shots/SoloProcess.astro";
+import SoloTracking from "../../components/sections/case-shots/SoloTracking.astro";
+import SoloPrep from "../../components/sections/case-shots/SoloPrep.astro";
+import SoloQuote from "../../components/sections/case-shots/SoloQuote.astro";
 import WeddingProcess from "../../components/sections/case-shots/WeddingProcess.astro";
 import WeddingOps from "../../components/sections/case-shots/WeddingOps.astro";
 import WeddingCollab from "../../components/sections/case-shots/WeddingCollab.astro";
@@ -18,6 +23,10 @@ const shots: { title: string; C: any; props?: Record<string, unknown> }[] = [
 	{ title: "③ 新人協作", C: WeddingCollab },
 	{ title: "④-1 專案看板", C: WeddingThumb, props: { strip: true } },
 	{ title: "④-2 營運數據＋應收／付款項", C: WeddingOps },
+	{ title: "一人公司 ② 預約到報價", C: SoloProcess },
+	{ title: "一人公司 ③ 會前準備", C: SoloPrep },
+	{ title: "一人公司 ④ 報價單", C: SoloQuote },
+	{ title: "一人公司 ⑤ 日報週報", C: SoloTracking },
 ];
 ---
 
@@ -34,6 +43,14 @@ const shots: { title: string; C: any; props?: Record<string, unknown> }[] = [
 			<div class="mt-4 w-[343px]"><WeddingCover /></div>
 		</section>
 
+
+		<section class="mt-20">
+			<h2 class="text-lg font-bold">一人公司 ① 封面（＝卡片縮圖）</h2>
+			<p class="mt-1 text-sm text-muted">電腦版（卡片實際寬度）</p>
+			<div class="mt-4 max-w-4xl"><SoloCover /></div>
+			<p class="mt-8 text-sm text-muted">手機版（343 寬）</p>
+			<div class="mt-4 w-[343px]"><SoloCover /></div>
+		</section>
 
 		{shots.map(({ title, C, props }) => (
 			<section class="mt-20">

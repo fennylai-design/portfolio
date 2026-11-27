@@ -5,11 +5,16 @@
 import type { CaseItem } from "../../content/interior";
 import WeddingThumb from "./thumbs/WeddingThumb.astro";
 import WeddingCover from "./thumbs/WeddingCover.astro";
+import SoloCover from "./thumbs/SoloCover.astro";
 import CaseFlow from "./CaseFlow.astro";
 import { asset } from "../../lib/asset";
 import WeddingProcess from "./case-shots/WeddingProcess.astro";
 import WeddingCollab from "./case-shots/WeddingCollab.astro";
 import WeddingOps from "./case-shots/WeddingOps.astro";
+import SoloProcess from "./case-shots/SoloProcess.astro";
+import SoloTracking from "./case-shots/SoloTracking.astro";
+import SoloPrep from "./case-shots/SoloPrep.astro";
+import SoloQuote from "./case-shots/SoloQuote.astro";
 
 interface Props {
 	c: CaseItem;
@@ -17,7 +22,7 @@ interface Props {
 }
 const { c, titleId } = Astro.props;
 // 卡片上的封面圖，內頁「過去 v.s. 現在」也放一張
-const covers: Record<string, any> = { wedding: WeddingCover };
+const covers: Record<string, any> = { wedding: WeddingCover, solo: SoloCover };
 const Cover = c.thumb ? covers[c.thumb] : null;
 
 // 內容檔 shots[].key 對到圖
@@ -26,6 +31,10 @@ const shotParts: Record<string, { C: any; props?: Record<string, unknown> }> = {
 	"wedding-collab": { C: WeddingCollab },
 	"wedding-board": { C: WeddingThumb },
 	"wedding-ops": { C: WeddingOps },
+	"self-booking": { C: SoloProcess },
+	"self-prep": { C: SoloPrep },
+	"self-quote": { C: SoloQuote },
+	"self-tracking": { C: SoloTracking },
 };
 
 // **關鍵詞** → 粗體底線（先跳脫 HTML）

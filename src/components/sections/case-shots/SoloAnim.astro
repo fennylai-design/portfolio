@@ -1,0 +1,19 @@
+---
+// 一人公司案例圖 ③④ 共用動態：[data-so] 捲進畫面，依 data-at（毫秒）一組組出現，只播一次
+---
+<script>
+	document.querySelectorAll<HTMLElement>("[data-so]").forEach((root) => {
+		if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+		const els = Array.from(root.querySelectorAll<HTMLElement>("[data-at]"));
+		root.classList.add("so--anim");
+		const io = new IntersectionObserver(
+			(entries) => {
+				if (!entries.some((e) => e.isIntersecting)) return;
+				io.disconnect();
+				els.forEach((el) => window.setTimeout(() => el.classList.add("is-on"), Number(el.dataset.at) || 0));
+			},
+			{ threshold: 0.3 },
+		);
+		io.observe(root);
+	});
+</script>
