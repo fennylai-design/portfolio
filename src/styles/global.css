@@ -10,7 +10,7 @@
 
 @theme {
 	/* --- 色彩：淺色模式（預設） --- */
-	--color-base: #fefcfa; /* 頁面底色，暖白（近白帶一絲暖） */
+	--color-base: #fefcfa; /* 頁面底色，暖白（近白帶一絲暖）。注意：因為有這個色名，Tailwind 的 text-base 會連文字顏色一起變成暖白，沒另外寫 text-ink 字就會不見（11/27 踩過），字級改用 text-[16px] */
 	--color-surface: #faf7f3; /* 卡片、區塊底，比近白底略暖略深以做出層次（11/26 Fenny：調淡，原 #f6f2ec） */
 	--color-ink: #221d21; /* 主要文字，暖黑（非純黑） */
 	--color-muted: #8b8589; /* 次要文字、註解、時間戳 */

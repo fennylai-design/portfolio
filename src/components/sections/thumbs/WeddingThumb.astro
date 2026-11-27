@@ -1,0 +1,251 @@
+---
+// 婚顧卡片縮圖（11/27 v3）：照首屏流程圖的卡片樣式（hf- 白卡、標籤膠囊、進度條），底色白。
+// 左：選單；右上：進行中專案（年份分頁＋每組新人一張卡：婚期、倒數、籌備進度、即將到期提醒）；
+// 右下：內部任務（分頁：即將到期／行事曆／全部；欄位：任務、負責人、到期日、婚禮專案、備註）。
+// 假資料：名字用「王 × 林」這種姓氏，夾一組英文名（呼應他們有中英文檔案）。倒數天數以 2026-11-27 算的，固定寫死。
+// 調整樣式用 /portfolio/lab/case-thumbs/
+import "../../../styles/hero-flow.css";
+
+// strip：放進跳窗當 ④-1 時，上面加一行「以前 → 現在」
+interface Props {
+	strip?: boolean;
+}
+const { strip = false } = Astro.props;
+
+const menu = ["洽談紀錄", "專案看板", "廠商資料庫", "營運管理"];
+const active = "專案看板";
+const years = ["2026 進行中", "2027 專案", "2025"];
+const couples = [
+	{ name: "王 × 林", date: "12/20", days: 23, pct: 80, due: 2 },
+	{ name: "Amy × Leo", date: "01/18", days: 52, pct: 30, due: 1 },
+	{ name: "張 × 吳", date: "03/08", days: 101, pct: 10, due: 0 },
+];
+const taskTabs = ["即將到期", "行事曆", "全部"];
+const tasks = [
+	{ name: "確認桌次表", owner: "Mia", due: "11/30", project: "王 × 林", note: "等新人回覆賓客名單" },
+	{ name: "場刊排版初稿", owner: "Joy", due: "12/03", project: "王 × 林", note: "照片已收齊" },
+	{ name: "場地勘查", owner: "Mia", due: "12/05", project: "Amy × Leo", note: "花藝、燈光一起看" },
+];
+---
+
+<div class="wt rounded-2xl">
+	{strip && (
+		<p class="wt-strip">
+			<span class="wt-tag">以前</span><span class="text-ink/60">每組新人的進度，要在好幾份 Excel 來回核對</span>
+			<span class="font-bold text-brand" aria-hidden="true">→</span>
+			<span class="wt-tag wt-tag--after">現在</span><span class="font-semibold">追蹤籌備進度，每組新人一眼看清</span>
+		</p>
+	)}
+	<div class="wt-layout grid gap-4">
+		<nav class="wt-nav hf-card hf-card--dark self-start p-3" aria-hidden="true">
+			<ul class="space-y-1">
+				{menu.map((m) => (
+					<li class={`rounded-xl px-3 py-2 text-[13px] font-medium ${m === active ? "bg-white/10 text-[#f27bb8]" : "text-white/70"}`}>{m}</li>
+				))}
+			</ul>
+		</nav>
+
+		<div class="grid min-w-0 gap-5">
+			<div>
+				<div class="flex flex-wrap items-center gap-3">
+					<ul class="wt-tabs">
+						{years.map((y, i) => <li class={i === 0 ? "is-on" : ""}>{y}</li>)}
+					</ul>
+				</div>
+				<div class="wt-couples mt-3 grid gap-3">
+					{couples.map((c) => (
+						<article class="hf-card p-4">
+							<p class="truncate text-[16px] font-bold">{c.name}</p>
+							<p class="num mt-1 text-[13px] text-ink/70">婚期 {c.date}<span class="ml-2 text-brand">📅 倒數 {c.days} 天</span></p>
+							<div class="mt-3">
+								<div class="flex items-center justify-between text-[12px]">
+									<span class="text-muted">籌備進度</span>
+									<span class="num font-semibold">{c.pct}%</span>
+								</div>
+								<div class="wt-bar mt-1.5"><span style={`width:${c.pct}%`}></span></div>
+							</div>
+							{c.due > 0 ? (
+								<p class="mt-3 rounded-xl bg-[#fdf4d6] px-2.5 py-1.5 text-[12px] text-ink/80"><span class="font-semibold text-[#9a6a00]">提醒</span>　有 {c.due} 件新人任務即將到期</p>
+							) : (
+								<p class="mt-3 rounded-xl bg-surface px-2.5 py-1.5 text-[12px] text-muted">沒有即將到期的任務</p>
+							)}
+						</article>
+					))}
+				</div>
+			</div>
+
+			<div>
+			<h3 class="mb-2 text-[16px] font-bold">內部任務</h3>
+			<article class="hf-card p-4">
+				<div class="flex flex-wrap items-center gap-3">
+					<ul class="wt-tabs">
+						{taskTabs.map((t, i) => <li class={i === 0 ? "is-on" : ""}>{t}</li>)}
+					</ul>
+				</div>
+				<div class="wt-table mt-3">
+					<div class="wt-row wt-head"><span>任務</span><span>負責人</span><span>到期日</span><span>婚禮專案</span><span class="wt-note">備註</span></div>
+					{tasks.map((t) => (
+						<div class="wt-row">
+							<span class="font-medium">{t.name}</span>
+							<span>{t.owner}</span>
+							<span class="num text-brand">{t.due}</span>
+							<span><a class="wt-link">{t.project}</a></span>
+							<span class="wt-note text-ink/60">{t.note}</span>
+						</div>
+					))}
+				</div>
+			</article>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+	.num {
+		font-variant-numeric: tabular-nums;
+	}
+	.wt {
+		container-type: inline-size;
+		padding: 1rem;
+		background: #fff;
+		color: var(--color-ink);
+	}
+	/* 縮圖裡卡片比首屏小，圓角跟著縮 */
+	.wt .hf-card {
+		border-radius: 18px;
+	}
+
+	.wt-strip {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.375rem 0.5rem;
+		margin-bottom: 1rem;
+		font-size: 13px;
+	}
+	.wt-tag {
+		font-family: ui-monospace, "SF Mono", Menlo, monospace;
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		color: var(--color-muted);
+	}
+	.wt-tag--after {
+		color: var(--color-brand);
+	}
+
+	/* 婚禮專案連結：底線 */
+	.wt-link {
+		color: var(--color-ink);
+		text-decoration: underline;
+		text-decoration-color: rgb(34 29 33 / 0.35);
+		text-underline-offset: 3px;
+	}
+
+	/* 分頁膠囊 */
+	.wt-tabs {
+		display: flex;
+		gap: 2px;
+		padding: 3px;
+		border-radius: 999px;
+		background: var(--color-surface);
+		font-size: 12px;
+	}
+	.wt-tabs > li {
+		padding: 3px 10px;
+		border-radius: 999px;
+		color: var(--color-muted);
+		white-space: nowrap;
+	}
+	.wt-tabs > li.is-on {
+		background: #fff;
+		color: var(--color-ink);
+		font-weight: 600;
+		box-shadow: 0 1px 3px rgb(34 29 33 / 0.1);
+	}
+
+	/* 藍色進度條 */
+	.wt-bar {
+		height: 6px;
+		border-radius: 999px;
+		background: rgb(34 29 33 / 0.08);
+		overflow: hidden;
+	}
+	.wt-bar > span {
+		display: block;
+		height: 100%;
+		border-radius: 999px;
+		background: var(--color-blue);
+	}
+
+	/* 任務表格 */
+	.wt-table {
+		border: 1px solid rgb(34 29 33 / 0.07);
+		border-radius: 14px;
+		overflow: hidden;
+		font-size: 13px;
+	}
+	.wt-row {
+		display: grid;
+		grid-template-columns: 1.4fr 0.7fr 0.7fr 1fr;
+		gap: 0.75rem;
+		align-items: center;
+		padding: 8px 12px;
+	}
+	.wt-row > span {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.wt-row + .wt-row {
+		border-top: 1px solid rgb(34 29 33 / 0.05);
+	}
+	.wt-head {
+		background: #faf7f3;
+		font-size: 12px;
+		color: var(--color-muted);
+	}
+	.wt-note {
+		display: none;
+	}
+
+	/* 窄：拿掉選單、新人卡一張一排只留兩張、表格不放備註 */
+	.wt-nav {
+		display: none;
+	}
+	.wt-couples {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.wt-couples > :nth-child(n + 3) {
+		display: none;
+	}
+	@container (min-width: 480px) {
+		.wt-couples {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+	@container (min-width: 760px) {
+		.wt {
+			padding: 1.5rem;
+		}
+		.wt-layout {
+			grid-template-columns: 9rem minmax(0, 1fr);
+		}
+		.wt-nav {
+			display: block;
+		}
+		.wt-couples {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+		.wt-couples > :nth-child(n + 3) {
+			display: block;
+		}
+		.wt-row {
+			grid-template-columns: 1.3fr 0.6fr 0.6fr 0.9fr 1.6fr;
+		}
+		.wt-note {
+			display: block;
+		}
+	}
+</style>

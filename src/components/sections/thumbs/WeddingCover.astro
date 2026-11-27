@@ -1,0 +1,271 @@
+---
+// 婚顧封面圖（11/27）＝首頁卡片縮圖：以前資料散在五個地方 → 整合 → 一組新人，從諮詢到請款一條線。
+// 寬版左右排（以前｜整合｜現在），窄版上下排。只借「前後對照」的講法，視覺用自己的 hf- 卡片樣式。
+// 調整樣式用 /portfolio/lab/case-thumbs/
+import "../../../styles/hero-flow.css";
+import { svg, type IconName } from "../../hero-flow/icons";
+
+// 工具小圖示：只用各工具的代表色＋簡化圖形，不放官方 logo
+const toolIcon: Record<string, string> = {
+	Sheet: '<svg width="18" height="18" viewBox="0 0 24 24" aria-label="試算表"><rect x="4" y="2" width="16" height="20" rx="2.5" fill="#1e8e3e"/><path d="M8 9h8v8H8zM8 13h8M12 9v8" fill="none" stroke="#fff" stroke-width="1.5"/></svg>',
+	Doc: '<svg width="18" height="18" viewBox="0 0 24 24" aria-label="文件"><rect x="4" y="2" width="16" height="20" rx="2.5" fill="#4285f4"/><path d="M8 9h8M8 12.5h8M8 16h5" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>',
+	LINE: '<svg width="18" height="18" viewBox="0 0 24 24" aria-label="通訊軟體"><rect x="2" y="2" width="20" height="20" rx="5" fill="#06c755"/><path d="M12 6.5c-3.6 0-6.5 2.3-6.5 5.1 0 2.5 2.3 4.6 5.4 5l-.3 1.9 2.6-1.8c2.9-.4 5.3-2.5 5.3-5.1 0-2.8-2.9-5.1-6.5-5.1z" fill="#fff"/></svg>',
+	Excel: '<svg width="18" height="18" viewBox="0 0 24 24" aria-label="試算表"><rect x="2" y="2" width="20" height="20" rx="4" fill="#107c41"/><path d="M8 7.5l8 9M16 7.5l-8 9" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
+};
+const before: { icon: IconName; label: string; tool: string }[] = [
+	{ icon: "user", label: "諮詢資料", tool: "Sheet" },
+	{ icon: "receipt", label: "報價", tool: "Doc" },
+	{ icon: "chat", label: "新人溝通", tool: "LINE" },
+	{ icon: "grid", label: "廠商", tool: "Sheet" },
+	{ icon: "wallet", label: "帳款", tool: "Excel" },
+];
+// state：done 完成、now 進行中、todo 還沒到
+const stages: { icon: IconName; label: string; state: "done" | "now" | "todo" }[] = [
+	{ icon: "chat", label: "諮詢", state: "done" },
+	{ icon: "receipt", label: "報價簽約", state: "done" },
+	{ icon: "check", label: "籌備", state: "now" },
+	{ icon: "heart", label: "婚禮當天", state: "todo" },
+	{ icon: "wallet", label: "請款", state: "todo" },
+];
+---
+
+<div class="wc">
+	<span class="hf-glow hf-glow--sky wc-glow wc-glow--tl" aria-hidden="true"></span>
+	<span class="hf-glow hf-glow--pink wc-glow wc-glow--br" aria-hidden="true"></span>
+	<div class="wc-layout">
+		<div class="wc-before">
+			<p class="wc-label"><span class="wc-tag wc-tag--before">以前</span>資料散在五個地方</p>
+			<div class="wc-pile">
+				{before.map((b, i) => (
+					<article class={`hf-glass wc-mini wc-mini--${i + 1}`}>
+						<div class="flex items-center gap-2">
+							<span class="wc-ico" set:html={svg(b.icon, 14)} />
+							<span class="text-[13px] font-bold">{b.label}</span>
+							<span class="ml-auto inline-flex" set:html={toolIcon[b.tool]} />
+						</div>
+					</article>
+				))}
+			</div>
+		</div>
+
+		<div class="wc-merge" aria-hidden="true">
+			{/* 跟首屏流程圖同一套：起點圓點＋粉色虛線＋三角箭頭；寬版橫向、窄版直向 */}
+			<svg class="wc-wire wc-wire--h" width="64" height="12" viewBox="0 0 64 12"><circle cx="4" cy="6" r="3" class="hf-node" /><path d="M10 6H52" class="hf-line" /><path d="M53 1.5L62 6L53 10.5z" class="hf-node" /></svg>
+			<svg class="wc-wire wc-wire--v" width="12" height="52" viewBox="0 0 12 52"><circle cx="6" cy="4" r="3" class="hf-node" /><path d="M6 10V40" class="hf-line" /><path d="M1.5 41L6 50L10.5 41z" class="hf-node" /></svg>
+		</div>
+
+		<div class="wc-after">
+			<p class="wc-label"><span class="wc-tag wc-tag--after">現在</span>一組新人，資料都在同一個地方，每個專案內容一目瞭然</p>
+			<article class="hf-card p-5">
+				<header class="flex items-center gap-3">
+					<span class="wc-badge" aria-hidden="true">💒</span>
+					<div class="min-w-0">
+						<h3 class="truncate text-[16px] font-bold">王 × 林・婚禮專案</h3>
+						<p class="hf-eyebrow mt-0.5">婚期 2026/12/20 · 5 階段</p>
+					</div>
+					<span class="hf-tag hf-tag--ai ml-auto">籌備中</span>
+				</header>
+				<ol class="wc-steps mt-5">
+					{stages.map((s) => (
+						<li class={`is-${s.state}`}>
+							<span class="wc-dot" set:html={svg(s.icon, 16)} />
+							<span class="wc-step-label">{s.label}</span>
+						</li>
+					))}
+				</ol>
+			</article>
+		</div>
+	</div>
+</div>
+
+<style>
+	.wc {
+		container-type: inline-size;
+		padding: 1.25rem;
+		background: #fff;
+		color: var(--color-ink);
+	}
+	.wc .hf-card {
+		border-radius: 18px;
+	}
+	.wc-layout {
+		display: grid;
+		gap: 0.75rem;
+	}
+	.wc {
+		position: relative;
+		isolation: isolate;
+		overflow: hidden;
+	}
+	.wc-glow {
+		z-index: -1;
+		width: 60%;
+		height: 90%;
+		opacity: 0.6;
+	}
+	.wc-glow--tl {
+		top: -30%;
+		left: -15%;
+		opacity: 0.51; /* 11/27 藍色再淡 15% */
+	}
+	.wc-glow--br {
+		right: -15%;
+		bottom: -30%;
+	}
+	/* 標籤在上、說明在下，不讓「現在」跟句子擠在同一行折行 */
+	.wc-label {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.25rem;
+		margin-bottom: 0.75rem;
+		font-size: 13px;
+		color: rgb(34 29 33 / 0.7);
+	}
+	.wc-tag {
+		font-family: ui-monospace, "SF Mono", Menlo, monospace;
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+	}
+	.wc-tag--before {
+		color: var(--color-muted);
+	}
+	.wc-tag--after {
+		color: var(--color-brand);
+	}
+
+	/* 以前：五張小卡歪歪疊著 */
+	.wc-pile {
+		position: relative;
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.5rem;
+	}
+	.wc-mini {
+		padding: 0.625rem 0.75rem;
+		border-radius: 16px;
+	}
+	.wc-mini--1 { transform: rotate(-2deg); }
+	.wc-mini--2 { transform: rotate(1.5deg) translateY(6px); }
+	.wc-mini--3 { transform: rotate(1deg); }
+	.wc-mini--4 { transform: rotate(-1.5deg) translateY(4px); }
+	.wc-mini--5 { transform: rotate(2deg); }
+	.wc-ico {
+		display: inline-flex;
+		color: var(--color-muted);
+	}
+
+	/* 中間：整合 */
+	.wc-merge {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.375rem;
+	}
+	.wc-wire--h {
+		display: none;
+	}
+
+	/* 現在：專案卡 */
+	.wc-badge {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 40px;
+		height: 40px;
+		border-radius: 12px;
+		background: var(--color-pink-50);
+		font-size: 22px;
+		line-height: 1;
+	}
+	.wc-steps {
+		display: flex;
+		align-items: flex-start;
+	}
+	.wc-steps > li {
+		position: relative;
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.375rem;
+		text-align: center;
+	}
+	/* 階段之間的連線 */
+	.wc-steps > li + li::before {
+		content: "";
+		position: absolute;
+		top: 17px;
+		right: calc(50% + 22px);
+		width: calc(100% - 44px);
+		height: 2px;
+		background: rgb(34 29 33 / 0.12);
+	}
+	.wc-steps > li.is-done + li::before {
+		background: var(--color-brand);
+		opacity: 0.5;
+	}
+	.wc-dot {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		border-radius: 999px;
+	}
+	.is-done .wc-dot {
+		background: var(--color-pink-50);
+		color: var(--color-brand);
+	}
+	.is-now .wc-dot {
+		background: var(--color-brand);
+		color: #fff;
+		box-shadow: 0 0 0 5px rgb(217 53 141 / 0.15);
+	}
+	.is-todo .wc-dot {
+		border: 1.5px dashed rgb(34 29 33 / 0.25);
+		color: var(--color-muted);
+	}
+	.wc-step-label {
+		font-size: 12px;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+	.is-todo .wc-step-label {
+		color: var(--color-muted);
+	}
+
+	/* 窄：第五張小卡藏起來，維持兩欄整齊 */
+	.wc-mini--5 {
+		display: none;
+	}
+
+	/* 寬：左右排 以前｜整合｜現在 */
+	@container (min-width: 720px) {
+		.wc {
+			padding: 1.75rem;
+		}
+		.wc-layout {
+			grid-template-columns: minmax(0, 0.9fr) 4.5rem minmax(0, 1.1fr);
+			align-items: center;
+			gap: 1rem;
+		}
+		.wc-pile {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.wc-mini--5 {
+			display: block;
+			grid-column: span 2;
+			width: 55%;
+			justify-self: center;
+		}
+		.wc-wire--h {
+			display: block;
+		}
+		.wc-wire--v {
+			display: none;
+		}
+	}
+</style>

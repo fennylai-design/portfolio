@@ -1,0 +1,281 @@
+---
+// 婚顧跳窗圖 ④ 的營運部分（11/27）：以前好幾份 Excel 來回核對 → 營運數據儀表板＋應收／付款項。
+// 欄位照子時實際的 Notion 儀表板：營運數據（本月／今年／趨勢：簽約數、總收入、總支出成本、總廠商回佣、本月加購品項），
+// 應收／付款項（本月／所有應收／所有應付：名稱、類別、金額、款項狀態、到期日、專案）。數字全是示意。
+// 調整樣式用 /portfolio/lab/case-thumbs/
+import "../../../styles/hero-flow.css";
+
+const statTabs = ["本月", "今年", "趨勢"];
+// spark：近六個月的走勢（示意），畫成迷你折線
+const stats = [
+	{ label: "簽約數", value: "18", unit: "組", spark: [1, 2, 2, 3, 4, 3] },
+	{ label: "總收入", value: "216", unit: "萬", spark: [18, 22, 30, 28, 40, 38] },
+	{ label: "總支出成本", value: "132", unit: "萬", spark: [12, 14, 19, 18, 24, 22] },
+	{ label: "總廠商回佣", value: "8.6", unit: "萬", spark: [0.6, 0.8, 1.2, 1.1, 1.6, 1.5] },
+];
+const addons = [
+	{ name: "婚禮小物", n: 6 },
+	{ name: "雙語主持", n: 3 },
+	{ name: "迎賓布置升級", n: 2 },
+];
+const payTabs = ["本月", "所有應收", "所有應付"];
+const pays = [
+	{ name: "王 × 林・中期款", kind: "應收", amount: "60,000", status: "已收款", tone: "done", due: "11/20", project: "王 × 林" },
+	{ name: "張 × 吳・尾款", kind: "應收", amount: "90,000", status: "逾期", tone: "late", due: "11/25", project: "張 × 吳" },
+	{ name: "Amy × Leo・訂金", kind: "應收", amount: "30,000", status: "待收款", tone: "wait", due: "12/01", project: "Amy × Leo" },
+	{ name: "花藝・訂金", kind: "應付", amount: "18,000", status: "待付款", tone: "wait", due: "12/05", project: "王 × 林" },
+];
+
+const sparkPath = (v: number[]) => {
+	const max = Math.max(...v);
+	const min = Math.min(...v);
+	return v
+		.map((y, i) => `${i === 0 ? "M" : "L"}${(i / (v.length - 1)) * 100},${28 - ((y - min) / (max - min || 1)) * 24}`)
+		.join(" ");
+};
+---
+
+<div class="wo">
+	<p class="wo-strip">
+		<span class="wo-tag">以前</span><span class="text-ink/60">收入、成本、款項各記一份</span>
+		<span class="wo-arrow" aria-hidden="true">→</span>
+		<span class="wo-tag wo-tag--after">現在</span><span class="font-semibold">營運數字與款項狀態，打開就看得到</span>
+	</p>
+
+	<div class="wo-grid">
+		<article class="hf-card wo-stats p-4">
+			<div class="flex flex-wrap items-center gap-3">
+				<h3 class="text-[15px] font-bold">營運數據</h3>
+				<ul class="wo-tabs">{statTabs.map((t, i) => <li class={i === 1 ? "is-on" : ""}>{t}</li>)}</ul>
+			</div>
+			<div class="wo-tiles mt-3">
+				{stats.map((s) => (
+					<div class="wo-tile">
+						<p class="text-[12px] text-muted">{s.label}</p>
+						<p class="mt-1"><span class="num text-[22px] font-bold leading-none">{s.value}</span><span class="ml-1 text-[12px] text-ink/60">{s.unit}</span></p>
+						<svg class="mt-2 h-7 w-full" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">
+							<path d={sparkPath(s.spark)} fill="none" stroke="var(--color-blue)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+						</svg>
+					</div>
+				))}
+			</div>
+			<div class="wo-addons mt-3">
+				<p class="text-[12px] text-muted">本月加購品項</p>
+				<ul class="mt-2 space-y-1.5">
+					{addons.map((a) => (
+						<li class="flex items-center gap-2 text-[12px]">
+							<span class="w-20 flex-none truncate">{a.name}</span>
+							<span class="wo-hbar flex-1"><span style={`width:${(a.n / 6) * 100}%`}></span></span>
+							<span class="num w-4 text-right font-semibold">{a.n}</span>
+						</li>
+					))}
+				</ul>
+			</div>
+		</article>
+
+		<article class="hf-card wo-pay flex flex-col p-4">
+			<div class="flex flex-wrap items-center gap-3">
+				<h3 class="text-[15px] font-bold">應收／付款項</h3>
+				<ul class="wo-tabs">{payTabs.map((t, i) => <li class={i === 0 ? "is-on" : ""}>{t}</li>)}</ul>
+			</div>
+			<div class="wo-table mt-3">
+				<div class="wo-row wo-head"><span>名稱</span><span>類別</span><span class="text-right">金額</span><span>款項狀態</span><span>到期日</span><span class="wo-proj">專案</span></div>
+				{pays.map((p) => (
+					<div class="wo-row">
+						<span class="font-medium">{p.name}</span>
+						<span class={p.kind === "應付" ? "text-darkblue" : "text-ink/70"}>{p.kind}</span>
+						<span class="num text-right">{p.amount}</span>
+						<span><span class={`wo-status wo-status--${p.tone}`}>{p.status}</span></span>
+						<span class="num text-ink/70">{p.due}</span>
+						<span class="wo-proj"><a class="wo-link">{p.project}</a></span>
+					</div>
+				))}
+			</div>
+			<div class="wo-sum mt-auto">
+				<div><p class="text-[12px] text-muted">本月應收</p><p class="num mt-1 text-[18px] font-bold">180,000</p><p class="text-[11px] text-ink/60">已收 60,000・逾期 1 筆</p></div>
+				<div><p class="text-[12px] text-muted">本月應付</p><p class="num mt-1 text-[18px] font-bold text-darkblue">18,000</p><p class="text-[11px] text-ink/60">待付 1 筆</p></div>
+			</div>
+		</article>
+	</div>
+	<p class="mt-3 text-center text-[11px] text-muted">數字皆為示意，非客戶實際營運資料</p>
+</div>
+
+<style>
+	.num {
+		font-variant-numeric: tabular-nums;
+	}
+	.wo {
+		container-type: inline-size;
+		color: var(--color-ink);
+	}
+	.wo .hf-card {
+		border-radius: 18px;
+	}
+	.wo-strip {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.375rem 0.5rem;
+		margin-bottom: 0.875rem;
+		font-size: 13px;
+	}
+	.wo-tag {
+		font-family: ui-monospace, "SF Mono", Menlo, monospace;
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.14em;
+		color: var(--color-muted);
+	}
+	.wo-tag--after {
+		color: var(--color-brand);
+	}
+	.wo-arrow {
+		color: var(--color-brand);
+		font-weight: 700;
+	}
+	.wo-grid {
+		display: grid;
+		gap: 0.75rem;
+	}
+
+	.wo-tabs {
+		display: flex;
+		gap: 2px;
+		padding: 3px;
+		border-radius: 999px;
+		background: var(--color-surface);
+		font-size: 12px;
+	}
+	.wo-tabs > li {
+		padding: 2px 10px;
+		border-radius: 999px;
+		color: var(--color-muted);
+		white-space: nowrap;
+	}
+	.wo-tabs > li.is-on {
+		background: #fff;
+		color: var(--color-ink);
+		font-weight: 600;
+		box-shadow: 0 1px 3px rgb(34 29 33 / 0.1);
+	}
+
+	/* 數字小卡 */
+	.wo-tiles {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.5rem;
+	}
+	.wo-tile {
+		padding: 0.625rem 0.75rem;
+		border-radius: 12px;
+		background: #faf7f3;
+	}
+	.wo-addons {
+		padding: 0.625rem 0.75rem;
+		border-radius: 12px;
+		background: #faf7f3;
+	}
+	.wo-hbar {
+		height: 6px;
+		border-radius: 999px;
+		background: rgb(34 29 33 / 0.08);
+		overflow: hidden;
+	}
+	.wo-hbar > span {
+		display: block;
+		height: 100%;
+		border-radius: 999px;
+		background: var(--color-brand);
+	}
+
+	/* 款項表格 */
+	.wo-table {
+		border: 1px solid rgb(34 29 33 / 0.07);
+		border-radius: 14px;
+		overflow: hidden;
+		font-size: 12px;
+	}
+	.wo-row {
+		display: grid;
+		grid-template-columns: 1.5fr 0.6fr 0.9fr 0.9fr;
+		gap: 0.5rem;
+		align-items: center;
+		padding: 8px 10px;
+	}
+	/* 窄：不放到期日、專案 */
+	.wo-row > :nth-child(5),
+	.wo-proj {
+		display: none;
+	}
+	.wo-row > span {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.wo-row + .wo-row {
+		border-top: 1px solid rgb(34 29 33 / 0.05);
+	}
+	.wo-head {
+		background: #faf7f3;
+		font-size: 11px;
+		color: var(--color-muted);
+	}
+	.wo-status {
+		display: inline-block;
+		padding: 1px 8px;
+		border-radius: 999px;
+		font-size: 11px;
+		font-weight: 600;
+	}
+	.wo-status--done {
+		background: #e6f2ea;
+		color: #2f7a4b;
+	}
+	.wo-status--wait {
+		background: #fdf1e3;
+		color: #a8641d;
+	}
+	.wo-status--late {
+		background: var(--color-brand);
+		color: #fff;
+	}
+	/* 款項卡底部：本月合計，卡片拉高時貼底 */
+	/* 窄版一格一排，說明小字才不會折行 */
+	.wo-sum {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.5rem;
+		padding-top: 0.75rem;
+	}
+	.wo-sum p {
+		white-space: nowrap;
+	}
+	.wo-sum > div {
+		padding: 0.625rem 0.75rem;
+		border-radius: 12px;
+		background: #faf7f3;
+	}
+	.wo-link {
+		text-decoration: underline;
+		text-decoration-color: rgb(34 29 33 / 0.35);
+		text-underline-offset: 3px;
+	}
+
+	@container (min-width: 720px) {
+		.wo-grid {
+			grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+			align-items: stretch;
+		}
+		.wo-row {
+			grid-template-columns: 1.5fr 0.5fr 0.8fr 0.85fr 0.6fr 0.9fr;
+		}
+		.wo-row > :nth-child(5),
+		.wo-proj {
+			display: block;
+		}
+		.wo-sum {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+</style>

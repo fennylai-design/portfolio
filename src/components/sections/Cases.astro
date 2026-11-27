@@ -1,5 +1,5 @@
 ---
-// 成功案例：三張卡片上下排列。11/26 改版：大圓角、每張不同淺色底；正面只放產業＋名稱大標＋成果條列，完整文字在跳窗
+// 成功案例：三張卡片上下排列。11/27 改版：正面照參考版型——產業、大標、原本、粗體結論、AI 可延伸、標籤；成果條列移到跳窗
 // 點整張卡片（11/26 改；做法是「了解更多」按鈕的透明延伸層蓋滿整張卡，鍵盤 Tab 一樣停在按鈕上）跳出視窗（原生 <dialog>）看案例畫面與補充說明；Esc、點背景、點關閉都能關
 // 動態（11/26）：柔和上浮（Gentle Fade Up）——每張卡捲進畫面時，卡內元素由上到下依序從下方 18px、透明浮上淡入，
 // 間隔 0.14 秒、各 0.9 秒、power2.out 減速，不彈跳不縮放，只播一次。跟合作流程一樣不裝 GSAP，用 CSS transition＋IntersectionObserver。
@@ -11,6 +11,21 @@
 import Section from "../ui/Section.astro";
 import Tag from "../ui/Tag.astro";
 import Placeholder from "../ui/Placeholder.astro";
+import CaseFlow from "./CaseFlow.astro";
+import WeddingThumb from "./thumbs/WeddingThumb.astro";
+import WeddingCover from "./thumbs/WeddingCover.astro";
+import WeddingProcess from "./case-shots/WeddingProcess.astro";
+import WeddingCollab from "./case-shots/WeddingCollab.astro";
+import WeddingOps from "./case-shots/WeddingOps.astro";
+// 卡片縮圖（用程式畫）：內容檔的 thumb 欄位對到這裡；沒有就顯示佔位框
+const thumbs: Record<string, any> = { wedding: WeddingCover };
+// 跳窗的前後對照圖：內容檔 shots[].key 對到這裡（11/27 婚顧四張，樣品頁 /lab/case-thumbs/）
+const shotParts: Record<string, { C: any; props?: Record<string, unknown> }> = {
+	"wedding-process": { C: WeddingProcess },
+	"wedding-collab": { C: WeddingCollab },
+	"wedding-board": { C: WeddingThumb, props: { strip: true } },
+	"wedding-ops": { C: WeddingOps },
+};
 import { cases } from "../../content/interior";
 ---
 
@@ -23,12 +38,26 @@ import { cases } from "../../content/interior";
 				data-case-card
 				class="lift-card group relative flex cursor-pointer flex-col rounded-[2rem] bg-white p-8 sm:p-10"
 			>
-				<div class="cs-part mb-8" style="--j:0"><div class="lift-thumb overflow-hidden rounded-2xl"><Placeholder label="案例畫面" class="lift-img h-48 sm:h-64" /></div></div>
-				<h3 class="cs-part text-3xl font-bold leading-tight sm:text-4xl" style="--j:1">{c.name}</h3>
+				<div class="cs-part mb-8" style="--j:0"><div class="lift-thumb overflow-hidden rounded-2xl">{c.thumb && thumbs[c.thumb] ? (() => { const Thumb = thumbs[c.thumb!]; return <div class="lift-img"><Thumb /></div>; })() : <Placeholder label="案例畫面" class="lift-img h-48 sm:h-64" />}</div></div>
+				<p class="cs-part text-sm font-semibold tracking-[0.2em] text-brand" style="--j:1">{c.industry}</p>
+				<h3 class="cs-part mt-3 text-3xl font-bold leading-tight sm:text-4xl" style="--j:1">{c.name}</h3>
 
-				<ul class="cs-part mt-8 max-w-3xl space-y-3" style="--j:2">
-					{c.outcomes.map((o) => (
-						<li class="flex gap-3 text-lg font-semibold leading-relaxed text-ink sm:text-xl"><span class="text-brand" aria-hidden="true">✓</span>{o}</li>
+				<div class="cs-part mt-6 max-w-3xl" style="--j:2">
+					<p class="text-lg leading-relaxed text-ink/70"><span class="mr-3 text-sm text-muted">原本</span>{c.before}</p>
+					<p class="mt-4 text-xl font-bold leading-relaxed text-ink sm:text-2xl">{c.headline}</p>
+				</div>
+
+				<div class="cs-part mt-6 max-w-3xl" style="--j:3">
+					<p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-lg font-bold text-brand-deep">
+						<span class="rounded-md bg-brand px-2 py-0.5 text-xs font-bold tracking-wider text-white">AI 可延伸</span>
+						{c.ai.title}
+					</p>
+					<p class="mt-2 text-base leading-relaxed text-ink/70">{c.ai.text}</p>
+				</div>
+
+				<ul class="cs-part mt-6 flex flex-wrap gap-2" style="--j:4">
+					{c.tags.map((t) => (
+						<li class="rounded-pill bg-surface px-4 py-1.5 text-sm font-semibold text-ink/80">{t}</li>
 					))}
 				</ul>
 
@@ -36,8 +65,8 @@ import { cases } from "../../content/interior";
 					type="button"
 					data-case-open={`case-${i}`}
 					aria-haspopup="dialog"
-					style="--j:3"
-					class="cs-part mt-10 self-start text-sm font-bold text-brand underline-offset-4 group-hover:underline after:absolute after:inset-0 after:rounded-[2rem] after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-brand focus-visible:after:ring-offset-2"
+					style="--j:5"
+					class="cs-part mt-8 self-start text-sm font-bold text-brand underline-offset-4 group-hover:underline after:absolute after:inset-0 after:rounded-[2rem] after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-brand focus-visible:after:ring-offset-2"
 				>
 					了解更多 →
 				</button>
@@ -50,7 +79,7 @@ import { cases } from "../../content/interior";
 		<dialog
 			id={`case-${i}`}
 			aria-labelledby={`case-${i}-title`}
-			class="m-auto w-[calc(100%-2rem)] max-w-3xl rounded-[2rem] bg-base p-0 text-ink backdrop:bg-ink/60"
+			class="m-auto w-[calc(100%-2rem)] max-w-4xl rounded-[2rem] bg-base p-0 text-ink backdrop:bg-ink/60"
 		>
 			<div class="max-h-[85svh] overflow-y-auto p-8">
 				<div class="flex items-start justify-between gap-4">
@@ -63,27 +92,70 @@ import { cases } from "../../content/interior";
 					>×</button>
 				</div>
 				<h3 id={`case-${i}-title`} class="mt-4 text-xl font-bold leading-snug">{c.title}</h3>
-				<div class="mt-6 space-y-4">
-					{Array.from({ length: c.images }).map((_, n) => (
-						<Placeholder label={`案例畫面 ${n + 1}`} class="h-56 rounded-2xl sm:h-72" />
-					))}
-				</div>
+				{!c.shots && c.flow && (
+					<div class="mt-6">
+						<p class="mb-3 text-sm font-semibold text-muted">一組新人走過的流程</p>
+						<CaseFlow flow={c.flow} />
+					</div>
+				)}
 
-				{/* 原本卡片正面的完整文字，先搬來這裡（11/26），晚點再細調 */}
-				<div class="mt-8 grid gap-6">
+				<div class="mt-8 grid gap-8">
 					<div>
 						<p class="text-sm font-semibold text-muted">客戶遇到的困難</p>
 						<p class="mt-2 text-lg text-ink/80">{c.problem}</p>
 					</div>
-					<div>
-						<p class="text-sm font-semibold text-muted">我的解決方案</p>
-						<p class="mt-2 text-lg text-ink/80">{c.solution.intro}</p>
-						<ul class="mt-3 space-y-1">
-							{c.solution.points.map((pt) => (
-								<li class="flex gap-2 text-lg text-ink/80"><span class="text-brand" aria-hidden="true">・</span>{pt}</li>
-							))}
-						</ul>
-					</div>
+
+					{c.shots ? (
+						<div class="grid gap-10">
+							{c.shots.map((sh) => {
+								const part = shotParts[sh.key];
+								return (
+									<div>
+										<p class="text-lg font-bold text-ink">{sh.title}</p>
+										<p class="mt-1 text-lg text-ink/80">{sh.text}</p>
+										{part && <div class="mt-4"><part.C {...part.props} /></div>}
+									</div>
+								);
+							})}
+						</div>
+					) : c.joints ? (
+						<div>
+							<p class="text-sm font-semibold text-muted">怎麼串起來</p>
+							<ol class="mt-3 space-y-4">
+								{c.joints.map((jt, n) => (
+									<li class="flex gap-3">
+										<span class="mt-1 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand text-[0.7rem] font-bold text-white">{n + 1}</span>
+										<div>
+											<p class="text-lg font-bold text-ink">{jt.title}</p>
+											<p class="mt-1 text-lg text-ink/80">{jt.text}</p>
+										</div>
+									</li>
+								))}
+							</ol>
+						</div>
+					) : (
+						<div>
+							<p class="text-sm font-semibold text-muted">我的解決方案</p>
+							<p class="mt-2 text-lg text-ink/80">{c.solution.intro}</p>
+							<ul class="mt-3 space-y-1">
+								{c.solution.points.map((pt) => (
+									<li class="flex gap-2 text-lg text-ink/80"><span class="text-brand" aria-hidden="true">・</span>{pt}</li>
+								))}
+							</ul>
+						</div>
+					)}
+
+					{c.modules && (
+						<div>
+							<p class="text-sm font-semibold text-muted">用到的模組</p>
+							<ul class="mt-3 flex flex-wrap gap-2">
+								{c.modules.map((m) => (
+									<li class="rounded-pill bg-white px-3.5 py-1 text-sm font-semibold text-ink/80">{m}</li>
+								))}
+							</ul>
+						</div>
+					)}
+
 					<div>
 						<p class="text-sm font-semibold text-muted">客戶的成果</p>
 						<ul class="mt-2 space-y-1">
@@ -92,14 +164,25 @@ import { cases } from "../../content/interior";
 							))}
 						</ul>
 					</div>
+
+					{c.quote && (
+						<blockquote class="rounded-2xl bg-white p-6 text-lg leading-relaxed text-ink/80">
+							「{c.quote}」
+							<footer class="mt-3 text-sm font-semibold text-muted">— {c.industry}團隊</footer>
+						</blockquote>
+					)}
 				</div>
 
-				{c.more.length > 0 ? (
+				<div class={`mt-8 space-y-4 ${c.shots ? "hidden" : ""}`}>
+					{Array.from({ length: c.images }).map((_, n) => (
+						<Placeholder label={`案例畫面 ${n + 1}`} class="h-56 rounded-2xl sm:h-72" />
+					))}
+				</div>
+
+				{c.more.length > 0 && (
 					<div class="mt-8 space-y-4">
 						{c.more.map((p) => <p class="text-lg text-ink/80">{p}</p>)}
 					</div>
-				) : (
-					<Placeholder label="補充說明" class="mt-8 h-24 rounded-2xl" />
 				)}
 			</div>
 		</dialog>

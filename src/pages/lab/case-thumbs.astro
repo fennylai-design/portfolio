@@ -1,0 +1,48 @@
+---
+// 案例圖的樣品頁（只在 localhost 看，正式網站不出現）
+// 網址：http://localhost:4330/portfolio/lab/case-thumbs/
+// 婚顧的卡片縮圖＋跳窗四張圖先在這裡一張張定好，再放回案例
+import Layout from "../../layouts/Layout.astro";
+import WeddingThumb from "../../components/sections/thumbs/WeddingThumb.astro";
+import WeddingCover from "../../components/sections/thumbs/WeddingCover.astro";
+import WeddingProcess from "../../components/sections/case-shots/WeddingProcess.astro";
+import WeddingOps from "../../components/sections/case-shots/WeddingOps.astro";
+import WeddingCollab from "../../components/sections/case-shots/WeddingCollab.astro";
+
+if (import.meta.env.PROD) return Astro.redirect(import.meta.env.BASE_URL);
+
+// 跳窗內容寬度：max-w-4xl（896）扣左右 padding 32×2 ＝ 832
+// 11/27 改成四張前後對照圖：① 封面（＝卡片縮圖）② 完整流程 ③ 新人協作 ④ 管理儀表板
+const shots: { title: string; C: any; props?: Record<string, unknown> }[] = [
+	{ title: "② 完整流程：諮詢到請款", C: WeddingProcess },
+	{ title: "③ 新人協作", C: WeddingCollab },
+	{ title: "④-1 專案看板", C: WeddingThumb, props: { strip: true } },
+	{ title: "④-2 營運數據＋應收／付款項", C: WeddingOps },
+];
+---
+
+<Layout title="案例圖樣品">
+	<main class="mx-auto max-w-6xl px-6 py-16">
+		<p class="hf-eyebrow">Lab · Case Shots</p>
+		<h1 class="mt-2 text-3xl font-bold">婚顧案例圖</h1>
+
+		<section class="mt-12">
+			<h2 class="text-lg font-bold">① 封面（＝卡片縮圖）</h2>
+			<p class="mt-1 text-sm text-muted">電腦版（卡片實際寬度）</p>
+			<div class="mt-4 max-w-4xl"><WeddingCover /></div>
+			<p class="mt-8 text-sm text-muted">手機版（343 寬）</p>
+			<div class="mt-4 w-[343px]"><WeddingCover /></div>
+		</section>
+
+
+		{shots.map(({ title, C, props }) => (
+			<section class="mt-20">
+				<h2 class="text-lg font-bold">跳窗圖 {title}</h2>
+				<p class="mt-1 text-sm text-muted">電腦版（跳窗內容寬 832）</p>
+				<div class="mt-4 w-full max-w-[832px]"><C {...props} /></div>
+				<p class="mt-8 text-sm text-muted">手機版（跳窗內容寬約 295）</p>
+				<div class="mt-4 w-[295px]"><C {...props} /></div>
+			</section>
+		))}
+	</main>
+</Layout>

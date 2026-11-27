@@ -1,0 +1,275 @@
+---
+// 婚顧跳窗圖 ③（11/27）：新人協作。講 Cheng 說的「要對外向客戶回報進度」。
+// 以前：Google 雲端資料夾散著好幾份文件，分享出去常常沒權限、要一筆一筆開。
+// 現在：團隊在內部「籌備進度表」改，新人要做的事同步到「王 × 林的功課」（Notion 貼上並同步），新人只看這一頁。
+// 「現在」標語用客戶諮詢表原話。調整樣式用 /portfolio/lab/case-thumbs/
+import "../../../styles/hero-flow.css";
+import { svg } from "../../hero-flow/icons";
+
+// 檔案小圖示：只用類型代表色，不放官方 logo
+const fileIcon = (color: string) =>
+	`<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l5 5v15H6z" fill="${color}"/><path d="M14 2v5h5" fill="#fff" opacity=".45"/></svg>`;
+const files = [
+	{ name: "賓客名單.xlsx", color: "#1e8e3e" },
+	{ name: "桌次安排.docx", color: "#4285f4" },
+	{ name: "場刊草稿.docx", color: "#4285f4", locked: true },
+	{ name: "當天流程.docx", color: "#4285f4" },
+	{ name: "報價單.pdf", color: "#d93025" },
+];
+// share：這列會同步到新人的功課
+const rows = [
+	{ task: "賓客名單", owner: "新人", share: true },
+	{ task: "桌次確認", owner: "新人", share: true },
+	{ task: "場刊照片", owner: "新人", share: true },
+	{ task: "廠商場勘", owner: "Mia", share: false },
+	{ task: "主持稿", owner: "Joy", share: false },
+];
+const homework = [
+	{ task: "賓客名單", done: true, note: "已交" },
+	{ task: "桌次確認", done: false, note: "剩 3 天" },
+	{ task: "場刊照片", done: false, note: "剩 12 天" },
+];
+---
+
+<div class="wcl">
+	<div class="wcl-layout">
+		<section class="wcl-panel wcl-panel--before">
+			<p class="wcl-label"><span class="wcl-tag">以前</span>文件散在雲端資料夾</p>
+			<article class="hf-card p-3.5">
+				<header class="flex items-center gap-2 text-[13px] font-bold">
+					<span class="inline-flex text-muted" set:html={svg("folder", 16)} />雲端硬碟 › 王林婚禮
+				</header>
+				<ul class="mt-2.5">
+					{files.map((f) => (
+						<li class="wcl-file">
+							<span class="inline-flex" set:html={fileIcon(f.color)} />
+							<span class="min-w-0 flex-1 truncate">{f.name}</span>
+							{f.locked && <span class="wcl-lock">需要存取權</span>}
+						</li>
+					))}
+				</ul>
+			</article>
+			<p class="wcl-note">● 新人要自己翻、自己問；分享出去常常沒權限，要一筆一筆開</p>
+		</section>
+
+		<section class="wcl-panel wcl-panel--after">
+			<p class="wcl-label"><span class="wcl-tag wcl-tag--after">現在</span>一個順手的管理與協作頁面</p>
+			<div class="wcl-pair">
+				<article class="hf-card p-3.5">
+					<p class="wcl-lane wcl-lane--back">團隊內部</p>
+					<h3 class="mt-1 text-[14px] font-bold">籌備進度表</h3>
+					<div class="wcl-table mt-2.5">
+						{rows.map((r) => (
+							<div class={`wcl-row ${r.share ? "is-share" : ""}`}>
+								<span class="font-medium">{r.task}</span>
+								<span class="text-ink/60">{r.owner}</span>
+								<span class="inline-flex justify-end text-brand">{r.share && <span set:html={svg("loop", 13)} />}</span>
+							</div>
+						))}
+					</div>
+					<p class="mt-2 text-[11px] text-muted">團隊在這裡改，粉色列同步給新人</p>
+				</article>
+
+				{/* 同步：跟首屏同步線同一套（兩端圓點＋粉色虛線） */}
+				<div class="wcl-sync" aria-hidden="true">
+					<svg class="wcl-wire wcl-wire--h" width="56" height="10" viewBox="0 0 56 10"><circle cx="5" cy="5" r="3.5" class="hf-node" /><path d="M11 5H45" class="hf-line" /><circle cx="51" cy="5" r="3.5" class="hf-node" /></svg>
+					<svg class="wcl-wire wcl-wire--v" width="10" height="40" viewBox="0 0 10 40"><circle cx="5" cy="5" r="3.5" class="hf-node" /><path d="M5 11V29" class="hf-line" /><circle cx="5" cy="35" r="3.5" class="hf-node" /></svg>
+					<span class="wcl-sync-pill">同步</span>
+				</div>
+
+				<article class="hf-card p-3.5">
+					<div class="flex items-center justify-between gap-2">
+						<p class="wcl-lane wcl-lane--front">新人看的</p>
+						<span class="hf-tag hf-tag--ai">已分享給新人</span>
+					</div>
+					<h3 class="mt-1 text-[14px] font-bold">王 × 林的功課</h3>
+					<ul class="mt-2.5 space-y-1.5">
+						{homework.map((h) => (
+							<li class={`wcl-check ${h.done ? "is-done" : ""}`}>
+								<span class="flex-1">{h.task}</span>
+								<span class={`text-[11px] ${h.done ? "text-muted" : "font-semibold text-[#9a6a00]"}`}>{h.note}</span>
+							</li>
+						))}
+					</ul>
+					<p class="mt-2 text-[11px] text-muted">新人只要看這一頁</p>
+				</article>
+			</div>
+			<p class="wcl-result">團隊在內部改，新人頁同步更新，不用再一個個追問</p>
+		</section>
+	</div>
+</div>
+
+<style>
+	.wcl {
+		container-type: inline-size;
+		color: var(--color-ink);
+	}
+	.wcl .hf-card {
+		border-radius: 16px;
+	}
+	.wcl-layout {
+		display: grid;
+		gap: 0.75rem;
+	}
+	/* 11/27 拿掉以前／現在的底色框，跟圖②一致 */
+	.wcl-panel {
+		padding: 0.25rem;
+	}
+	.wcl-label {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.5rem;
+		margin-bottom: 0.875rem;
+		font-size: 13px;
+		font-weight: 600;
+	}
+	.wcl-tag {
+		font-family: ui-monospace, "SF Mono", Menlo, monospace;
+		font-size: 11px;
+		letter-spacing: 0.14em;
+		color: var(--color-muted);
+	}
+	.wcl-tag--after {
+		color: var(--color-brand);
+	}
+	.wcl-note {
+		margin-top: 0.875rem;
+		font-size: 12px;
+		font-weight: 600;
+		color: #a8641d;
+	}
+	.wcl-result {
+		margin-top: 0.875rem;
+		font-size: 12px;
+		font-weight: 600;
+		color: var(--color-brand);
+	}
+
+	/* 以前：雲端檔案列表 */
+	.wcl-file {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 6px 4px;
+		font-size: 12px;
+	}
+	.wcl-file + .wcl-file {
+		border-top: 1px solid rgb(34 29 33 / 0.05);
+	}
+	.wcl-lock {
+		flex: none;
+		padding: 1px 7px;
+		border-radius: 999px;
+		background: #fdf1e3;
+		color: #a8641d;
+		font-size: 10px;
+		font-weight: 600;
+	}
+
+	/* 現在：內部表 ⇄ 新人功課 */
+	.wcl-pair {
+		display: grid;
+		gap: 0.5rem;
+		align-items: center;
+	}
+	.wcl-lane {
+		font-size: 11px;
+		font-weight: 600;
+	}
+	.wcl-lane--back {
+		color: var(--color-darkblue);
+	}
+	.wcl-lane--front {
+		color: var(--color-brand);
+	}
+	.wcl-table {
+		border: 1px solid rgb(34 29 33 / 0.07);
+		border-radius: 12px;
+		overflow: hidden;
+		font-size: 12px;
+	}
+	.wcl-row {
+		display: grid;
+		grid-template-columns: 1fr auto 1rem;
+		gap: 0.5rem;
+		align-items: center;
+		padding: 6px 10px;
+	}
+	.wcl-row + .wcl-row {
+		border-top: 1px solid rgb(34 29 33 / 0.05);
+	}
+	.wcl-row.is-share {
+		background: var(--color-pink-50);
+	}
+	.wcl-sync {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+	}
+	/* 窄版：直虛線，「同步」貼在線中間的右側 */
+	.wcl-sync .wcl-sync-pill {
+		position: absolute;
+		top: 50%;
+		left: calc(50% + 12px);
+		transform: translateY(-50%);
+	}
+	.wcl-wire--h {
+		display: none;
+	}
+	.wcl-sync-pill {
+		padding: 1px 9px;
+		border-radius: 999px;
+		background: #fff;
+		color: var(--color-brand);
+		font-size: 11px;
+		font-weight: 700;
+		box-shadow: inset 0 0 0 1px rgb(217 53 141 / 0.25);
+	}
+	.wcl-check {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 12px;
+	}
+	.wcl-check::before {
+		content: "";
+		flex: none;
+		width: 14px;
+		height: 14px;
+		border-radius: 4px;
+		border: 1.5px solid rgb(34 29 33 / 0.25);
+		background: #fff;
+	}
+	.wcl-check.is-done::before {
+		border-color: var(--color-brand);
+		background: var(--color-brand)
+			url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+			center / 10px no-repeat;
+	}
+	.wcl-check.is-done > span:first-of-type {
+		color: var(--color-muted);
+		text-decoration: line-through;
+	}
+
+	@container (min-width: 720px) {
+		.wcl-layout {
+			grid-template-columns: minmax(0, 0.62fr) minmax(0, 1.38fr);
+		}
+		.wcl-pair {
+			grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+		}
+		.wcl-wire--h {
+			display: block;
+		}
+		.wcl-wire--v {
+			display: none;
+		}
+		.wcl-sync .wcl-sync-pill {
+			position: static;
+			transform: none;
+		}
+	}
+</style>

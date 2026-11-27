@@ -93,7 +93,7 @@ v1 新增：`Placeholder`：灰色虛線框＋「待補：…」字樣，用在�
    `pyftsubset GenSekiGothic2TW-R.otf --text-file=chars.txt --flavor=woff2 --layout-features='*' --output-file=public/fonts/GenSekiGothic-Regular.subset.woff2`（M → Medium、B → Bold）
 4. 檢查每個字重都沒有缺字，再讓瀏覽器強制重新整理（Cmd+Shift+R）。
 
-目前每個字重約 210KB（853 個非英數字元，2026-11-26 Cheng 回饋改文案後補字）。補字時把舊字型檔裡已有的字一起併進 chars.txt，避免掃描漏掉的字被刪掉；表情符號（👋）不在字型裡，交給系統字體。
+目前每個字重約 210KB（853 個非英數字元，2026-11-26 Cheng 回饋改文案後補字；2026-11-27 案例卡改版再補 10 字）。補字時把舊字型檔裡已有的字一起併進 chars.txt，避免掃描漏掉的字被刪掉；表情符號（👋）不在字型裡，交給系統字體。
 
 ## 9. 發布（GitHub Pages）
 

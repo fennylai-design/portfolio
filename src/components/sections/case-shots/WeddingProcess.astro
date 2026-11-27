@@ -1,0 +1,414 @@
+---
+// 婚顧跳窗圖 ②（11/27 v2）：導入前（文件各做各的）→ 導入後（一個專案頁，從諮詢到結案都在這一頁）。
+// 講 Cheng 說的「從諮詢到請款有固定流程」＋「要協調外部廠商」。款項分期：簽約收訂金、籌備收中期款、婚禮後收尾款。
+// 動態（照首屏光點語言）：捲進畫面時光點沿階段列跑一次，每到一站：階段變實心、中間內容換成這階段要做的事、
+// 底部「任務／款項／廠商／會議紀錄」數字跟著累積；跑完停在結案。沒有 JS 或開了減少動態，直接顯示完成畫面。
+// 「現在」標語用客戶諮詢表原話。調整樣式用 /portfolio/lab/case-thumbs/
+import "../../../styles/hero-flow.css";
+import { svg, type IconName } from "../../hero-flow/icons";
+
+const before: { icon: IconName; title: string; text: string }[] = [
+	{ icon: "receipt", title: "諮詢＋報價", text: "每次從頭做一份" },
+	{ icon: "user", title: "新人資料", text: "同一份「需要重複貼上到很多地方」" },
+	{ icon: "doc", title: "文件與任務", text: "散在不同檔案，每天來回管理" },
+];
+// counts：跑到這一站時，專案底下累積的 [任務, 款項, 廠商, 會議紀錄]
+const stages: { label: string; title: string; items: { text: string; pay?: boolean }[]; counts: number[] }[] = [
+	{ label: "諮詢", title: "諮詢表帶進洽談紀錄", items: [{ text: "諮詢表自動帶入" }, { text: "洽談紀錄" }], counts: [0, 0, 0, 1] },
+	{ label: "報價", title: "用模板產出報價單", items: [{ text: "選方案" }, { text: "加購項目" }, { text: "報價單產出" }], counts: [0, 0, 0, 1] },
+	{ label: "簽約", title: "簽約，收訂金", items: [{ text: "合約簽回" }, { text: "訂金", pay: true }], counts: [0, 1, 0, 1] },
+	{ label: "開案", title: "一鍵建好內部專案＋新人頁", items: [{ text: "內部專案" }, { text: "新人頁" }, { text: "任務時程 12 項" }], counts: [12, 1, 0, 1] },
+	{ label: "籌備", title: "新人任務、廠商、中期款", items: [{ text: "賓客名單" }, { text: "桌次" }, { text: "場刊" }, { text: "廠商挑選 3 家" }, { text: "中期款", pay: true }], counts: [12, 2, 3, 1] },
+	{ label: "當天", title: "資料直接印出來帶到現場", items: [{ text: "當天流程" }, { text: "桌次表" }, { text: "列印" }], counts: [12, 2, 3, 1] },
+	{ label: "結案", title: "收尾款，交付照片", items: [{ text: "尾款", pay: true }, { text: "照片（雲端連結）" }], counts: [12, 3, 3, 1] },
+];
+const countLabels = ["任務", "款項", "廠商", "會議紀錄"];
+const last = stages.length - 1;
+---
+
+<div class="wp" data-wp>
+	<div class="wp-layout">
+		<section class="wp-panel wp-panel--before">
+			<p class="wp-label"><span class="wp-tag">以前</span>文件各做各的</p>
+			<div class="space-y-2.5">
+				{before.map((b) => (
+					<article class="hf-card flex items-center gap-3 p-3.5">
+						<span class="hf-icon" set:html={svg(b.icon, 16)} />
+						<div class="min-w-0">
+							<p class="text-[14px] font-bold">{b.title}</p>
+							<p class="text-[12px] text-ink/60">{b.text}</p>
+						</div>
+					</article>
+				))}
+			</div>
+			<p class="wp-note">● 每天的時間，花在管理文件與任務上</p>
+		</section>
+
+		<section class="wp-panel wp-panel--after">
+			<p class="wp-label"><span class="wp-tag wp-tag--after">現在</span>減少每日花費在管理文件與任務的時間</p>
+
+			{/* 一個專案頁：頁框從頭到尾不變 */}
+			<article class="hf-card wp-page">
+				<header class="wp-page-head">
+					<span class="wp-badge" aria-hidden="true">💒</span>
+					<div class="min-w-0">
+						<h3 class="truncate text-[15px] font-bold">王 × 林・婚禮專案</h3>
+						<p class="hf-eyebrow">從諮詢到結案，都在這一頁</p>
+					</div>
+				</header>
+
+				{/* 階段列＋光點 */}
+				<div class="wp-track" style={`--n:${stages.length}`}>
+					<span class="wp-rail" aria-hidden="true"><span class="wp-rail-fill" data-wp-fill></span></span>
+					<span class="wp-runner" data-wp-runner aria-hidden="true"></span>
+					<ol class="wp-stops">
+						{stages.map((s, i) => (
+							<li class={i === last ? "is-now" : "is-done"} data-wp-stop={i}>
+								<span class="wp-stop-dot" aria-hidden="true"></span>
+								<span class="wp-stop-label">{s.label}</span>
+							</li>
+						))}
+					</ol>
+				</div>
+
+				{/* 這個階段要做的事：所有階段疊在同一格，只顯示目前那一個 */}
+				<div class="wp-stage">
+					{stages.map((s, i) => (
+						<div class={`wp-stage-panel ${i === last ? "is-on" : ""}`} data-wp-panel={i}>
+							<p class="text-[12px] text-muted"><span class="num font-semibold text-brand">{String(i + 1).padStart(2, "0")}</span>　{s.label}・這個階段要做的事</p>
+							<p class="mt-1 text-[14px] font-bold">{s.title}</p>
+							<ul class="mt-2.5 flex flex-wrap gap-1.5">
+								{s.items.map((it) => (
+									<li class={`wp-chip ${it.pay ? "wp-chip--pay" : ""}`}>
+										<span set:html={svg(it.pay ? "wallet" : "check", 12)} />{it.text}
+									</li>
+								))}
+							</ul>
+						</div>
+					))}
+				</div>
+
+				{/* 掛在這個專案底下的資料：數字跟著累積 */}
+				<ul class="wp-counts">
+					{countLabels.map((l, k) => (
+						<li><span class="num wp-count" data-wp-count={k} data-final={stages[last].counts[k]}>{stages[last].counts[k]}</span><span>{l}</span></li>
+					))}
+				</ul>
+			</article>
+		</section>
+	</div>
+	<script type="application/json" data-wp-data set:html={JSON.stringify(stages.map((s) => s.counts))} />
+</div>
+
+<style>
+	.num {
+		font-variant-numeric: tabular-nums;
+	}
+	.wp {
+		container-type: inline-size;
+		color: var(--color-ink);
+	}
+	.wp .hf-card {
+		border-radius: 16px;
+	}
+	.wp .hf-icon {
+		width: 32px;
+		height: 32px;
+		border-radius: 10px;
+	}
+	.wp-layout {
+		display: grid;
+		gap: 0.75rem;
+	}
+	.wp-panel {
+		padding: 0.25rem;
+	}
+	/* 11/27 拿掉以前／現在的底色框 */
+	.wp-label {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.5rem;
+		margin-bottom: 0.875rem;
+		font-size: 13px;
+		font-weight: 600;
+	}
+	.wp-tag {
+		font-family: ui-monospace, "SF Mono", Menlo, monospace;
+		font-size: 11px;
+		letter-spacing: 0.14em;
+		color: var(--color-muted);
+	}
+	.wp-tag--after {
+		color: var(--color-brand);
+	}
+	.wp-note {
+		margin-top: 0.875rem;
+		font-size: 12px;
+		font-weight: 600;
+		color: #a8641d;
+	}
+
+	/* 專案頁 */
+	.wp-page {
+		padding: 1rem;
+	}
+	.wp-page-head {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+	}
+	.wp-badge {
+		display: inline-flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		border-radius: 11px;
+		background: var(--color-pink-50);
+		font-size: 19px;
+		line-height: 1;
+	}
+
+	/* 階段列：一條軌道，光點在上面跑 */
+	.wp-track {
+		position: relative;
+		margin-top: 1rem;
+		/* 每站中心點 = (i + 0.5) / n */
+		--half: calc(100% / var(--n) / 2);
+	}
+	.wp-rail {
+		position: absolute;
+		top: 6px;
+		left: var(--half);
+		right: var(--half);
+		height: 2px;
+		border-radius: 2px;
+		background: rgb(34 29 33 / 0.1);
+	}
+	.wp-rail-fill {
+		position: absolute;
+		inset: 0 auto 0 0;
+		width: 100%;
+		border-radius: 2px;
+		background: var(--color-brand);
+		transition: width 0.9s cubic-bezier(0.45, 0, 0.25, 1);
+	}
+	.wp-runner {
+		position: absolute;
+		top: 1px;
+		left: calc(var(--half) - 6px);
+		width: 12px;
+		height: 12px;
+		border-radius: 999px;
+		background: var(--color-brand);
+		box-shadow: 0 0 0 5px rgb(217 53 141 / 0.18), 0 0 14px rgb(217 53 141 / 0.6);
+		opacity: 0;
+		transition:
+			transform 0.9s cubic-bezier(0.45, 0, 0.25, 1),
+			opacity 0.3s ease;
+	}
+	.wp-stops {
+		position: relative;
+		display: grid;
+		grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+	}
+	.wp-stops > li {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 6px;
+	}
+	.wp-stop-dot {
+		width: 14px;
+		height: 14px;
+		border-radius: 999px;
+		border: 2px solid rgb(34 29 33 / 0.2);
+		background: #fff;
+		transition:
+			background 0.3s ease,
+			border-color 0.3s ease,
+			box-shadow 0.3s ease;
+	}
+	.wp-stop-label {
+		font-size: 11px;
+		font-weight: 600;
+		color: var(--color-muted);
+		white-space: nowrap;
+		transition: color 0.3s ease;
+	}
+	.wp-stops > li.is-done .wp-stop-dot,
+	.wp-stops > li.is-now .wp-stop-dot {
+		border-color: var(--color-brand);
+		background: var(--color-brand);
+	}
+	.wp-stops > li.is-now .wp-stop-dot {
+		box-shadow: 0 0 0 4px rgb(217 53 141 / 0.18);
+	}
+	.wp-stops > li.is-done .wp-stop-label,
+	.wp-stops > li.is-now .wp-stop-label {
+		color: var(--color-ink);
+	}
+
+	/* 這個階段要做的事 */
+	.wp-stage {
+		display: grid;
+		margin-top: 0.875rem;
+		padding: 0.75rem 0.875rem;
+		border-radius: 12px;
+		background: #faf7f3;
+	}
+	.wp-stage-panel {
+		grid-area: 1 / 1;
+		opacity: 0;
+		transform: translateY(6px);
+		transition:
+			opacity 0.35s ease,
+			transform 0.35s ease;
+		pointer-events: none;
+	}
+	.wp-stage-panel.is-on {
+		opacity: 1;
+		transform: none;
+	}
+	.wp-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		padding: 3px 9px;
+		border-radius: 999px;
+		background: #fff;
+		box-shadow: inset 0 0 0 1px rgb(34 29 33 / 0.1);
+		font-size: 12px;
+		color: rgb(34 29 33 / 0.8);
+	}
+	.wp-chip > span {
+		display: inline-flex;
+		color: var(--color-brand);
+	}
+	.wp-chip--pay {
+		background: var(--color-brand);
+		box-shadow: none;
+		color: #fff;
+		font-weight: 600;
+	}
+	.wp-chip--pay > span {
+		color: #fff;
+	}
+
+	/* 底部計數 */
+	.wp-counts {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 0.375rem;
+		margin-top: 0.75rem;
+	}
+	.wp-counts > li {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 0.375rem 0.125rem;
+		border-radius: 10px;
+		box-shadow: inset 0 0 0 1px rgb(34 29 33 / 0.08);
+		font-size: 11px;
+		color: var(--color-muted);
+		white-space: nowrap;
+	}
+	.wp-count {
+		font-size: 17px;
+		font-weight: 700;
+		line-height: 1.3;
+		color: var(--color-ink);
+		transition: color 0.3s ease;
+	}
+	.wp-count.is-bump {
+		color: var(--color-brand);
+	}
+
+	@container (min-width: 720px) {
+		.wp-layout {
+			grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+		}
+	}
+</style>
+
+<script>
+	// 光點一直重播：每張圖各自偵測，在畫面裡才播，跑完停在結案一下再從頭；離開畫面就暫停
+	const STEP = 1300; // 每站停留（毫秒）
+
+	document.querySelectorAll<HTMLElement>("[data-wp]").forEach((root) => {
+		if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+		const counts: number[][] = JSON.parse(root.querySelector("[data-wp-data]")!.textContent || "[]");
+		const stops = Array.from(root.querySelectorAll<HTMLElement>("[data-wp-stop]"));
+		const panels = Array.from(root.querySelectorAll<HTMLElement>("[data-wp-panel]"));
+		const nums = Array.from(root.querySelectorAll<HTMLElement>("[data-wp-count]"));
+		const fill = root.querySelector<HTMLElement>("[data-wp-fill]")!;
+		const runner = root.querySelector<HTMLElement>("[data-wp-runner]")!;
+		const n = stops.length;
+
+		const show = (i: number) => {
+			stops.forEach((s, k) => {
+				s.classList.toggle("is-done", k < i);
+				s.classList.toggle("is-now", k === i);
+			});
+			panels.forEach((p, k) => p.classList.toggle("is-on", k === i));
+			fill.style.width = `${(i / (n - 1)) * 100}%`;
+			// 光點位置：軌道寬（站與站的中心距）× i
+			const gap = stops[1].getBoundingClientRect().left - stops[0].getBoundingClientRect().left;
+			runner.style.transform = `translateX(${gap * i}px)`;
+			nums.forEach((el, k) => {
+				const v = counts[i]?.[k] ?? 0;
+				if (el.textContent !== String(v)) {
+					el.textContent = String(v);
+					el.classList.add("is-bump");
+					setTimeout(() => el.classList.remove("is-bump"), 700);
+				}
+			});
+		};
+
+		let timer = 0;
+		let running = false;
+		const play = () => {
+			clearTimeout(timer);
+			runner.style.transition = "none";
+			fill.style.transition = "none";
+			show(0);
+			runner.getBoundingClientRect(); // 讓起點位置先生效，再開動畫
+			runner.style.transition = "";
+			fill.style.transition = "";
+			runner.style.opacity = "1";
+			let i = 0;
+			const next = () => {
+				if (!running) return;
+				i += 1;
+				show(i);
+				if (i < n - 1) {
+					timer = window.setTimeout(next, STEP);
+				} else {
+					// 停在結案 2.5 秒，再從頭播
+					timer = window.setTimeout(() => {
+						runner.style.opacity = "0";
+						timer = window.setTimeout(() => running && play(), 500);
+					}, 2500);
+				}
+			};
+			timer = window.setTimeout(next, STEP);
+		};
+
+		const io = new IntersectionObserver(
+			(entries) => {
+				const visible = entries.some((e) => e.isIntersecting);
+				if (visible && !running) {
+					running = true;
+					play();
+				} else if (!visible && running) {
+					running = false;
+					clearTimeout(timer);
+				}
+			},
+			{ threshold: 0.4 },
+		);
+		io.observe(root);
+	});
+</script>
